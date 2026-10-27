@@ -1,5 +1,15 @@
 # MoonBase: 4 Days to Survive
 
+<p align="center">
+  <img
+    src="https://github.com/user-attachments/assets/c344654c-2de0-4e32-82a2-b20fac441267"
+    alt="The RUN 2.0 team at NASA Space Apps Challenge 2026"
+    width="500"
+  />
+  <br />
+  <em>Team MoonBase, NASA Space Apps Challenge 2026</em>
+</p>
+
 An English-language educational lunar survival game for young explorers ages 8–12. Across four mission-planning rounds, players balance Power, Water, Food, and Shelter readiness through choices inspired by real spaceflight research.
 
 This is an independent educational project created for the NASA Space Apps Challenge 2026 **Junior Astronaut Mission Trainer** challenge. It is not an official NASA product and is not endorsed or validated by NASA.
