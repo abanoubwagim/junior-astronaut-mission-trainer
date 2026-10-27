@@ -85,6 +85,10 @@ Use a consistent safe JSON error shape, for example:
 
 Use appropriate HTTP status codes consistently: `400` for malformed or invalid requests, `404` for unknown routes, and `500` for unexpected server failures. Do not expose stack traces or secrets to the frontend. Document any additional status codes the implementation needs.
 
+## Visual direction for children ages 8–12
+
+Create a polished, playful outer-space adventure, not a corporate dashboard. Use deep navy and indigo space backgrounds, cyan and sky-blue accents, violet, moon-surface silver, and small yellow/orange highlights. Use CSS variables for a consistent palette. Include friendly stars, planets, craters, a lunar base, rover and astronaut visuals, rounded panels, mission badges, large choice cards, readable typography, short English copy, and obvious buttons. Prefer local assets or CSS/SVG art over fragile remote images. Keep the style exciting and polished rather than babyish or cluttered. Ensure accessible contrast, visible focus, touch-friendly controls, reduced-motion support, and responsive layouts. Keep the same design system across all screens.
+
 ## Canonical game rules and design decisions
 
 1. The game has a clear start, four playable in-game days, and an ending/result screen.
@@ -115,9 +119,9 @@ Use appropriate HTTP status codes consistently: `400` for malformed or invalid r
 - No secrets, credentials, personal data collection, or unnecessary analytics.
 - Use semantic HTML, accessible labels, keyboard-friendly controls, visible focus states, readable contrast, and responsive layouts.
 - Use clear names and small, cohesive methods/modules. Avoid duplicated business rules.
-- Add/update automated tests for game rules, boundary conditions, API behavior, and regressions.
+- Do not create backend test files or add testing dependencies. Verify through build, application startup, health/API requests, and manual end-to-end scenarios. Do not claim a check passed unless it actually ran.
 - Do not claim a test/build passed unless it was actually run. If an environment limitation blocks a check, state it clearly.
-- Before finishing, run the available relevant tests/builds, inspect the diff, and fix issues introduced by the change.
+- Before finishing, build and run the available applications, verify the main journey and important API scenarios, inspect the diff, and fix issues introduced by the change.
 
 ## Solo workflow for Codex
 
