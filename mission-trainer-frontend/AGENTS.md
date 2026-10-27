@@ -30,13 +30,17 @@ Do **not** build Sign In, Register, account/profile, Continue Mission, saved rep
 - Do not assume the backend stores sessions or player identities. The backend must remain stateless between requests.
 - Do not create, store, or send Signed State Tokens, JWTs, HMAC tokens, or other gameplay state tokens.
 
-## UI/UX direction
+## UI/UX direction — playful space adventure for ages 8–12
 
-- Create a polished lunar-base atmosphere that feels adventurous, optimistic, and safe for children approximately ages 8–12.
-- Use a consistent space palette (deep-space navy, moon/steel neutrals, bright cyan or blue accents, and a restrained warm accent for warnings). Establish CSS variables rather than scattering color values.
-- Use a readable type scale, generous spacing, obvious primary actions, and clear visual hierarchy. Avoid excessive tiny text, cluttered dashboards, or dense technical paragraphs.
-- Resource meters must have text labels and accessible values; never communicate a critical state through color alone.
-- Use friendly icons/illustrations and subtle transitions where they improve comprehension. Prefer local assets or CSS illustrations; do not depend on broken remote image URLs.
+- The site should feel like an exciting, friendly space game for children, not a corporate dashboard or a plain worksheet.
+- Use a cohesive palette: deep navy/indigo backgrounds, cyan and sky-blue controls, violet accents, moon-surface silver, and small warm yellow/orange highlights. Define reusable CSS custom properties.
+- Add friendly visual storytelling: star fields, planets, lunar craters, a moon base, rover, astronaut illustration/mascot, mission badges, and rounded cards. Prefer lightweight local assets or original CSS/SVG art; avoid fragile remote image URLs.
+- Make the welcome screen memorable with an illustrated lunar scene, a clear title, short inviting copy, and a prominent Start Mission button.
+- Make gameplay feel like mission control: clear day indicator, large labelled resource meters, an event card, concise science facts, and large selectable choice cards with visible selected states.
+- Use large readable typography, short English sentences, generous spacing, touch-friendly controls, and encouraging feedback. Keep it playful but polished—not babyish, cluttered, frightening, or overly technical.
+- Use purposeful short animations only where they help feedback or storytelling. Respect `prefers-reduced-motion`.
+- Resource meters must show labels and values; never communicate status through color alone. Maintain contrast, semantic controls, keyboard navigation, visible focus, and responsive layouts.
+- Keep one design system across welcome, briefing, gameplay, feedback, and results. Do not use emoji as a substitute for thoughtful visuals or iconography.
 - Make the game responsive on desktop, tablet, and mobile. No horizontal overflow at common viewport sizes.
 - Support keyboard navigation, visible focus, semantic headings, accessible button names, appropriate contrast, and reduced-motion preferences.
 - Use concise, plain English. Explain scientific terms in context rather than assuming children know them.
@@ -89,12 +93,16 @@ Follow the exact contract documented in root `CONTRIBUTING.md` and the backend A
 - Disable decision controls during a request and restore them safely on recoverable failure.
 - Avoid duplicate submissions and accidental double advancement.
 
-## Verification before finishing
+## Run and verify the complete game
 
+Codex must implement and run the real connected application, not stop after writing files or describing a plan.
+
+- Inspect frontend and backend setup, implement the complete experience, and connect the frontend to the actual backend.
+- Start both applications using the repository's available instructions. Keep them running while verifying behavior whenever the environment permits.
 - Test the welcome-to-briefing-to-four-days-to-result flow, including any terminal failure path.
 - Test that every choice produces a visible server-derived consequence and that the next day uses the updated server-returned state.
 - Test starting a new mission resets every gameplay value and sends a fresh start request.
 - Refresh mid-mission and confirm the game starts from Day 1; confirm no browser storage is used for progress.
 - Test invalid/unavailable choices, API errors, retry behavior, and duplicate-click prevention.
 - Test mobile layout, keyboard interaction, and basic accessibility.
-- Run available checks and report the actual result. Fix broken controls, console errors, dead links, and layout issues before declaring completion.
+- Run available frontend build/check commands and practical browser/runtime and API checks where supported. Fix broken controls, console errors, dead links, and layout issues before declaring completion. Report the commands and checks actually run, and any blocked by the environment. Never claim browser testing or launch succeeded unless it did.
