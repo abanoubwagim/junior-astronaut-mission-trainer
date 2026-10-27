@@ -1,97 +1,67 @@
-# Junior Astronaut Mission Trainer
+# MoonBase: 4 Days to Survive
 
-An educational project developed for the **NASA Space Apps Challenge 2026**. The project aims to introduce students to space exploration through interactive missions and science-based learning experiences.
+An English-language educational lunar survival game for young explorers ages 8–12. Across four mission-planning rounds, players balance Power, Water, Food, and Shelter readiness through choices inspired by real spaceflight research.
 
-## Project Structure
+This is an independent educational project created for the NASA Space Apps Challenge 2026 **Junior Astronaut Mission Trainer** challenge. It is not an official NASA product and is not endorsed or validated by NASA.
 
-The repository is organized into separate folders to keep the frontend, backend, research, design, and presentation materials easy to manage.
+## Play the game locally
 
-```text
-junior-astronaut-mission-trainer/
-├── mission-trainer-frontend/
-│   ├── html/
-│   ├── css/
-│   ├── js/
-│   └── assets/
-│
-├── mission-trainer-backend/
-│   ├── src/
-│   └── pom.xml
-│
-├── docs/
-│   ├── research/
-│   ├── design/
-│   └── presentation/
-│
-└── README.md
-```
-
-### 1. `mission-trainer-frontend/` — User Interface
-
-Contains the code responsible for everything users see and interact with in the application.
-
-- **`html/`** — HTML files that define the structure of the web pages and application screens.
-- **`css/`** — CSS files that control the visual appearance, layout, colors, typography, and responsive design.
-- **`js/`** — JavaScript files that handle user interactions, game logic on the client side, and communication with the backend APIs.
-- **`assets/`** — Images, icons, illustrations, audio files, and other static resources used by the interface.
-
-**Responsible team:** Frontend developers.
-
-### 2. `mission-trainer-backend/` — Server-Side Application
-
-Contains the Java Spring Boot application responsible for server-side logic and data processing.
-
-- **`src/`** — Application source code, configuration files, and tests.
-- **`pom.xml`** — Maven configuration file that defines project dependencies, build settings, and other backend configuration.
-
-The backend may provide REST APIs for mission data, decision validation, scoring, and progress tracking, depending on the final project requirements.
-
-#### Run the backend
-
-The repository root is a Maven aggregator. In IntelliJ IDEA, open the root `pom.xml` as a Maven project and use Java 17. On Windows PowerShell, start the backend from the repository root with:
+Use Java 17. From the repository root, start the Spring Boot backend:
 
 ```powershell
-.\mission-trainer-backend\mvnw.cmd -f pom.xml -pl mission-trainer-backend spring-boot:run
+.\mission-trainer-backend\mvnw.cmd -f pom.xml -pl mission-trainer-backend -am spring-boot:run
 ```
 
-When it starts, check `http://localhost:8080/api/health`; it should return `{"status":"UP"}`.
+In a second terminal, serve the plain static frontend:
 
-**Responsible team:** Backend developers.
+```powershell
+python -m http.server 5500 --directory mission-trainer-frontend
+```
 
-### 3. `docs/` — Project Documentation
+Open [http://localhost:5500/html/](http://localhost:5500/html/). The frontend calls `http://localhost:8080/api/v1`; backend port defaults to `8080` and can be set with `PORT`. CORS permits only `http://localhost:5500` and `http://127.0.0.1:5500`. It needs no database, account, or secret configuration.
 
-Contains the supporting materials needed to develop, validate, and present the project.
+## Mission design
 
-- **`research/`** — Scientific research, verified facts, references, and source links used to develop the missions.
-- **`design/`** — UI/UX specifications, user flows, wireframes, design decisions, and links to design tools such as Figma.
-- **`presentation/`** — Presentation slides, demo scripts, project summaries, and other materials prepared for the final presentation.
+- Exactly four in-game days; each is a planning round, not one real Earth or lunar day.
+- The backend is the sole authority for rules, resource calculations, choice validation, delayed effects, day transitions, and outcomes.
+- The browser submits the complete ordered decision history. The server replays it from the initial state and returns the authoritative state and calculation breakdown.
+- No account, database, saved progress, browser storage, URL state, session, or gameplay token. Refresh returns to the welcome screen; starting again requests a fresh Day 1 state.
+- The resource scale, costs, rates, harvest timing, and outcome thresholds are simplified **game values**, not engineering measurements.
 
-**Responsible team:** Research, UI/UX, and presentation contributors.
+## Project layout
 
-### 4. `README.md` — Project Guide
+```text
+mission-trainer-frontend/    Static HTML, CSS, JavaScript, and local SVG art
+mission-trainer-backend/     Java 17 / Spring Boot stateless API and rules engine
+docs/                        Audit, game rules, science references, API, judges' briefing
+```
 
-This file provides an overview of the project, explains the repository structure, and helps team members understand where to find and contribute their work.
+## Documentation
 
-## Collaboration Guidelines
+- [Repository audit](docs/PROJECT_AUDIT.md)
+- [Canonical game rules and worked examples](docs/GAME_RULES.md)
+- [NASA science sources and simplifications](docs/SCIENCE_REFERENCES.md)
+- [API contract, architecture, and local run guide](docs/API_AND_ARCHITECTURE.md)
+- [OpenAPI JSON for Apidog import](docs/moonbase-api.apidog.json)
+- [Judges' technical and science briefing](docs/JUDGES_BRIEFING.md)
+- [Contribution and product rules](CONTRIBUTING.md)
 
-To keep the project organized:
+## AI assistance and competition notes
 
-1. Work only on the files related to your assigned task.
-2. Create a separate Git branch for each feature or significant change.
-3. Use clear commit messages that describe your changes.
-4. Open a Pull Request before merging changes into the `main` branch.
-5. Document scientific claims with reliable sources.
-6. Coordinate frontend and backend changes through agreed API contracts.
+OpenAI Codex assisted with implementation, test authoring, technical review, and documentation. The project team remains responsible for verifying and submitting the work. The [2026 participant terms](https://www.spaceappschallenge.org/legal/) require citing every source used and making original project content freely available or open source; this project is an independent entry and is not endorsed by NASA.
 
-## Development Status
+## Test and verify
 
-The project structure is a starting point. The technology stack, mission scope, API design, and implementation details will be finalized as the team defines the minimum viable product (MVP).
+Run the backend unit and HTTP integration suite from the repository root:
 
-## Team
+```powershell
+.\mission-trainer-backend\mvnw.cmd -f pom.xml -pl mission-trainer-backend -am test
+```
 
-A collaborative project combining frontend development, backend development, UI/UX design, scientific research, and presentation.
+Run the frontend interaction checks with Node.js 20 or newer:
 
-## Challenge
+```powershell
+node --test mission-trainer-frontend\tests\app.test.cjs
+```
 
-NASA Space Apps Challenge 2026
-
+Both suites use dependencies or runtimes already available; no testing framework or frontend dependency was added. Automated and live-browser verification results, along with any remaining limitations, are recorded in the [judges' briefing](docs/JUDGES_BRIEFING.md).

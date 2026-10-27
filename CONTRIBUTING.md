@@ -102,6 +102,81 @@ Create a polished, playful outer-space adventure, not a corporate dashboard. Use
 9. Document the initial resource values, daily consumption, choice effects, persistent cross-day effects, formulas/order of calculations, resource bounds, terminal conditions, and screen/navigation flow in one canonical game-rules document. Do not scatter conflicting versions of the rules across files.
 10. Make sure the full mission can be completed with sensible choices, and test both successful and failure paths if failure is part of the design.
 
+## Game Design Specification — Required Decisions
+
+Before or during implementation, establish a complete and internally consistent specification for the following six areas. Codex is responsible for making reasonable design decisions autonomously, implementing them, testing them, and documenting the final decisions. Do not stop to request approval for ordinary game-design details.
+
+### 1. Initial Resources and Consumption Rates
+
+- Define the initial value, minimum, maximum, and purpose of every gameplay resource.
+- Define how much each resource is consumed, generated, restored, or lost during each day and under each relevant event or decision.
+- Use a small resource set suitable for children aged approximately 8–12. Introduce a resource only if it contributes meaningfully to the survival mission.
+- Make resource units and displayed values consistent throughout the game.
+- Ensure initial resources and daily rates support a fair, completable four-day mission.
+- Clearly label abstract resource points and balancing values as game values, not real-world engineering measurements.
+
+### 2. Daily Scientific Situations and Player Choices
+
+- Define the scenario, learning objective, relevant scientific explanation, and available choices for each of the four days.
+- Each day must contain at least one meaningful decision with understandable trade-offs.
+- Choices must be plausible in the simplified context of a lunar base and appropriate for the target age group.
+- Explain the likely consequences in accessible English without revealing every consequence in a way that makes the decision meaningless.
+- Use reliable scientific sources for factual claims. Do not fabricate NASA facts or imply that NASA endorses the game.
+- Keep the four scenarios connected as parts of one mission, with an appropriate progression in challenge.
+
+### 3. Persistent Effects Across Later Days
+
+- Specify which choices affect only the current day and which create effects that continue into subsequent days.
+- Define any delayed consequences, event prerequisites, temporary bonuses, penalties, or changes to resource consumption.
+- Make continuing effects visible or explain them clearly enough that players can understand why later outcomes occur.
+- Prevent contradictory or duplicate effects when advancing between days.
+- Ensure later events depend only on conditions that can actually arise from previous game decisions.
+- Document the duration, activation conditions, and removal conditions of every continuing effect.
+
+### 4. Resource Calculation Formulas
+
+- Define one authoritative set of formulas for resource updates, including consumption, production, decision effects, event effects, and day transitions.
+- Specify the exact order in which decisions, scheduled consumption, production, events, resource bounds, and failure checks are applied.
+- Define how minimum and maximum resource limits are enforced and how rounding is handled.
+- Prevent resources from becoming negative or exceeding their permitted maximum unless a different behavior is explicitly designed and clearly explained.
+- Avoid applying the same resource change twice when the player selects a choice or advances a day.
+- Keep calculations deterministic and consistent between the displayed explanation, actual game state, and final results.
+- If both frontend and backend perform game calculations, establish one authoritative rules definition and prevent the implementations from drifting apart. Prefer a single calculation authority where practical.
+
+### 5. Victory, Failure, and Mission Results
+
+- Define explicit and testable conditions for mission success, failure, and any critical or recoverable states.
+- Determine when those conditions are checked and what happens if a player reaches a critical resource level.
+- Make failure understandable and fair. Explain what caused it and, where appropriate, what decision might have prevented it.
+- Ensure sensible strategies can complete the mission without requiring random guessing or hidden rules.
+- Define the outcome when Day 4 ends, including the final resource state, mission summary, learning takeaways, and success or failure message.
+- Do not add an infinite loop, an unintended softlock, or a way to bypass the four-day mission.
+- Do not add persistent scores, saved reports, leaderboards, or mission history.
+
+### 6. Screen Design and Navigation Flow
+
+- Define the complete screen list and the order in which screens appear, from the start screen through all four days to the final results screen.
+- Specify the purpose, main content, available actions, and navigation behavior of every screen.
+- Design all screens for children aged approximately 8–12, using clear English, readable typography, accessible contrast, intuitive controls, and responsive layouts.
+- Keep resource information and the consequences of decisions easy to understand during gameplay.
+- Define loading, feedback, confirmation where genuinely necessary, critical-resource, success, failure, and restart states.
+- Ensure every visible button, link, and control has a working behavior. Do not include decorative controls that appear interactive but do nothing.
+- Define the behavior of browser refresh and leaving the game consistently with the no-persistence rule: a fresh visit or reload starts a new mission at Day 1.
+- Keep the visual design cohesive across all screens. Prefer a polished, immersive lunar-base experience without sacrificing usability or scientific clarity.
+
+## Game Design Consistency Requirements
+
+The six areas above must be designed as one connected system, not as independent lists.
+
+- Resource values and formulas must support the effects assigned to daily choices.
+- Daily scenarios must use the same resource names, limits, and mechanics as the implementation.
+- Continuing effects must be reflected in later resource calculations and event eligibility.
+- Victory and failure conditions must use the actual calculated game state.
+- The final results screen must accurately summarize the mission that was played.
+- The screen flow must reflect the actual game states and must not promise unavailable functionality.
+- Any change to a resource, formula, choice, event, outcome, or screen must be checked against all affected areas.
+- Avoid contradictions between source code, UI text, tests, and project documentation.
+
 ## Science and research policy
 
 - Prefer official NASA sources, mission pages, technical explainers, and NASA educational resources.
@@ -119,7 +194,7 @@ Create a polished, playful outer-space adventure, not a corporate dashboard. Use
 - No secrets, credentials, personal data collection, or unnecessary analytics.
 - Use semantic HTML, accessible labels, keyboard-friendly controls, visible focus states, readable contrast, and responsive layouts.
 - Use clear names and small, cohesive methods/modules. Avoid duplicated business rules.
-- Do not create backend test files or add testing dependencies. Verify through build, application startup, health/API requests, and manual end-to-end scenarios. Do not claim a check passed unless it actually ran.
+- Add or update focused automated tests using the testing dependencies already present in the Maven project. Do not add a test framework or testing dependency without an explicit technical need. Also verify through builds, application startup, health/API requests, and practical end-to-end scenarios. Do not claim a check passed unless it actually ran.
 - Do not claim a test/build passed unless it was actually run. If an environment limitation blocks a check, state it clearly.
 - Before finishing, build and run the available applications, verify the main journey and important API scenarios, inspect the diff, and fix issues introduced by the change.
 
@@ -140,5 +215,6 @@ Create a polished, playful outer-space adventure, not a corporate dashboard. Use
 - Backend calculations are authoritative and stateless; mission state is reconstructed from validated ordered choices.
 - Frontend and backend follow the same documented API contract.
 - Scientific claims are sourced and game abstractions are labelled.
+- The six game-design areas are fully specified, implemented, and documented consistently.
 - Tests/build checks were run where possible and their actual outcomes reported.
 - Documentation reflects the implemented behavior.
