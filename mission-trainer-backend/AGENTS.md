@@ -106,14 +106,13 @@ Use appropriate status codes consistently: `400` for malformed or invalid reques
 - Clearly separate real scientific facts from simplified game-balancing values.
 - Do not claim a game mechanic is NASA-approved or a real engineering model unless the evidence directly supports that claim.
 
-## Testing and verification
+## Build, run, and verify — do not create backend test files
 
-- Add unit tests for the core rules and replay logic, including resource minimum/maximum boundaries, valid choice effects, invalid choices, missing/duplicate/out-of-order days, decisions after terminal states, and mission completion/failure behavior.
-- Add controller/API tests for successful requests and expected validation/error responses.
-- Test determinism: identical valid decision histories must produce identical logical states and outcomes.
-- Tests must not require external network access or a live database.
-- Run the Maven wrapper tests and package/build checks when possible. Do not claim success unless commands completed successfully.
-- Keep backend start instructions, API examples, and frontend integration documentation current.
+- **Do not create any backend test files.** Do not create or modify files under `src/test/`, and do not add testing libraries or test-related dependencies. Do not delete or rewrite existing test files.
+- Verify backend behavior using real build and runtime checks: use the existing Maven wrapper and available project commands, start the Spring Boot application, call the health endpoint, and send representative requests to mission endpoints.
+- Manually verify valid choices, invalid choice IDs, missing/duplicate/out-of-order days, decisions after a terminal result, resource boundaries, and deterministic results for identical decision histories. Use HTTP requests, curl, or an equivalent available tool; do not create test source files for these checks.
+- Run the Maven package/build command and report precisely whether compilation, packaging, application startup, health checks, and API scenarios succeeded. If an existing build requires a test-skipping option to package without running test sources, use the appropriate Maven option and disclose it.
+- Never claim a check passed unless it actually ran. Keep backend start instructions, API examples, and frontend integration documentation current.
 
 ## Completion checklist
 
@@ -121,6 +120,6 @@ Use appropriate status codes consistently: `400` for malformed or invalid reques
 - The backend is stateless between requests.
 - The backend alone calculates resources and mission outcomes by replaying validated ordered decisions.
 - API contracts are documented and match frontend usage.
-- Domain rules are centralized, validated, deterministic, and tested.
+- Domain rules are centralized, validated, and deterministic; runtime/manual API verification results are reported. No new backend test files were created.
 - Science references are recorded and game-only assumptions are labelled.
 - Build and test results are reported accurately.
