@@ -1,0 +1,77 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 520" role="img" aria-labelledby="title desc">
+  <title id="title">MoonBase crew on the lunar surface</title>
+  <desc id="desc">A friendly lunar habitat and solar array overlook a small rover and astronaut under a starry sky.</desc>
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop stop-color="#1b2857"/><stop offset="1" stop-color="#101733"/>
+    </linearGradient>
+    <linearGradient id="hull" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#e5ecf7"/><stop offset=".52" stop-color="#aebbd5"/><stop offset="1" stop-color="#8394b9"/>
+    </linearGradient>
+    <linearGradient id="glass" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#97f5ee" stop-opacity=".9"/><stop offset="1" stop-color="#729dff" stop-opacity=".8"/>
+    </linearGradient>
+    <linearGradient id="ground" x1="0" y1="0" x2="0" y2="1">
+      <stop stop-color="#c1c9dc"/><stop offset="1" stop-color="#7f8eae"/>
+    </linearGradient>
+    <filter id="glow" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="11"/>
+    </filter>
+  </defs>
+
+  <ellipse cx="377" cy="430" rx="285" ry="55" fill="#71d9ea" opacity=".14" filter="url(#glow)"/>
+  <path d="M92 103c0-36 29-65 65-65h108c36 0 65 29 65 65v232H92z" fill="url(#sky)" stroke="#6375b6" stroke-opacity=".2"/>
+  <circle cx="184" cy="95" r="35" fill="#ecf0fa" opacity=".8"/>
+  <circle cx="200" cy="83" r="34" fill="#1b2857"/>
+  <g fill="#f5f6ff">
+    <circle cx="122" cy="78" r="2"/><circle cx="286" cy="79" r="2"/><circle cx="237" cy="125" r="1.8"/>
+    <circle cx="111" cy="159" r="1.5"/><circle cx="273" cy="179" r="1.6"/><circle cx="155" cy="197" r="1.4"/>
+    <circle cx="321" cy="112" r="1.8"/><circle cx="235" cy="58" r="1.4"/><circle cx="130" cy="231" r="1.5"/>
+  </g>
+  <path d="M63 325c77-35 147-28 212 1 76-38 150-30 215 6 71-41 139-29 204 1v119H63z" fill="#37436b" opacity=".82"/>
+  <path d="M0 378c91-50 171-54 250-18 88-37 190-40 279 4 84-33 152-30 231 5v151H0z" fill="url(#ground)"/>
+  <path d="M0 440c100-39 186-33 269-4 115-26 217-23 323 8 62-17 119-17 168-1v77H0z" fill="#7483a4" opacity=".65"/>
+  <g fill="#7b89a8" opacity=".65">
+    <ellipse cx="102" cy="418" rx="35" ry="9"/><ellipse cx="314" cy="465" rx="49" ry="12"/><ellipse cx="617" cy="416" rx="30" ry="8"/>
+  </g>
+  <g transform="translate(425 190)">
+    <ellipse cx="131" cy="200" rx="142" ry="21" fill="#303b61" opacity=".38"/>
+    <path d="M17 101a111 111 0 0 1 222 0v84H17z" fill="url(#hull)" stroke="#f4f6fc" stroke-width="3"/>
+    <path d="M47 100a81 81 0 0 1 162 0v37H47z" fill="url(#glass)" stroke="#f3f7ff" stroke-opacity=".82" stroke-width="3"/>
+    <path d="M128 21v118M48 103h160" stroke="#f0f5ff" stroke-opacity=".65" stroke-width="3"/>
+    <rect x="80" y="139" width="99" height="46" rx="10" fill="#bfc9db" stroke="#f3f6fc" stroke-width="2"/>
+    <rect x="111" y="150" width="38" height="20" rx="6" fill="#1d2c55"/>
+    <circle cx="130" cy="160" r="4" fill="#61e6e8"/>
+    <rect x="12" y="128" width="18" height="11" rx="3" fill="#ffd36b"/>
+    <path d="M0 145h37M220 145h39" stroke="#91a0c0" stroke-width="7" stroke-linecap="round"/>
+  </g>
+  <g transform="translate(179 310)">
+    <path d="M18 20 135 0l28 76-117 22z" fill="#263967" stroke="#96dfea" stroke-width="3"/>
+    <path d="m36 24 90-15m-83 33 96-16m-86 35 98-16m-89 34 95-16M63 14l22 72m19-77 22 71" stroke="#54d9e7" stroke-opacity=".85" stroke-width="2"/>
+    <path d="M133 76v86m0-5-26 19m26-18 22 16" stroke="#d5deed" stroke-width="6" stroke-linecap="round"/>
+  </g>
+  <g transform="translate(319 371)">
+    <ellipse cx="50" cy="48" rx="67" ry="13" fill="#293555" opacity=".38"/>
+    <rect x="3" y="4" width="89" height="38" rx="12" fill="#f0c765" stroke="#fff0bc" stroke-width="3"/>
+    <path d="M19 5 33-16h31L78 5" fill="#a8eaf0" stroke="#fff0bc" stroke-width="3"/>
+    <circle cx="24" cy="44" r="13" fill="#23304f" stroke="#dbe4f2" stroke-width="4"/>
+    <circle cx="77" cy="44" r="13" fill="#23304f" stroke="#dbe4f2" stroke-width="4"/>
+    <circle cx="47" cy="21" r="4" fill="#172340"/>
+    <path d="M1 16h-15m110 1h18" stroke="#f4e4aa" stroke-width="4" stroke-linecap="round"/>
+  </g>
+  <g transform="translate(596 325)">
+    <ellipse cx="32" cy="79" rx="29" ry="8" fill="#4d5b7b" opacity=".45"/>
+    <path d="M24 38 11 63m26-25 12 25" stroke="#e8edf7" stroke-width="7" stroke-linecap="round"/>
+    <rect x="12" y="34" width="40" height="32" rx="12" fill="#e8edf7"/>
+    <path d="M21 32c0-14 8-23 19-23s19 9 19 23v5H21z" fill="#f2f5fb" stroke="#fff" stroke-width="2"/>
+    <path d="M25 24c0-9 5-14 14-14s14 5 14 14v5H25z" fill="#65d9e6" stroke="#c6fbfa" stroke-width="2"/>
+    <path d="m19 46-14 9m49-9 13 8" stroke="#e8edf7" stroke-width="7" stroke-linecap="round"/>
+    <rect x="25" y="44" width="13" height="9" rx="3" fill="#a98bff"/>
+  </g>
+  <g fill="#ffd36b">
+    <path d="m387 117 4 10 10 4-10 4-4 10-4-10-10-4 10-4z"/>
+    <circle cx="670" cy="183" r="3"/><circle cx="374" cy="228" r="2.3"/>
+    <circle cx="552" cy="116" r="2.4"/><circle cx="342" cy="280" r="2"/>
+  </g>
+  <path d="M337 374c30-33 61-47 93-46" fill="none" stroke="#8be8ef" stroke-width="2" stroke-dasharray="5 9" opacity=".62"/>
+</svg>

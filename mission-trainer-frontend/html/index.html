@@ -1,10 +1,32 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Title</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#10152f">
+  <meta name="description" content="A four-day lunar base survival game for curious young explorers.">
+  <title>MoonBase: 4 Days to Survive</title>
+  <link rel="icon" href="../assets/moonbase-mark.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../css/style.css">
+  <script defer src="../js/app.js?v=20261031-v1"></script>
 </head>
 <body>
+  <div class="site-shell">
+    <header class="topbar">
+      <div class="brand-lockup" aria-label="MoonBase mission trainer">
+        <span class="brand-mark" aria-hidden="true"><span></span></span>
+        <span class="brand-name">MOON<span>BASE</span></span>
+      </div>
+      <div class="mission-chip"><span class="chip-star" aria-hidden="true">✦</span> 4-DAY SURVIVAL MISSION</div>
+    </header>
 
+    <main id="app" class="app-shell" tabindex="-1"></main>
+    <div id="announcer" class="visually-hidden" role="status" aria-live="polite" aria-atomic="true"></div>
+
+    <footer class="page-footer">
+      <span>An educational project for the NASA Space Apps Challenge</span>
+      <span>Made for curious explorers ages 8–12</span>
+    </footer>
+  </div>
 </body>
 </html>
