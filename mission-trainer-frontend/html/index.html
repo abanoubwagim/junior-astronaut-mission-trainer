@@ -1,93 +1,186 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MoonBase - Four Days to Survive</title>
-    <link rel="stylesheet" href="style.css">
+    <title>Moonbase - Mission Briefing</title>
 </head>
-<body>
 
-    <div class="container">
+<body class="mission-briefing-page">
 
-        <header class="header">
-            <a href="#" class="logo">
-                <span class="logo-icon">
-                    <span class="logo-orbit"></span>
-                </span>
-                <span>MOONBASE</span>
-            </a>
+    <!-- HEADER -->
+    <header id="main-header" class="main-header">
 
-            <div class="mission-badge">
-                <span>✦</span> 4-DAY SURVIVAL MISSION
-            </div>
-        </header>
+        <div class="logo-container">
+            <span class="logo-icon">🌙</span>
+            <strong class="logo-name">MOONBASE 🚀</strong>
+        </div>
 
-        <main class="hero">
+        <div class="mission-badge">
+            <span>✨</span>
+            <span>4-DAY SURVIVAL MISSION</span>
+        </div>
 
-            <section class="hero-content">
-                <div class="eyebrow">
-                    <span class="line"></span>
-                    A MISSION FOR YOUNG EXPLORERS
-                </div>
+    </header>
 
-                <h1>
-                    Your MoonBase.<br>
-                    <span>Four days to<br>survive.</span>
-                </h1>
 
-                <p class="description">
-                    The crew needs your help. Make smart choices,
-                    protect the base, and learn how real space teams
-                    plan for life beyond Earth.
-                </p>
+    <!-- MAIN CONTENT -->
+    <main id="main-content" class="main-content">
 
-                <p class="small-note">
-                    Four mission days • science-inspired choices • no saved progress
-                </p>
 
-                <button class="start-button" id="startButton">
-                    Start mission <span>→</span>
-                </button>
-            </section>
+        <!-- INTRODUCTION -->
+        <section id="mission-intro" class="mission-intro">
 
-            <section class="hero-visual">
-                <img
-                    src="https://cdn.dribbble.com/userupload/45140460/file/7b81033acbd456b7e8a665aa85f3294e.jpg?resize=752x&vertical=center"
-                    alt="MoonBase space illustration"
-                    class="moonbase-image"
-                >
-            </section>
+            <p class="section-label">🚀 BEFORE LAUNCH</p>
 
-        </main>
+            <h1 class="main-title">Mission briefing 🌌</h1>
 
-        <section class="features">
-
-            <button class="feature-card">
-                <span class="feature-number">01</span>
-                <span>Keep four base supplies in balance</span>
-            </button>
-
-            <button class="feature-card">
-                <span class="feature-number">02</span>
-                <span>Choices can help now or later</span>
-            </button>
-
-            <button class="feature-card">
-                <span class="feature-number">03</span>
-                <span>Every mission begins fresh</span>
-            </button>
+            <p class="intro-description">
+                Guide the crew through your mission days.
+                Each round uses game-value supplies, and your
+                earlier repairs can change what happens next.
+            </p>
 
         </section>
 
-        <!-- Footer -->
-        <footer class="footer">
-            <p>An educational project for the NASA Space Apps Challenge</p>
-            <p>Made for curious explorers ages 8-12</p>
-        </footer>
 
-    </div>
+        <!-- INFORMATION CARDS -->
+        <section id="mission-information" class="mission-information">
 
-    <script src="script.js"></script>
+
+            <!-- OBJECTIVE CARD -->
+            <article id="objective-card" class="info-card objective-card">
+
+                <h2 class="card-title">🎯 Your objective</h2>
+
+                <p class="card-description">
+                    Keep Power, Water, and Food above zero,
+                    then finish Day 4 with a ready shelter.
+                    Daily needs are used before each decision.
+                    Choose a plan that helps today and leaves
+                    the crew ready for tomorrow.
+                </p>
+
+            </article>
+
+
+            <!-- HOW TO PLAY CARD -->
+            <article id="how-to-play-card" class="info-card how-to-play-card">
+
+                <h2 class="card-title">🎮 How to play</h2>
+
+                <p class="card-description">
+                    Read the situation and science note.
+                    Select one choice, review its trade-off,
+                    and confirm it. Mission Control calculates
+                    every supply change.
+                </p>
+
+
+                <!-- RESOURCE CARDS -->
+                <div id="resource-list" class="resource-list">
+
+
+                    <article class="resource-card power-card">
+
+                        <h3 class="resource-title">⚡ Power · 12 / 12</h3>
+
+                        <p class="resource-description">
+                            Runs the habitat, rover, water recycler,
+                            and grow lights.
+                        </p>
+
+                    </article>
+
+
+                    <article class="resource-card water-card">
+
+                        <h3 class="resource-title">💧 Water · 12 / 12</h3>
+
+                        <p class="resource-description">
+                            Keeps the crew supplied; recycling
+                            can stretch the reserve.
+                        </p>
+
+                    </article>
+
+
+                    <article class="resource-card food-card">
+
+                        <h3 class="resource-title">🍎 Food · 10 / 12</h3>
+
+                        <p class="resource-description">
+                            The crew uses food each mission day;
+                            a delayed grow-light harvest can help.
+                        </p>
+
+                    </article>
+
+
+                    <article class="resource-card shelter-card">
+
+                        <h3 class="resource-title">🏠 Shelter readiness · 8 / 12</h3>
+
+                        <p class="resource-description">
+                            An abstract readiness meter for the
+                            storm shelter, not a radiation dose.
+                        </p>
+
+                    </article>
+
+                </div>
+
+            </article>
+
+        </section>
+
+
+        <!-- START MISSION -->
+        <section id="start-mission-section" class="start-mission-section">
+
+            <p class="educational-note">
+                🌟 This is an educational game, not a real
+                engineering simulator or an official NASA product.
+                Refreshing the page starts you at the beginning.
+            </p>
+
+            <!-- NAVIGATION BUTTON -->
+            <a
+                id="begin-day-1-btn"
+                class="primary-button begin-button"
+                href="day1.html"
+            >
+                🚀 Begin Day 1 →
+            </a>
+
+        </section>
+
+
+    </main>
+
+
+    <!-- FOOTER -->
+    <footer id="main-footer" class="main-footer">
+
+        <p class="footer-description">
+            🌎 An educational project for the NASA Space Apps Challenge
+        </p>
+
+        <p class="footer-audience">
+            👩‍🚀 Made for curious explorers ages 8–12
+        </p>
+
+        <a
+            class="external-link"
+            href="https://www.nasa.gov/"
+            target="_blank"
+            rel="noopener noreferrer"
+        >
+            🔗 Explore NASA
+        </a>
+
+    </footer>
+
 </body>
 </html>
