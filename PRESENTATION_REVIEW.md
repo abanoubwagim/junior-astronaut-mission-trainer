@@ -2,9 +2,9 @@
 
 ## 1. Summary of changes
 
-Created a new, editable 15-slide, 16:9 PowerPoint at [`MoonBase_Final_Presentation.pptx`](./MoonBase_Final_Presentation.pptx). The original `MoonBase_presentation.pptx` was left unchanged.
+Created a new, editable 15-slide, 16:9 Phase 1 PowerPoint at [`presentation-output/MoonBase_Final_Presentation_Phase1.pptx`](./presentation-output/MoonBase_Final_Presentation_Phase1.pptx). After validation, it replaced the root-level `MoonBase_Final_Presentation.pptx`; the prior root deck is preserved as `MoonBase_Final_Presentation.pre-phase1-backup.pptx`. The original `MoonBase_presentation.pptx` remains unchanged.
 
-The presentation replaces the old template-heavy deck with a consistent dark navy, gold, cyan, and purple identity; readable Arial typography; concise slide hierarchy; editable diagrams and resource bars; source links and speaker-note citations; and authentic screenshots of the running game. It preserves the verified project title, challenge context, and team names. It removes unsupported legacy mechanics such as oxygen leaks, atmospheric dust storms, fatigue systems, and power-grid failures.
+The presentation replaces the old template-heavy deck with a consistent dark navy, gold, cyan, and purple identity; readable Arial typography; concise slide hierarchy; editable diagrams and resource bars; source links and speaker-note citations; and verified current rule values. Phase 1 removes a stale result screenshot and replaces it with a rules-calculated success panel because the retained battery-path screenshot does not match the current backend. It preserves the verified project title, challenge context, and team names and removes unsupported legacy mechanics such as oxygen leaks, atmospheric dust storms, fatigue systems, and power-grid failures.
 
 Individual responsibilities are not assigned in the available project record. The deck lists the six named team members without inventing individual roles and describes only shared project artifacts verified in the repository.
 
@@ -22,11 +22,11 @@ Individual responsibilities are not assigned in the available project record. Th
 | 8 | NASA science themes paired with explicit model boundaries, including the manual-brushing caveat and no Earth-style lunar weather. |
 | 9 | Authentic Day 2 decision screen with “Service the recycler” selected and the state before the choice. |
 | 10 | Authentic Day 2 decision report and the server-calculated resource changes and delayed Water effect. |
-| 11 | Authentic successful mission result and the exact four choices and final values from the captured run. |
+| 11 | Rules-calculated canonical successful mission path and exact final game values; no stale result screenshot. |
 | 12 | Intended learning objectives, explicitly labeled as goals rather than measured outcomes. |
 | 13 | Verified frontend/backend architecture and test evidence reported in project docs; limitations and local-only demo status. |
 | 14 | Six traceable official NASA references, with clickable titles and URLs also in speaker notes. |
-| 15 | Closing statement, real successful-result screenshot, and “Local demo only · no public URL documented.” |
+| 15 | Closing statement, rules-calculated current success route, and “Local demo only · no public URL documented.” |
 
 ## 3. Actual game mechanics and resource rules represented
 
@@ -59,12 +59,12 @@ Daily use is Power −2, Water −2, Food −2, and normally Shelter readiness �
 |---|---|
 | **Day 1 — Dust on the solar array** | **Clean the array:** −1 Power now, +1 Power on Days 2–4. **Connect a spare battery:** +1 Power now, no later effect. **Prepare the storm shelter:** −1 Power, +2 Shelter readiness now, and no normal Shelter-readiness wear on Days 2–4. The cleaning option is a fictional game choice, not a NASA maintenance recommendation. |
 | **Day 2 — The water loop needs care** | **Service the recycler:** −1 Power and +1 Water now; +1 Water on Days 3–4. **Open a backup water pack:** −3 Power, +5 Water now, capped at 12, with no later reduction in Water use. |
-| **Day 3 — Fresh food for the crew** | **Start the LED grow tray:** −2 Power and −1 Water now; +3 Food on Day 4. **Open the meal crate:** +3 Food now, with no later harvest. |
-| **Day 4 — A solar storm warning** | The solar-particle alert applies −2 Shelter readiness. **Power the full shelter setup:** −1 Power, +4 Shelter readiness. **Use the low-power shelter:** no Power cost, +2 Shelter readiness; earlier preparation is needed to reach the final threshold. |
+| **Day 3 — Fresh food for the crew** | **Start the LED grow tray:** −2 Power and −1 Water now; +4 Food on Day 4. **Open the meal crate:** +3 Food now, with no later harvest. |
+| **Day 4 — A solar storm warning** | The solar-particle alert applies −2 Shelter readiness. **Power the full shelter setup:** −1 Power when prepared, or −2 Power when unprepared, plus +4 Shelter readiness. **Use the low-power shelter:** no Power cost, +2 Shelter readiness; earlier preparation is required. |
 
 ### Demonstrated screenshot route
 
-The screenshots and slides 9–11 follow the actual local-browser route `connect_spare_battery → service_water_recycler → start_grow_light_tray → full_storm_shelter`:
+Slides 9–10 show a valid partial route beginning with `connect_spare_battery` and servicing the recycler. The current rules-calculated success route represented by the presentation is `clean_solar_array → service_water_recycler → start_grow_light_tray → full_storm_shelter`:
 
 | Checkpoint | Power | Water | Food | Shelter readiness |
 |---|---:|---:|---:|---:|
@@ -72,9 +72,9 @@ The screenshots and slides 9–11 follow the actual local-browser route `connect
 | After Day 1 — spare battery | 11 | 10 | 8 | 7 |
 | After Day 2 — recycler service | 8 | 9 | 6 | 6 |
 | After Day 3 — grow tray | 4 | 7 | 4 | 5 |
-| After Day 4 — full shelter | 1 | 6 | 5 | 6 |
+| After Day 4 — full shelter | 1 | 6 | 6 | 6 |
 
-The running game declared this route successful. It differs from the separate worked example in `docs/GAME_RULES.md`, which begins with array cleaning and finishes at `(2, 6, 5, 6)`; both are valid successful routes under the implemented rules.
+The backend declares this route successful. It is the same canonical worked example in `docs/GAME_RULES.md` and finishes at `(1, 6, 6, 6)`. The previously retained battery → recycler → grow → full screenshot is not a current successful route: the unprepared full shelter costs 2 Power, so that path reaches Power 0 on Day 4 and fails.
 
 ## 4. Scientific claims, official sources, and deck locations
 
@@ -94,7 +94,7 @@ NASA pages were checked on 27 October 2026. The deck cites sources in speaker no
 - The displayed equation is the implemented backend update sequence. Each resource is independently clamped as an integer to 0–12.
 - All starting quantities, daily costs, choice costs, choice rewards, delayed effects, and success thresholds are game-only balancing values.
 - One game day means one planning round. It is not one Earth day or one lunar day.
-- The Day 3 grow tray’s +3 Food arrives in the next round. This is compressed game time, not a real crop-growth forecast.
+- The Day 3 grow tray’s +4 Food arrives in the next round. This is compressed game time, not a real crop-growth forecast.
 - “Service the recycler” and the resource-return values represent a fictional game system. NASA’s ISS recovery result is a thematic example only.
 - The Day 1 “clean the array” choice is not a real maintenance recommendation; NASA’s cited report warns manual brushing can cause damage and is not recommended.
 - The Day 4 “solar storm” event is expressed in the game text as a solar-particle alert. No Earth-like atmospheric storm or lunar dust storm is simulated.
@@ -110,7 +110,7 @@ All application screenshots below were captured from the actual local website at
 | `presentation-build/screenshots/opening-crop.png` | Welcome/opening screen, including the game’s own MoonBase art and launch prompt. | Slide 1 |
 | `presentation-build/screenshots/day2-recycler-decision-selected.png` | Day 2 “The water loop needs care” screen with “Service the recycler” selected; authentic science signal and alternative are visible. | Slide 9 |
 | `presentation-build/screenshots/day2-recycler-feedback-crop.png` | Day 2 decision report with selected choice, all four resource changes, and Days 3–4 delayed Water effect. | Slide 10 |
-| `presentation-build/screenshots/mission-result-battery-path-crop.png` | Successful mission screen from the battery → recycler → grow tray → full shelter route, including final resource meters. | Slides 11 and 15 |
+| `presentation-build/screenshots/mission-result-battery-path-crop.png` | Legacy screenshot from an earlier rule version. It is retained for provenance but is not used by the Phase 1 presentation because its route and totals do not match the current backend. | Not used |
 
 Slide 4 also uses `mission-trainer-frontend/assets/moonbase-scene.svg`, an existing project illustration. It is not a fabricated application screenshot.
 
@@ -126,15 +126,15 @@ Slide 4 also uses `mission-trainer-frontend/assets/moonbase-scene.svg`, an exist
 
 ## 8. Validation performed
 
-- **File and separation:** `MoonBase_Final_Presentation.pptx` exists at the project root as a new file. The original PowerPoint was not edited.
-- **Copy integrity and references:** The root deliverable’s SHA-256 matches the validated staged PPTX. The package contains 15 speaker-note parts and six external source links on slide 14; the note text contains all six NASA source URLs.
+- **File and separation:** `presentation-output/MoonBase_Final_Presentation_Phase1.pptx` is the regenerated Phase 1 source. The root-level `MoonBase_Final_Presentation.pptx` now matches it byte-for-byte. The prior root deck is preserved as `MoonBase_Final_Presentation.pre-phase1-backup.pptx`; the original `MoonBase_presentation.pptx` was not edited.
+- **Copy integrity and references:** The Phase 1 artifact SHA-256 is `7cec10e2fd54861c45ca7a0c7c2b36cc85bf54d17b54414d75cd911161996416`. The package contains 15 speaker-note parts and six external source links on slide 14; the note text contains all six NASA source URLs.
 - **PowerPoint package:** The presentation finalizer reported package integrity **pass**, 15 slides, and zero findings.
 - **Layout and fonts:** The geometry validator reported **pass**, zero findings and warnings, a 16:9 slide size (13.3333 × 7.5 inches), and Arial as the only observed font family.
 - **Reopen/import:** The finalizer reopened the exact staged PPTX through the Artifact Tool importer successfully and reported 15 slides.
-- **Rendered inspection:** All 15 slides were rendered to PNGs at presentation size, assembled into a montage for sequence review, and reviewed individually at full size. No blank slides, missing images, clipped text, overflow, or unresolved placeholders were observed. Authentic screenshots rendered correctly.
-- **Game verification:** Local `/api/v1/health` returned `{"status":"UP"}`. The live browser completed the documented screenshot route and showed the success result with final supplies `(1, 6, 5, 6)`.
+- **Rendered inspection:** All 15 Phase 1 slides were rendered to PNGs at presentation size under `presentation-build/final-render-phase1/`, and the replaced root deck was rendered again under `presentation-build/final-render-postphase1/`. Both montages were visually reviewed. No blank slides, missing images, clipped text, overflow, or unresolved placeholders were observed. The current outcome slides use calculated panels instead of the stale result screenshot.
+- **Game verification:** Earlier local browser evidence verified the canonical clean-array route and final supplies `(1, 6, 6, 6)`. Phase 1 did not treat the stale battery-path screenshot as current gameplay evidence.
 - **Science references:** Each listed source URL was opened or verified against its official NASA/NASA NTRS page; claims were checked against the cited pages and report. The game/source boundaries are stated in the deck.
 - **Native PowerPoint application:** The file was parsed, imported, and rendered with the presentation tool. It was not opened in Microsoft PowerPoint during this task, so native PowerPoint rendering remains unverified.
-- **Automated test suites:** Existing results in `docs/JUDGES_BRIEFING.md` say backend 9 passed and frontend 3 passed. They were not rerun for this deck and are reported as documented results, not as tests performed here.
+- **Automated test suites:** The source contains 10 backend test methods and 5 frontend tests. Phase 1 reran the frontend suite: 5 passed. The backend Maven suite was not rerun because the local Maven environment could not create its configured repository and its global settings file was malformed; the old surefire report is not counted as a new run.
 
-Build and render artifacts are retained under `presentation-build/`; the requested deliverables are the root-level PowerPoint and this report.
+Build and render artifacts are retained under `presentation-build/`; the validated Phase 1 source remains under `presentation-output/`, and the root-level presentation is now the promoted submission artifact. The pre-Phase 1 root deck remains recoverable at `MoonBase_Final_Presentation.pre-phase1-backup.pptx`.

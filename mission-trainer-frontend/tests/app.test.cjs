@@ -86,7 +86,7 @@ function startResponse() {
   };
 }
 
-function decisionResponse(history, terminalStatus = "ACTIVE") {
+function decisionResponse(history, terminalStatus = "ACTIVE", feedbackOverrides = {}) {
   const resolvedDay = history.length;
   const ended = terminalStatus !== "ACTIVE";
   const resources = states[resolvedDay];
@@ -108,6 +108,16 @@ function decisionResponse(history, terminalStatus = "ACTIVE") {
     takeaways: ["Server-provided learning takeaway."],
     decisions: history.map((decision, index) => ({ day: index + 1, title: decision.choiceId, lesson: "Server-provided lesson." }))
   } : null;
+  const latestDecision = {
+    day: resolvedDay,
+    choiceId: selected.id,
+    choiceTitle: selected.title,
+    headline: `Day ${resolvedDay} decision report`,
+    explanation: feedbackOverrides.explanation || `Backend explanation for ${selected.id}.`,
+    whyItMatters: "Backend reason.",
+    futureEffect: feedbackOverrides.futureEffect || "Backend future effect.",
+    resourceBreakdown: { ...breakdown, ...(feedbackOverrides.resourceBreakdown || {}) }
+  };
   return {
     status: terminalStatus,
     day: ended ? resolvedDay : resolvedDay + 1,
@@ -118,16 +128,7 @@ function decisionResponse(history, terminalStatus = "ACTIVE") {
     activeEffects: ended ? [] : [],
     decisionHistory: history,
     systems: systemsFor(history),
-    latestDecision: {
-      day: resolvedDay,
-      choiceId: selected.id,
-      choiceTitle: selected.title,
-      headline: `Day ${resolvedDay} decision report`,
-      explanation: `Backend explanation for ${selected.id}.`,
-      whyItMatters: "Backend reason.",
-      futureEffect: "Backend future effect.",
-      resourceBreakdown: breakdown
-    },
+    latestDecision,
     result
   };
 }
@@ -293,6 +294,54 @@ test("the connected flow uses backend state and can restart after a four-day res
   assert.deepEqual(JSON.parse(calls.filter((call) => call.url.endsWith("/missions/decisions"))[4].options.body), {
     decisions: [{ day: 1, choiceId: "clean_solar_array" }]
   }, "starting over clears the completed mission's in-memory history");
+});
+
+test("the feedback displays the backend-reported normal and reduced grow harvests", async () => {
+  async function runPath(path, harvest) {
+    const harness = createHarness(async (url, options) => {
+      if (url.endsWith("/missions/start")) return ok(startResponse());
+      const history = JSON.parse(options.body).decisions;
+      const terminal = history.length === 4;
+      return ok(decisionResponse(history, terminal ? "SUCCEEDED" : "ACTIVE", terminal ? {
+        explanation: harvest.explanation,
+        futureEffect: harvest.explanation,
+        resourceBreakdown: {
+          food: {
+            before: 4,
+            daily: -2,
+            delayed: harvest.delayed,
+            event: 0,
+            choice: 0,
+            after: harvest.after,
+            change: harvest.after - 4
+          }
+        }
+      } : {}));
+    });
+
+    await enterDayOne(harness);
+    for (let index = 0; index < path.length; index += 1) {
+      const choiceId = path[index];
+      await harness.root.querySelector(`[data-choice-id="${choiceId}"]`).listeners.click();
+      await findButton(harness.root, "Confirm decision").listeners.click();
+      if (index < path.length - 1) {
+        await findButton(harness.root, `Continue to Day ${index + 2}`).listeners.click();
+      }
+    }
+    return harness;
+  }
+
+  const normal = await runPath([
+    "clean_solar_array", "service_water_recycler", "start_grow_light_tray", "full_storm_shelter"
+  ], { delayed: 4, after: 6, explanation: "The grow tray produced its normal harvest: +4 Food game units." });
+  assert.match(normal.root.textContent, /delayed \+4/);
+  assert.doesNotMatch(normal.root.textContent, /smaller harvest/);
+
+  const reduced = await runPath([
+    "prepare_storm_shelter", "inspect_co2_removal_loop", "start_grow_light_tray", "passive_storm_shelter"
+  ], { delayed: 2, after: 4, explanation: "Your Water reserve was low, so the grow tray produced a smaller harvest: +2 Food game units." });
+  assert.match(reduced.root.textContent, /delayed \+2/);
+  assert.match(reduced.root.textContent, /smaller harvest/);
 });
 
 test("loading disables choices and an API failure preserves state for retry", async () => {

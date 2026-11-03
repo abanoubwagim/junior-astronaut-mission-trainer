@@ -10,7 +10,7 @@
   <em>Team MoonBase, NASA Space Apps Challenge 2026</em>
 </p>
 
-An English-language educational lunar survival game for young explorers ages 8–12. Across four mission-planning rounds, players balance Power, Water, Food, and Shelter readiness through choices inspired by real spaceflight research.
+An English-language educational lunar survival game for young explorers ages 7–12. Across four mission-planning rounds, players balance Power, Water, Food, and Shelter readiness through choices inspired by real spaceflight research.
 
 This is an independent educational project created for the NASA Space Apps Challenge 2026 **Junior Astronaut Mission Trainer** challenge. It is not an official NASA product and is not endorsed or validated by NASA.
 

@@ -56,7 +56,7 @@ The safest overall description is: **MoonBase is a stateless, deterministic educ
 
 ### 5. Who is the target audience?
 
-**Short answer:** The supplied challenge brief says ages 7–12. The repository README and canonical game rules currently say ages 8–12. That mismatch is a submission-readiness issue: the team must confirm the intended label and make the spoken answer consistent with the official brief.
+**Short answer:** The supplied challenge brief identifies ages 7–12, and the repository now uses that label consistently. This remains a target audience statement, not evidence of child-user validation or measured learning gains.
 
 **Technical answer:** The interface uses short sentences, four named meters, one choice per round, visible explanations, keyboard focus, and no account or setup burden. No child user study has been performed, so suitability is a design intention, not an evaluated outcome.
 
@@ -144,7 +144,7 @@ The safest overall description is: **MoonBase is a stateless, deterministic educ
 
 **Short answer:** The delay teaches that production systems require inputs before they return a benefit. NASA’s Advanced Plant Habitat provides the real-world inspiration: controlled light, water, nutrients, and a managed growth chamber. The one-turn harvest is explicitly compressed game time, not a real crop-growth prediction.
 
-**Technical answer:** `start_grow_light_tray` costs Power 2 and Water 1 on Day 3, then schedules Food 4 on Day 4. The implementation does not represent crop species, biomass, photosynthesis, or the APH’s experimental durations.
+**Technical answer:** `start_grow_light_tray` costs Power 2 and Water 1 on Day 3, then schedules Food +2 or +4 on Day 4 depending on Water after upkeep and scheduled recovery. The implementation does not represent crop species, biomass, photosynthesis, or the APH’s experimental durations.
 
 **Evidence:** [NASA APH](https://science.nasa.gov/mission/advanced-plant-habitat/); `MissionRulesService.java:177-181,425-426`.
 
@@ -280,25 +280,25 @@ The safest overall description is: **MoonBase is a stateless, deterministic educ
 
 **Short answer:** It teaches that production needs inputs before it pays back. The child must decide whether to spend Power and Water now for a later Food benefit rather than always choosing an immediate meal.
 
-**Technical answer:** Day 3 costs Power 2 and Water 1; Day 4 scheduled Food is +4 before terminal checks. NASA APH supports the controlled-environment concept, not this timing or amount.
+**Technical answer:** Day 3 costs Power 2 and Water 1. On Day 4, the backend applies daily Water upkeep and scheduled recycler recovery first, then schedules Food +2 when the resulting Water is 5 or lower, otherwise +4. NASA APH supports the controlled-environment concept, not these timing or game-unit amounts.
 
 **Evidence:** `MissionRulesService.java:145,177-181`; [NASA APH](https://science.nasa.gov/mission/advanced-plant-habitat/).
 
 **Status:** Verified.
 
-**Likely follow-up:** Is +4 a real crop yield?
+**Likely follow-up:** Are +2 or +4 real crop yields?
 
 ### 24. What do the 36 paths represent?
 
 **Short answer:** They are the complete combinations of 3 Day 1 choices, 3 Day 2 choices, 2 Day 3 choices, and 2 Day 4 choices: `3 × 3 × 2 × 2 = 36`. They are exhaustive test paths, not probabilities of real missions.
 
-**Technical answer:** Independent simulation and backend tests find 12 successes, 2 Day 3 Power failures, 11 Day 4 Power failures, and 11 unprepared-passive primary failures. Some failure conditions overlap, so those categories are defined by primary-reason priority.
+**Technical answer:** Independent simulation and backend tests find 13 successes, 0 Day 3 Power failures, 11 Day 4 Power failures, and 12 unprepared-passive primary failures. Some failure conditions overlap, so those categories are defined by primary-reason priority.
 
 **Evidence:** `MissionTrainerBackendApplicationTests.java:61-94`; [`SCIENTIFIC_ASSUMPTIONS_AND_EQUATIONS.md`](SCIENTIFIC_ASSUMPTIONS_AND_EQUATIONS.md#independently-checked-36-path-distribution).
 
 **Status:** Verified.
 
-**Likely follow-up:** Are the 12 winning paths scientific statistics?
+**Likely follow-up:** Are the 13 winning paths scientific statistics?
 
 ### 25. How did you test whether the mission is winnable?
 
@@ -564,7 +564,7 @@ The safest overall description is: **MoonBase is a stateless, deterministic educ
 
 **Short answer:** Tests inspect the returned resource breakdown, not only the final total. They verify the recycler’s delayed Water term appears once, the grow harvest appears on Day 4, and the harvest is applied before terminal checks.
 
-**Technical answer:** The test asserts Day 3 Water `daily=-2`, `delayed=1`, `choice=-1`, and Day 4 Food `daily=-2`, `delayed=4`, `after=6` for the canonical grow path.
+**Technical answer:** The test asserts Day 3 Water `daily=-2`, `delayed=1`, `choice=-1`, and Day 4 Food `daily=-2`, `delayed=4`, `after=6` for the canonical grow path. It also verifies a low-Water path reports `delayed=2` and the child-facing reduced-harvest explanation.
 
 **Evidence:** `MissionTrainerBackendApplicationTests.java:116-136`.
 
@@ -718,7 +718,7 @@ The safest overall description is: **MoonBase is a stateless, deterministic educ
 
 ### 59. What would you improve with more time?
 
-**Short answer:** First, resolve the official age-label mismatch and add a clickable communication source. Second, run child/teacher usability testing. Third, improve source attribution and perhaps add a small, clearly separated historical NASA data activity rather than making the core game falsely data-driven.
+**Short answer:** The official 7–12 age label is now consistent. Remaining high-value improvements are child/teacher usability testing, stronger source attribution, and possibly a small, clearly separated historical NASA data activity rather than making the core game falsely data-driven.
 
 **Technical answer:** I would preserve the deterministic rules and backend authority, add fixed fixtures if any external data is introduced, and test the accessibility claims with actual assistive technology. I would not add a database or live API without a clear learning benefit.
 
@@ -745,7 +745,7 @@ The safest overall description is: **MoonBase is a stateless, deterministic educ
 - We must not claim CO₂ removal generates oxygen.
 - We must not claim `Shelter readiness` is dose, shielding percentage, regolith thickness, or medical protection.
 - We must not claim DONKI measures dose inside the habitat.
-- We must not claim the `+1 Power`, `+1 Water`, `+4 Food`, −2 alert, or threshold 6 are NASA values.
+- We must not claim the `+1 Power`, `+1 Water`, `+2/+4 Food`, −2 alert, or threshold 6 are NASA values.
 - We must not claim the array-brushing action is NASA-recommended.
 - We must not claim the four-day crop harvest is realistic growth timing.
 - We must not claim MoonBase is a validated lunar-habitat simulator.

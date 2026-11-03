@@ -83,7 +83,7 @@ This is a positive scientific boundary: the project does not falsely present fic
 - **Official URL:** [NASA Advanced Plant Habitat](https://science.nasa.gov/mission/advanced-plant-habitat/).
 - **What it provides:** a description of a controlled plant-growth facility using LED lights, a porous clay substrate, controlled-release fertilizer, water, nutrients, and oxygen at roots; the page describes experiments lasting up to 135 days.
 - **MoonBase usage:** static citation in the Day 3 event.
-- **Gameplay mechanic:** `start_grow_light_tray` spends Power and Water and schedules Food +4 for Day 4.
+- **Gameplay mechanic:** `start_grow_light_tray` spends Power and Water and schedules a Day 4 Food harvest. The backend applies +2 Food when Water after Day 4 upkeep and scheduled recovery is 5 or lower, otherwise +4.
 - **Data status:** static mission/experiment reference, not data consumed by the game.
 - **Attribution:** visible to players in Day 3 source links.
 - **Limitation:** no APH crop yield, duration, or energy data is mapped to the game values. The one-turn harvest is a time-compression rule.

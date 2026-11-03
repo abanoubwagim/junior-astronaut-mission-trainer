@@ -30,7 +30,7 @@ Do **not** build Sign In, Register, account/profile, Continue Mission, saved rep
 - Do not assume the backend stores sessions or player identities. The backend must remain stateless between requests.
 - Do not create, store, or send Signed State Tokens, JWTs, HMAC tokens, or other gameplay state tokens.
 
-## UI/UX direction — playful space adventure for ages 8–12
+## UI/UX direction — playful space adventure for ages 7–12
 
 - The site should feel like an exciting, friendly space game for children, not a corporate dashboard or a plain worksheet.
 - Use a cohesive palette: deep navy/indigo backgrounds, cyan and sky-blue controls, violet accents, moon-surface silver, and small warm yellow/orange highlights. Define reusable CSS custom properties.

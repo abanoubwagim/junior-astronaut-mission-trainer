@@ -64,9 +64,9 @@
 
 ### 8. “Is a grow-tray harvest in one day realistic?”
 
-**Short answer:** No. It is compressed game time. NASA’s Advanced Plant Habitat supports the idea of controlled light, water, nutrients, and plant research, but not +4 Food the next day.
+**Short answer:** No. It is compressed game time. NASA’s Advanced Plant Habitat supports the idea of controlled light, water, nutrients, and plant research, but not the game’s +2/+4 Food harvest the next day.
 
-**What not to claim:** Do not present +4 as a crop yield, measured growth rate, or APH result.
+**What not to claim:** Do not present +2 or +4 as a crop yield, measured growth rate, or APH result.
 
 **Show:** [NASA Advanced Plant Habitat](https://science.nasa.gov/mission/advanced-plant-habitat/); `MissionRulesService.java:420-430`.
 
@@ -112,13 +112,13 @@
 
 ### 14. “Why are the ages inconsistent?”
 
-**Short answer:** The supplied challenge brief says 7–12, while the current README and game rules say 8–12. We should correct that inconsistency before submission rather than improvise an answer.
+**Short answer:** The project uses the supplied 7–12 target-age label consistently. We should describe it as an intended audience, not claim that the interface has been validated through a child study.
 
 **What not to claim:** Do not say the game has been proven suitable for either range without user testing.
 
 **Show:** `README.md:13`; `GAME_RULES.md:9`; confirm official brief.
 
-### 15. “Are the 12 winning paths a scientific statistic?”
+### 15. “Are the 13 winning paths a scientific statistic?”
 
 **Short answer:** No. They are the result of exhaustive enumeration of our own 36 game paths. They measure the current ruleset’s balance, not lunar mission probability.
 
@@ -174,7 +174,7 @@
 4. **Radiation claim:** Shelter readiness is not dose, percentage, thickness, or medical risk.
 5. **DONKI claim:** DONKI event data is not a local habitat dose measurement.
 6. **Dust-cleaning claim:** NASA’s dust report does not validate manual brushing; the action is fictional.
-7. **Crop claim:** +4 Food after one turn is not a real crop yield.
+7. **Crop claim:** +2/+4 Food after one turn is not a real crop yield.
 8. **Communication claim:** 2.6 seconds is light-only round-trip propagation, not an end-to-end operational response.
 9. **Validation claim:** The game is not NASA-endorsed or a validated lunar-habitat simulator.
 10. **Education claim:** The intended child audience is not the same as a completed child user study.
@@ -193,7 +193,7 @@
 | 8 | Starting Shelter readiness | Simplified game parameter |
 | 6 | Day 4 readiness threshold | Simplified game parameter |
 | 36 | Valid complete choice combinations | Game combinatorics |
-| 12 | Current successful paths | Game simulation result, not science |
+| 13 | Current successful paths | Game simulation result, not science |
 
 ## Five sources to open during judging
 
@@ -205,8 +205,8 @@
 
 ## Team confirmations required before submission
 
-- Confirm the exact official challenge requirements from the event page; the page was unavailable to the research fetcher during this audit.
-- Resolve the official target-age wording versus `README.md` and `GAME_RULES.md` (7–12 in the supplied brief versus 8–12 in the repository).
+- Confirm the exact official challenge requirements from the event page before submission.
+- Keep the 7–12 target-age wording consistent across the interface, README, rules, briefing, and presentation.
 - Confirm which presentation file is final and remove or correct any stale slide/note that describes the pre-consolidation rules.
 - Confirm any license and participant-term requirements; the repository audit notes no `LICENSE`/`COPYING` file.
 - Confirm that all NASA source links and any future presentation source claims are visible and current.

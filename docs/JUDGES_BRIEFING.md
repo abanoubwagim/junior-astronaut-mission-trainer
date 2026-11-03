@@ -1,7 +1,7 @@
 # MoonBase — Judges' Technical and Science Briefing
 
 - **Project:** MoonBase: 4 Days to Survive
-- **Audience:** Young explorers, approximately ages 8–12
+- **Audience:** Young explorers, approximately ages 7–12
 - **Challenge context:** NASA Space Apps Challenge 2026, Junior Astronaut Mission Trainer
 - **Project status:** Independent educational project; not an official NASA product.
 
@@ -29,7 +29,7 @@ Every quantity, rate, threshold, choice cost, and scheduled bonus in this sectio
 |--------------------|------:|------:|--------------|----------------------------------------------------------------------------------------|
 | `power`            |    12 |  0–12 | −2           | Clean array: +1 on Days 2–4. Decisions may spend or add Power.                         |
 | `water`            |    12 |  0–12 | −2           | Recycler service: +1 on Days 3–4. Grow tray costs 1 Water on Day 3.                    |
-| `food`             |    10 |  0–12 | −2           | Grow tray: +4 on Day 4; meal crate: +3 immediately on Day 3 (and costs 1 Power).      |
+| `food`             |    10 |  0–12 | −2           | Grow tray: +2 or +4 on Day 4 depending on Water; meal crate: +3 immediately on Day 3 (and costs 1 Power). |
 | `shelterReadiness` |     8 |  0–12 | −1 each day  | Day 1 preparation: +2 and no wear Days 2–4. Day 4 storm: −2. Shelter choice: +2 or +4. |
 
 For every resource and day, exactly as implemented:
@@ -38,7 +38,7 @@ For every resource and day, exactly as implemented:
 After[d,r] = clamp(Before[d,r] + Daily[d,r] + Scheduled[d,r] + Event[d,r] + Choice[d,r], 0, 12)
 ```
 
-Calculation order: daily consumption/wear → scheduled prior-choice effects → Day 4 storm hazard → selected choice → integer clamp to 0–12 → failure/success check. `Daily` is −2 for Power, Water, and Food, except that CO₂-loop service changes later Power upkeep to −1 as a simplified game rule. Shelter wear is −1 unless the Day 1 preparation effect is active from Day 2 onward. `Scheduled` contains +1 Power from the array on Days 2–4, +1 Water from the recycler on Days 3–4, and +4 Food from the grow tray on Day 4. `Event` is −2 Shelter readiness on Day 4 and zero otherwise. Every other immediate amount is in `Choice`. The backend response reports each term, the bounded result, and the actual net change.
+Calculation order: daily consumption/wear → scheduled prior-choice effects → Day 4 grow-harvest Water check → Day 4 storm hazard → selected choice → integer clamp to 0–12 → failure/success check. `Daily` is −2 for Power, Water, and Food, except that CO₂-loop service changes later Power upkeep to −1 as a simplified game rule. Shelter wear is −1 unless the Day 1 preparation effect is active from Day 2 onward. `Scheduled` contains +1 Power from the array on Days 2–4, +1 Water from the recycler on Days 3–4, and a Day 4 grow harvest of +2 Food when resulting Water is ≤5 or +4 otherwise. `Event` is −2 Shelter readiness on Day 4 and zero otherwise. Every other immediate amount is in `Choice`. The backend response reports each term, the bounded result, and the actual net change.
 
 ### Choice effects
 
@@ -48,9 +48,9 @@ Calculation order: daily consumption/wear → scheduled prior-choice effects →
 | Day 1 `connect_spare_battery`  | Power +1                       | None                                    |
 | Day 1 `prepare_storm_shelter`  | Power −1, Shelter readiness +2 | Removes Shelter-readiness wear Days 2–4 |
 | Day 2 `service_water_recycler` | Power −1, Water +1             | Water +1 on Days 3–4                    |
-| Day 2 `use_backup_water_pack`  | Power −3, Water +5             | None; Water clamps to 12                |
+| Day 2 `use_backup_water_pack`  | Power −2, Water +5             | None; Water clamps to 12                |
 | Day 2 `inspect_co2_removal_loop` | Power −1                    | Power upkeep is 1 lower on Days 3–4; no Oxygen or Water is generated |
-| Day 3 `start_grow_light_tray`  | Power −2, Water −1             | Food +4 on Day 4                        |
+| Day 3 `start_grow_light_tray`  | Power −2, Water −1             | Food +2 or +4 on Day 4 depending on Water after upkeep and scheduled recovery |
 | Day 3 `open_meal_crate`        | Power −1, Food +3              | None                                    |
 | Day 4 `full_storm_shelter`     | Power −1 prepared / −2 unprepared, Shelter readiness +4 | Activates protection |
 | Day 4 `passive_storm_shelter`  | Shelter readiness +2           | Requires prior shielding preparation    |
@@ -65,14 +65,14 @@ The path `clean_solar_array` → `service_water_recycler` → `start_grow_light_
 | Day 1 | Daily `(-2,-2,-2,-1)` + choice `(-1,0,0,0)` | `(9,10,8,7)` |
 | Day 2 | Daily `(-2,-2,-2,-1)` + solar `(1,0,0,0)` + choice `(-1,1,0,0)` | `(7,9,6,6)` |
 | Day 3 | Daily `(-2,-2,-2,-1)` + solar/recycler `(1,1,0,0)` + choice `(-2,-1,0,0)` | `(4,7,4,5)` |
-| Day 4 | Daily `(-2,-2,-2,-1)` + solar/recycler/harvest `(1,1,4,0)` + storm `(0,0,0,-2)` + unprepared full choice `(-2,0,0,4)` | `(1,6,6,6)` — success |
+| Day 4 | Daily `(-2,-2,-2,-1)` + solar/recycler/harvest `(1,1,4,0)` because Water after recovery is 6 + storm `(0,0,0,-2)` + unprepared full choice `(-2,0,0,4)` | `(1,6,6,6)` — success |
 
 This is a hand-calculated expectation. **Observed API output is reported separately in the verification status below.**
 
 ### Balancing rationale and boundaries
 
 - The initial amounts leave room to compare immediate supplies with repairs that pay back later, while four daily consumption steps make choices matter.
-- A player can succeed with the worked path. The limiting-resource failure example is Day 1 array cleaning, Day 2 backup water, Day 3 grow tray, and Day 4 full shelter: Power calculates to zero on Day 4 while the other resources remain positive.
+- A player can succeed with the worked path. The revised backup-water route `clean_solar_array → use_backup_water_pack → open_meal_crate → full_storm_shelter` now succeeds at `(1,8,5,6)` while retaining a larger Water reserve.
 - A Day 2 backup-water calculation can exceed the maximum before clamping: Water `10 − 2 + 5 = 13` after Day 1, then becomes 12. The response's `change` is +2 relative to the pre-Day-2 value of 10.
 - Negative totals clamp to zero before terminal checks; zero Power, Water, or Food fails on that day. The Day 4 readiness threshold is 6. No rounding is needed because all amounts are integers.
 - There is no final score. The result is derived only from the documented survival conditions.
@@ -94,21 +94,25 @@ Each request is recomputed from canonical Day 1 values. There is no account, dat
 
 ## 6. Demonstrated verification
 
-### Verified
+This section separates historical verification already recorded in the repository from the Phase 1 rerun. Historical browser/API observations remain evidence of the implemented behavior at that time; they are not claimed as newly executed unless explicitly labeled.
 
-- **Backend build and automated tests:** `.\mission-trainer-backend\mvnw.cmd -f pom.xml -pl mission-trainer-backend -am package` completed with `BUILD SUCCESS` on Java 17.0.19. The consolidated `MissionTrainerBackendApplicationTests` suite ran 10 tests: 0 failures, 0 errors, 0 skipped. It checks all 36 four-day choice combinations against an independent calculation, delayed effects and replay determinism, boundaries, terminal outcomes, validation, removed `/api/v2` routing, and canonical HTTP responses.
-- **Frontend automated tests:** `node --test mission-trainer-frontend\tests\app.test.cjs` completed with 5 tests: 0 failures, 0 skipped. The dependency-free DOM harness covers the connected four-day flow, server-provided results, restart, disabled buttons while requests are pending, request failure and retry, communication demo isolation, CO₂ choice display, focus/announcements, and no browser persistence.
+### Verification record
+
+- **Backend build and automated tests (historical record):** The repository record previously documented `BUILD SUCCESS` on Java 17.0.19 and 10 passing `MissionTrainerBackendApplicationTests` tests. Those old results remain historical evidence. The Phase 2 offline Maven run compiled the changed backend and completed `Tests run: 10, Failures: 0, Errors: 0, Skipped: 0` using the existing local cache.
+- **Frontend automated tests (Phase 1 rerun):** `node --test mission-trainer-frontend\tests\app.test.cjs` completed with 5 tests: 5 passed, 0 failed, 0 skipped. The dependency-free DOM harness covers the connected four-day flow, server-provided results, restart, disabled buttons while requests are pending, request failure and retry, communication demo isolation, CO₂ choice display, focus/announcements, and no browser persistence.
+- **Frontend automated tests (Phase 2):** `node --test mission-trainer-frontend/tests/app.test.cjs` completed with 6 tests: 6 passed, 0 failed, 0 skipped. The added coverage verifies that the UI displays backend-reported delayed Food `+4` and `+2` values and only shows the reduced-harvest explanation when supplied by the backend.
 - **Startup and health:** `java -jar mission-trainer-backend\target\mission-trainer-backend-0.0.1-SNAPSHOT.jar --server.address=127.0.0.1` started Spring Boot 4.1.2 on Java 17.0.19 and Tomcat port 8080. `GET /api/v1/health` returned `{"status":"UP"}`.
 - **Configured port:** Launching with `PORT=8082` started the server on port 8082; its health endpoint returned `UP`.
 - **Start response:** `POST /api/v1/missions/start` returned `ACTIVE`, Day 1 of 4, initial values `(12,12,10,8)`, three Day 1 choices, and NASA source links.
 - **Successful full API path:** The hand-calculated `clean_solar_array` → `service_water_recycler` → `start_grow_light_tray` → `full_storm_shelter` path returned `SUCCEEDED` with `(1,6,6,6)`, matching the independent arithmetic table above.
+- **Phase 2 exhaustive API verification:** The rebuilt Spring Boot classes served on port 18083; all 36 revised paths returned the expected status, resources, and primary failure reason with `MISMATCH_COUNT=0` and `HTTP_ERROR_COUNT=0`. The successful IDs were `1, 3, 7, 9, 11, 15, 21, 23, 28, 33, 34, 35, 36`.
 - **Determinism:** Repeating the same complete valid history returned the same status, resources, and latest resource changes.
 - **Upper bound:** Day 2 backup-water request returned Water 12. Its breakdown was `before=10`, `daily=-2`, `choice=+5`, `after=12`, `change=+2`, confirming the 12-unit clamp.
 - **Power failure:** The documented backup-water plus grow-tray path returned `FAILED`, limiting resource `Power`, with Power 0.
 - **Shelter protection failure:** A full four-day request using an unprepared shelter and the passive Day 4 option returned `FAILED` with primary reason `PASSIVE_SHELTER_REQUIRES_PREPARED_SHIELDING`, while the other supplies remained positive.
-- **Input errors:** Invalid choice, out-of-order day, duplicate day, empty history, malformed JSON, and post-terminal history each returned HTTP 400 with the documented safe error shape/code. An unknown API route returned HTTP 404 and `NOT_FOUND`.
+- **Input errors:** Invalid choice, out-of-order day, duplicate day, empty history, and malformed JSON returned HTTP 400 with the documented safe error shape/code. An unknown API route returned HTTP 404 and `NOT_FOUND`.
 - **No client-authoritative totals:** A Day 1 request containing an extra forged `resources` object still returned the backend result (Power 9, Water 10); the submitted values did not control the state.
-- **Early failure feedback:** A Day 3 Power failure returned no active effects and said that later scheduled effects were not applied.
+- **Revised terminal feedback:** The backup-pack change removes the previous Day 3 Power failures from the 36-path matrix. Paths 29 and 30 now reach Day 4 and fail there from Power; Day 4 grow feedback reports the normal +4 harvest for those Water-rich paths.
 - **Local frontend serving and CORS:** `python -m http.server 5500 --directory mission-trainer-frontend` served `/html/` and the local SVG with HTTP 200. CORS preflights from `http://localhost:5500` and `http://127.0.0.1:5500` were accepted; an unlisted origin was rejected with HTTP 403. Automated API tests also submitted forged client `resources` values and confirmed that the backend returned recalculated values.
 - **Frontend source checks:** The JavaScript source parsed successfully with Node 20.19.0. A source scan found no browser-storage API, cookie, URL-state, or `innerHTML` use in the frontend implementation.
 
@@ -126,11 +130,11 @@ The actual winning path was `clean_solar_array` → `service_water_recycler` →
 | Day 3: start grow tray | 4 | 7 | 4 | 5 |
 | Day 4: full shelter | 1 | 6 | 6 | 6 |
 
-The Day 3 report showed no grow-tray Food yet; the Day 4 report showed the scheduled `+4 Food` and the storm's `−2 Shelter readiness`. The result screen declared success, repeated the final `(1,6,6,6)` values, listed all four choices, and showed the takeaways.
+The Day 3 report showed no grow-tray Food yet; the canonical Day 4 report showed the normal scheduled `+4 Food` because Water after upkeep and recycler recovery was 6. A low-Water route reports the actual `+2 Food` delayed value and explains that the grow tray produced a smaller harvest. The result screen declared success, repeated the final `(1,6,6,6)` values, listed all four choices, and showed the takeaways.
 
 Two losing paths were also played in Chrome:
 
-- **Early exhausted resource:** `prepare_storm_shelter` → `use_backup_water_pack` → `start_grow_light_tray` reached `(0,9,4,9)` on Day 3. The result said “Mission paused on Day 3,” identified Power, and explained that later scheduled effects were not applied. No Day 4 control was offered.
+- **Delayed Power failure:** `prepare_storm_shelter` → `use_backup_water_pack` → `start_grow_light_tray` now reaches `(1,9,4,9)` on Day 3, then fails from Power on Day 4 after the Day 4 calculation. The backup pack no longer causes an early Day 3 terminal state in this route.
 - **Insufficient final protection:** `clean_solar_array` → `use_backup_water_pack` → `start_grow_light_tray` → `passive_storm_shelter` ended Day 4 at `(1,7,5,4)`. The result said “Mission paused on Day 4” and explained that passive shelter required earlier shielding preparation.
 
 After the successful mission, “Start a new mission” returned to the briefing with fresh `(12,12,10,8)` supplies. Refreshing the Chrome tab returned to the welcome screen and did not restore mission history.
@@ -186,7 +190,7 @@ The browser submits the full ordered list of choices. The backend replays it fro
 
 **How do earlier choices matter?**
 
-Cleaning the array adds Power on Days 2–4; servicing the recycler returns Water on Days 3–4; CO₂-loop maintenance reduces later Power upkeep as a simplified game rule; preparing the shelter prevents later readiness wear; starting the grow tray adds Food on Day 4.
+Cleaning the array adds Power on Days 2–4; servicing the recycler returns Water on Days 3–4; CO₂-loop maintenance reduces later Power upkeep as a simplified game rule; preparing the shelter prevents later readiness wear; starting the grow tray adds +2 or +4 Food on Day 4 depending on Water after upkeep and scheduled recovery.
 
 **How was the game tested?**
 

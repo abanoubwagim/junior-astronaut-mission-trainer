@@ -15,6 +15,11 @@ public class MissionRulesService {
     private static final int DAYS = 4;
     private static final int MIN = 0;
     private static final int MAX = 12;
+    private static final int BACKUP_WATER_PACK_POWER_COST = -2;
+    private static final int BACKUP_WATER_PACK_WATER_GAIN = 5;
+    private static final int GROW_HARVEST_WATER_THRESHOLD = 5;
+    private static final int GROW_HARVEST_REDUCED = 2;
+    private static final int GROW_HARVEST_NORMAL = 4;
     private static final String SUCCESS = "SUCCEEDED";
     private static final String FAILURE = "FAILED";
     private static final String ACTIVE = "ACTIVE";
@@ -142,7 +147,9 @@ public class MissionRulesService {
 
         int delayedPower = state.solarArrayReady && day >= 2 ? 1 : 0;
         int delayedWater = state.waterSaver && day >= 3 ? 1 : 0;
-        int delayedFood = state.growLightHarvestPending && day == DAYS ? 4 : 0;
+        int waterAfterScheduledEffects = clamp(before.water() + dailyWater + delayedWater);
+        int delayedFood = state.growLightHarvestPending && day == DAYS
+                ? growHarvestForWater(waterAfterScheduledEffects) : 0;
         int eventShelter = day == DAYS ? -2 : 0;
 
         int choicePower = 0;
@@ -167,8 +174,8 @@ public class MissionRulesService {
                 state.waterSaver = true;
             }
             case "use_backup_water_pack" -> {
-                choicePower = -3;
-                choiceWater = 5;
+                choicePower = BACKUP_WATER_PACK_POWER_COST;
+                choiceWater = BACKUP_WATER_PACK_WATER_GAIN;
             }
             case "inspect_co2_removal_loop" -> {
                 choicePower = -1;
@@ -223,10 +230,27 @@ public class MissionRulesService {
                 before.shelterReadiness(), dailyShelter, 0, eventShelter, choiceShelter,
                 nextShelter, nextShelter - before.shelterReadiness()));
 
+        String harvestMessage = delayedFood > 0 ? growHarvestMessage(delayedFood) : "";
+        String explanation = explanationForChoice(choice.id())
+                + (harvestMessage.isBlank() ? "" : " " + harvestMessage);
+        String futureEffect = delayedFood > 0 ? harvestMessage : futureEffectForChoice(day, choice.id());
+
         return new DecisionFeedback(day, choice.id(), choice.title(), "Day " + day + " decision complete",
-                explanationForChoice(choice.id()),
+                explanation,
                 "Every resource is a simplified game value. Compare what helps now with what helps later.",
-                futureEffectForChoice(day, choice.id()), Map.copyOf(breakdown));
+                futureEffect, Map.copyOf(breakdown));
+    }
+
+    private int growHarvestForWater(int waterAfterScheduledEffects) {
+        return waterAfterScheduledEffects <= GROW_HARVEST_WATER_THRESHOLD
+                ? GROW_HARVEST_REDUCED : GROW_HARVEST_NORMAL;
+    }
+
+    private String growHarvestMessage(int harvest) {
+        if (harvest == GROW_HARVEST_REDUCED) {
+            return "Your Water reserve was low, so the grow tray produced a smaller harvest: +2 Food game units.";
+        }
+        return "The grow tray produced its normal harvest: +4 Food game units.";
     }
 
     private Failure failureFor(State state, int day) {
@@ -325,7 +349,7 @@ public class MissionRulesService {
             effects.add("CO₂ loop serviced: daily Power upkeep is 1 lower on Days 3–4, a simplified game rule.");
         }
         if (state.growLightHarvestPending) {
-            effects.add("Grow tray running: +4 Food is scheduled for Day 4.");
+            effects.add("Grow tray running: Day 4 harvest depends on Water after upkeep and scheduled recovery; it can be +2 or +4 Food game units.");
         }
         if (state.shieldingPrepared) {
             effects.add("Shielding plan prepared: later shelter wear is prevented.");
@@ -363,7 +387,7 @@ public class MissionRulesService {
             case "service_water_recycler" -> "The crew spent Power and gained Water. One delayed Water recovery effect is scheduled for Days 3 and 4.";
             case "use_backup_water_pack" -> "The sealed pack adds Water immediately, up to the storage limit, but costs Power.";
             case "inspect_co2_removal_loop" -> "The crew serviced the CO₂ removal loop. It does not generate Oxygen or recover Water; it avoids a simplified Power penalty on Days 3 and 4.";
-            case "start_grow_light_tray" -> "The grow tray uses Power and Water today. Its +4 Food harvest is scheduled for Day 4.";
+            case "start_grow_light_tray" -> "The grow tray uses Power and Water today. Its Day 4 harvest depends on the Water reserve at the harvest check.";
             case "open_meal_crate" -> "The crew opened reserve meals and added Food immediately.";
             case "full_storm_shelter" -> "The crew activated the full shelter. An unprepared setup costs extra Power as a simplified emergency-work rule.";
             case "passive_storm_shelter" -> "The crew activated a low-Power shelter mode. It is valid only when protection was prepared earlier.";
@@ -377,7 +401,7 @@ public class MissionRulesService {
             case "prepare_storm_shelter" -> "Days 2–4: the prepared shelter avoids 1 point of daily readiness wear.";
             case "service_water_recycler" -> "Days 3–4: one +1 Water recovery effect is scheduled per day.";
             case "inspect_co2_removal_loop" -> "Days 3–4: daily Power upkeep is 1 lower as a simplified game rule.";
-            case "start_grow_light_tray" -> "Day 4: the grow tray adds 4 Food game units.";
+            case "start_grow_light_tray" -> "Day 4: after upkeep and scheduled Water recovery, the grow tray harvests +2 Food when Water is 5 or lower, otherwise +4 Food game units.";
             case "connect_spare_battery", "use_backup_water_pack", "open_meal_crate",
                     "full_storm_shelter", "passive_storm_shelter" -> "No extra effect is scheduled for a later day.";
             default -> "No later effect is scheduled.";
@@ -411,7 +435,7 @@ public class MissionRulesService {
                                     "Spend 1 Power and gain 1 Water now.",
                                     "One +1 Water recovery effect is scheduled on Days 3 and 4."),
                             new Choice("use_backup_water_pack", "Open a backup water pack",
-                                    "Spend 3 Power and gain 5 Water now, up to the storage limit.",
+                                    "Spend 2 Power and gain 5 Water now, up to the storage limit.",
                                     "It uses Power, but it does not create a later recovery effect."),
                             new Choice("inspect_co2_removal_loop", "Service the CO₂ removal loop",
                                     "Spend 1 Power to service the air-cleaning loop.",
@@ -423,7 +447,7 @@ public class MissionRulesService {
                     List.of(
                             new Choice("start_grow_light_tray", "Start the grow tray",
                                     "Spend 2 Power and 1 Water to start the tray.",
-                                    "Gain 4 Food on Day 4 as a compressed game-time effect."),
+                                    "Gain +2 or +4 Food on Day 4 depending on Water after upkeep and scheduled recovery; this is a compressed game-time effect."),
                             new Choice("open_meal_crate", "Open the meal crate",
                                     "Spend 1 Power and gain 3 Food now.",
                                     "This helps right away and creates no later harvest.")));
