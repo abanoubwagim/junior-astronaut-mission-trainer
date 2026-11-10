@@ -5,7 +5,7 @@
   const sceneRoot = document.querySelector("#lunar-scene");
   const scriptUrl = document.currentScript?.src || new URL("../js/scene/scene-manager.js", window.location.href).href;
   const THREE_URL = "https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js";
-  const SCENE_VERSION = "20261110-v47";
+  const SCENE_VERSION = "20261110-v59";
 
   if (!canvas || !sceneRoot) return;
 
@@ -55,13 +55,43 @@
     renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.65));
   }
 
+  // Tear down only the active world. The renderer/canvas are reused so a
+  // destination change does not reload the app or discard the backend mission.
+  function teardownScene() {
+    window.cancelAnimationFrame(animationFrame);
+    animationFrame = 0;
+    if (onResize) window.removeEventListener("resize", onResize);
+    if (onVisibilityChange) document.removeEventListener("visibilitychange", onVisibilityChange);
+    if (onContextLost) canvas.removeEventListener("webglcontextlost", onContextLost);
+    if (onContextRestored) canvas.removeEventListener("webglcontextrestored", onContextRestored);
+    onResize = null;
+    onVisibilityChange = null;
+    onContextLost = null;
+    onContextRestored = null;
+    cameraController?.dispose();
+    playerController?.dispose();
+    storyDirector?.dispose();
+    environment?.dispose();
+    effects?.dispose?.();
+    renderer?.dispose();
+    renderer = null;
+    scene = null;
+    environment = null;
+    cameraController = null;
+    effects = null;
+    storyDirector = null;
+    playerController = null;
+    window.MOONBASE_SCENE_AVAILABLE = false;
+  }
+
   async function initialize() {
     setStatus("loading");
     try {
       const moduleUrl = (relativePath) => `${new URL(relativePath, scriptUrl).href}?v=${SCENE_VERSION}`;
-      const [threeModule, environmentModule, cameraModule, effectsModule, storyModule, playerModule] = await Promise.all([
+      const [threeModule, lunarEnvironmentModule, marsEnvironmentModule, cameraModule, effectsModule, storyModule, playerModule] = await Promise.all([
         import(THREE_URL),
         import(moduleUrl("./lunar-environment.js")),
+        import(moduleUrl("./mars-environment.js")),
         import(moduleUrl("./camera-controller.js")),
         import(moduleUrl("./scene-effects.js")),
         import(moduleUrl("./story-director.js")),
@@ -76,16 +106,23 @@
       renderer.toneMapping = THREE.ACESFilmicToneMapping;
       renderer.toneMappingExposure = 1.08;
       scene = new THREE.Scene();
-      // Lunar daylight has no atmospheric scattering: the horizon remains
-      // black and distant terrain loses contrast only through geometry and
-      // direct light, never through blue fog.
-      scene.background = new THREE.Color(0x010204);
-      scene.fog = null;
+      const world = window.MOONBASE_SCENE_WORLD === "moon" ? "moon" : "mars";
+      document.documentElement.dataset.sceneWorld = world;
+      // Each environment owns its atmospheric profile. Moon is retained as an
+      // explicit comparison world; Mars is the default playable world.
+      if (world === "moon") {
+        scene.background = new THREE.Color(0x010204);
+        scene.fog = null;
+      }
       const camera = new THREE.PerspectiveCamera(37, window.innerWidth / Math.max(window.innerHeight, 1), 0.1, 100);
-      environment = environmentModule.createLunarEnvironment(THREE, scene);
+      environment = world === "mars"
+        ? marsEnvironmentModule.createMarsEnvironment(THREE, scene)
+        : lunarEnvironmentModule.createLunarEnvironment(THREE, scene);
+      document.documentElement.dataset.environmentName = environment.root?.name || world;
       cameraController = cameraModule.createCameraController(THREE, camera, {
         canvas,
-        collisionObjects: environment.getCollisionObjects?.() || []
+        collisionObjects: environment.getCollisionObjects?.() || [],
+        terrainHeight: environment.getTerrainHeight?.()
       });
       effects = effectsModule.createSceneEffects(environment);
       storyDirector = storyModule.createStoryDirector(THREE, scene, environment, cameraController);
@@ -175,18 +212,18 @@
           playerController?.setActive(explorable);
           playerController?.setPaused(!explorable || Boolean(story?.interactionOpen) || Boolean(story?.loading) || Boolean(story?.paused));
         },
+        setWorld(nextWorld = "mars") {
+          const world = nextWorld === "moon" ? "moon" : "mars";
+          if (world === document.documentElement.dataset.sceneWorld && environment) return;
+          window.MOONBASE_SCENE_WORLD = world;
+          document.documentElement.dataset.sceneWorld = world;
+          setStatus("loading");
+          teardownScene();
+          initialize();
+        },
         dispose() {
           disposed = true;
-          window.cancelAnimationFrame(animationFrame);
-          if (onResize) window.removeEventListener("resize", onResize);
-          if (onVisibilityChange) document.removeEventListener("visibilitychange", onVisibilityChange);
-          if (onContextLost) canvas.removeEventListener("webglcontextlost", onContextLost);
-          if (onContextRestored) canvas.removeEventListener("webglcontextrestored", onContextRestored);
-          cameraController?.dispose();
-          playerController?.dispose();
-          storyDirector?.dispose();
-          environment?.dispose();
-          renderer?.dispose();
+          teardownScene();
         }
       };
     } catch (error) {
@@ -195,6 +232,8 @@
     }
   }
 
+  const requestedWorld = new URL(window.location.href).searchParams.get("world");
+  window.MOONBASE_SCENE_WORLD = window.MOONBASE_SCENE_WORLD || (requestedWorld === "moon" ? "moon" : "mars");
   window.MOONBASE_SCENE_MODE = window.MOONBASE_SCENE_MODE || "welcome";
   window.MOONBASE_SCENE_STORY = window.MOONBASE_SCENE_STORY || {
     screen: "welcome",

@@ -1,4 +1,4 @@
-import { createAstronautCharacter } from "./astronaut-character.js";
+import { createAstronautCharacter } from "./astronaut-character.js?v=20261110-v51";
 
 export function createStoryDirector(THREE, parent, environment, cameraController) {
   const astronaut = createAstronautCharacter(THREE, parent, {
@@ -11,9 +11,11 @@ export function createStoryDirector(THREE, parent, environment, cameraController
     rotationY: 0,
     accentColor: 0x63e9ef,
     playerControlled: true,
-    // Keep the procedural suit so the custom oxygen cylinders and jetpack
-    // remain visible instead of being replaced by the external Soldier GLTF.
-    loadAsset: false
+    assetUrl: new URL("../../assets/models/astronaut-in-spacesuit-rigged.glb", import.meta.url).href,
+    assetScale: 1,
+    assetHeight: 1.95,
+    assetRotationY: Math.PI,
+    onAssetStatus: (status) => window.MOONBASE_SCENE_LIFECYCLE?.onAssetStatus?.(status)
   });
   const operator = createAstronautCharacter(THREE, parent, {
     name: "mission-operator",

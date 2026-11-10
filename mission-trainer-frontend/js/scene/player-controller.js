@@ -18,7 +18,11 @@ export function createPlayerController(THREE, {
   const nextPosition = new THREE.Vector3();
   const raycaster = new THREE.Raycaster();
   const center = new THREE.Vector2(0, 0);
-  const groundY = -1.03;
+  const fallbackGroundY = -1.03;
+  // The astronaut root is centered at the suit's boot plane. Keep a small
+  // clearance above the sampled terrain so tiny numerical changes do not make
+  // the feet clip into displaced crater floors or highland slopes.
+  const playerGroundOffset = 0.05;
   const playerRadius = 0.34;
   const playerHeight = 1.95;
   const lunarGravity = 1.62;
@@ -29,6 +33,7 @@ export function createPlayerController(THREE, {
   const thrusterAcceleration = 3.6;
   const maxFlightHeight = 6.2;
   const groundEpsilon = 0.035;
+  const maxTerrainStep = 0.46;
   const landingDuration = 0.24;
   const gateOpeningFallbackDuration = 1.35;
   const MOVEMENT_STATES = Object.freeze({
@@ -65,6 +70,12 @@ export function createPlayerController(THREE, {
   let thrusterActive = false;
   let gateOpeningTarget = null;
   let gateOpeningElapsed = 0;
+
+  function terrainGroundY(x = astronaut.root.position.x, z = astronaut.root.position.z) {
+    const terrainSurface = environment?.getTerrainHeight?.(x, z);
+    if (Number.isFinite(terrainSurface)) return terrainSurface + playerGroundOffset;
+    return fallbackGroundY;
+  }
 
   function clearInput() {
     keys.clear();
@@ -422,14 +433,28 @@ export function createPlayerController(THREE, {
     const stepDelta = delta / substeps;
     nextPosition.copy(astronaut.root.position);
     for (let step = 0; step < substeps; step += 1) {
+      const previousX = nextPosition.x;
+      const previousZ = nextPosition.z;
       nextPosition.addScaledVector(velocity, stepDelta);
       if (!wasGrounded || !grounded) nextPosition.y += verticalVelocity * stepDelta;
-      if (nextPosition.y > groundY + maxFlightHeight) {
-        nextPosition.y = groundY + maxFlightHeight;
+      let surfaceY = terrainGroundY(nextPosition.x, nextPosition.z);
+      const previousSurfaceY = terrainGroundY(previousX, previousZ);
+      // A crater wall or highland face should be an obstacle, not a hidden
+      // vertical elevator. Allow smooth slopes, but stop a single movement
+      // step from climbing an abrupt terrain rise.
+      if (surfaceY - previousSurfaceY > maxTerrainStep) {
+        nextPosition.x = previousX;
+        nextPosition.z = previousZ;
+        velocity.x = 0;
+        velocity.z = 0;
+        surfaceY = previousSurfaceY;
+      }
+      if (nextPosition.y > surfaceY + maxFlightHeight) {
+        nextPosition.y = surfaceY + maxFlightHeight;
         if (verticalVelocity > 0) verticalVelocity = 0;
       }
-      if (nextPosition.y <= groundY + groundEpsilon && (!wasGrounded || verticalVelocity <= 0)) {
-        nextPosition.y = groundY;
+      if (nextPosition.y <= surfaceY + groundEpsilon && (!wasGrounded || verticalVelocity <= 0)) {
+        nextPosition.y = surfaceY;
         if (!wasGrounded && verticalVelocity <= 0) {
           grounded = true;
           verticalVelocity = 0;
@@ -441,7 +466,7 @@ export function createPlayerController(THREE, {
       resolveCollisions(nextPosition, velocity);
     }
 
-    if (wasGrounded && grounded) nextPosition.y = groundY;
+    if (wasGrounded && grounded) nextPosition.y = terrainGroundY(nextPosition.x, nextPosition.z);
     astronaut.root.position.x = nextPosition.x;
     astronaut.root.position.z = nextPosition.z;
     astronaut.root.position.y = nextPosition.y;
@@ -470,8 +495,9 @@ export function createPlayerController(THREE, {
       paused = true;
       clearInput();
       verticalVelocity = 0;
-      grounded = astronaut.root.position.y <= groundY + groundEpsilon;
-      if (grounded) astronaut.root.position.y = groundY;
+      const surfaceY = terrainGroundY();
+      grounded = astronaut.root.position.y <= surfaceY + groundEpsilon;
+      if (grounded) astronaut.root.position.y = surfaceY;
       landingElapsed = 0;
       jumpElapsed = 0;
       setMovementState(grounded ? MOVEMENT_STATES.LUNAR_WALK : MOVEMENT_STATES.AIRBORNE);
@@ -487,9 +513,10 @@ export function createPlayerController(THREE, {
       onInteractionState?.(null);
     } else {
       paused = false;
-      grounded = astronaut.root.position.y <= groundY + groundEpsilon;
+      const surfaceY = terrainGroundY();
+      grounded = astronaut.root.position.y <= surfaceY + groundEpsilon;
       if (grounded) {
-        astronaut.root.position.y = groundY;
+        astronaut.root.position.y = surfaceY;
         verticalVelocity = 0;
         setMovementState(MOVEMENT_STATES.LUNAR_WALK);
       } else if (movementState === MOVEMENT_STATES.LUNAR_WALK || movementState === MOVEMENT_STATES.LOPING) {

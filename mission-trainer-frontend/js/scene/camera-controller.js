@@ -20,13 +20,15 @@ export function createCameraController(THREE, camera, options = {}) {
   let storyTarget = "base";
   let player = null;
   let collisionObjects = options.collisionObjects || [];
+  let terrainHeight = typeof options.terrainHeight === "function" ? options.terrainHeight : null;
   let gameplayActive = false;
   let presentationActive = false;
-  let yaw = 0;
-  // Start with a wide over-the-shoulder composition so the astronaut and the
-  // MoonBase read together in the first frame. Scroll still allows close-up inspection.
-  let pitch = 0.2;
-  let distance = 8.8;
+  let yaw = 0.34;
+  // Start at a slightly elevated diagonal angle so the astronaut, base pad,
+  // nearby slope, and distant highlands share the first gameplay frame.
+  // Scroll still allows close-up inspection.
+  let pitch = 0.29;
+  let distance = 10.6;
   let pointerListenerAttached = false;
   let canvasListenerAttached = false;
   let wheelListenerAttached = false;
@@ -100,7 +102,15 @@ export function createCameraController(THREE, camera, options = {}) {
   }
 
   function collides(position, padding = 0.12) {
-    if (position.y < -0.6) return true;
+    const terrainSurface = terrainHeight?.(position.x, position.z);
+    if (Number.isFinite(terrainSurface)) {
+      // Keep the camera above crater floors and rising terrain while tracing
+      // the shoulder-camera path. The extra clearance avoids clipping into
+      // the displaced mesh when the camera is close to the astronaut.
+      if (position.y < terrainSurface + 0.18) return true;
+    } else if (position.y < -0.6) {
+      return true;
+    }
     return collisionObjects.some((collider) => {
       const minX = collider.center[0] - collider.halfExtents[0] - padding;
       const maxX = collider.center[0] + collider.halfExtents[0] + padding;
@@ -140,7 +150,7 @@ export function createCameraController(THREE, camera, options = {}) {
     // stays readable without losing the base, Earth, or objective beacon.
     const forwardX = Math.sin(yaw);
     const forwardZ = -Math.cos(yaw);
-    lookTarget.set(playerPosition.x + forwardX * 2.6, playerPosition.y + 0.78, playerPosition.z + forwardZ * 2.6);
+    lookTarget.set(playerPosition.x + forwardX * 3.5, playerPosition.y + 0.68, playerPosition.z + forwardZ * 3.5);
     camera.lookAt(lookTarget);
   }
 
@@ -175,6 +185,10 @@ export function createCameraController(THREE, camera, options = {}) {
     collisionObjects = nextObjects || [];
   }
 
+  function setTerrainHeight(nextHeight) {
+    terrainHeight = typeof nextHeight === "function" ? nextHeight : null;
+  }
+
   function setGameplayActive(nextActive) {
     gameplayActive = Boolean(nextActive);
     if (!gameplayActive && document.pointerLockElement === canvas) document.exitPointerLock?.();
@@ -186,7 +200,7 @@ export function createCameraController(THREE, camera, options = {}) {
   }
 
   function setDistance(nextDistance) {
-    distance = Math.max(4.2, Math.min(12, Number(nextDistance) || 8.8));
+    distance = Math.max(4.2, Math.min(13, Number(nextDistance) || 10.6));
   }
 
   function setHeading(nextYaw) {
@@ -216,6 +230,7 @@ export function createCameraController(THREE, camera, options = {}) {
     setStoryTarget,
     setPlayer,
     setCollisionObjects,
+    setTerrainHeight,
     setGameplayActive,
     setPresentationActive,
     setDistance,

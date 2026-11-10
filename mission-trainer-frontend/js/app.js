@@ -22,9 +22,15 @@
     interactionTarget: null,
     gateOpening: false,
     paused: false,
-    controlsCollapsed: false,
+    // Keep the world visible on first entry; players can expand the compact
+    // keyboard guide whenever they need it.
+    controlsCollapsed: true,
     sceneAvailable: document.documentElement?.dataset?.sceneStatus !== "fallback",
     sceneError: "",
+    sceneAssetStatus: "loading",
+    // Mars is the primary playable environment. The Moon remains available
+    // through an explicit world query/selection for comparison and legacy runs.
+    world: window.MOONBASE_SCENE_WORLD === "moon" ? "moon" : "mars",
     gateProgress: {},
     feedbackDismissed: true,
     dayOneComplete: false,
@@ -35,6 +41,7 @@
 
   function syncScene() {
     window.MOONBASE_SCENE_MODE = ui.screen;
+    window.MOONBASE_SCENE_WORLD = ui.world;
     window.MOONBASE_SCENE_STATE = ui.mission;
     window.MOONBASE_SCENE_STORY = {
       screen: ui.screen,
@@ -52,6 +59,7 @@
       dayFourComplete: ui.dayFourComplete
     };
     if (document.body?.dataset) document.body.dataset.appScreen = ui.screen;
+    if (document.body?.dataset) document.body.dataset.appWorld = ui.world;
     const brandName = document.querySelector(".brand-name");
     if (brandName) {
       brandName.dataset.missionDay = String(ui.mission?.event?.day || ui.mission?.day || 1);
@@ -69,6 +77,17 @@
     onReady() {
       ui.sceneAvailable = true;
       ui.sceneError = "";
+      render();
+    },
+    onAssetStatus(detail = {}) {
+      ui.sceneAssetStatus = detail.status || "loading";
+      if (detail.status === "error") {
+        ui.sceneAvailable = false;
+        ui.sceneError = "The local astronaut model could not load. A temporary articulated fallback is active.";
+        console.error("MoonBase astronaut asset error.", detail.error);
+      } else if (detail.status === "ready") {
+        ui.sceneError = "";
+      }
       render();
     },
     onFallback(error) {
@@ -223,6 +242,25 @@
 
   window.MOONBASE_SCENE_INTERACTION_HANDLER = sceneInteractionHandler;
 
+  function handleWelcomeKeydown(event) {
+    if (event.repeat || ui.loading) return;
+    const tagName = String(event.target?.tagName || "").toUpperCase();
+    if (["INPUT", "SELECT", "TEXTAREA"].includes(tagName)) return;
+
+    if (ui.screen === "briefing" && ["Enter", "Space"].includes(event.code)) {
+      event.preventDefault();
+      root.querySelector?.(".briefing-continue-button")?.click?.();
+      return;
+    }
+
+    if (event.code !== "Space" || ui.screen !== "welcome") return;
+    event.preventDefault();
+    root.querySelector?.(".welcome-start-button")?.focus?.({ preventScroll: true });
+    startMission();
+  }
+
+  window.addEventListener?.("keydown", handleWelcomeKeydown, { passive: false });
+
   function setScreen(screen) {
     ui.screen = screen;
     ui.error = "";
@@ -230,7 +268,7 @@
     ui.interactionTarget = null;
     ui.gateOpening = false;
     ui.paused = false;
-    ui.controlsCollapsed = false;
+    ui.controlsCollapsed = screen === "game";
     ui.gateProgress = {};
     ui.feedbackDismissed = true;
     ui.dayOneComplete = false;
@@ -311,6 +349,7 @@
   }
 
   async function startMission() {
+    if (ui.loading) return;
     ui.mission = null;
     ui.decisionHistory = [];
     ui.selectedChoiceId = null;
@@ -320,7 +359,7 @@
     ui.interactionTarget = null;
     ui.gateOpening = false;
     ui.paused = false;
-    ui.controlsCollapsed = false;
+    ui.controlsCollapsed = true;
     ui.gateProgress = {};
     ui.feedbackDismissed = true;
     ui.dayOneComplete = false;
@@ -334,8 +373,8 @@
     try {
       ui.mission = validateMission(await request("/missions/start", { method: "POST" }));
       ui.decisionHistory = [];
-      ui.screen = "game";
-      announce("Day 1 is ready. Use WASD to lunar walk, Shift to lope, and Space to jump or thrust.");
+      ui.screen = "briefing";
+      announce("Mission briefing ready. Review the objectives, then continue to Day 1.");
     } catch (error) {
       ui.error = displayError(error);
       ui.screen = "welcome";
@@ -410,6 +449,7 @@
 
     switch (ui.screen) {
       case "briefing": renderBriefing(); break;
+      case "worldSelection": renderWorldSelection(); break;
       case "game": renderGame(); break;
       case "day1Complete": renderDayOneComplete(); break;
       case "feedback": renderFeedback(); break;
@@ -424,72 +464,78 @@
   }
 
   function renderWelcome() {
-    const section = make("section", "welcome-screen");
+    const isMars = ui.world === "mars";
+    const worldName = isMars ? "MARS" : "MOON";
+    const protocolLabel = isMars ? "MARTIAN EXPEDITION PROTOCOL // SECTOR MARS-04" : "LUNAR EXPEDITION PROTOCOL // SECTOR MOON-04";
+    const briefingLabel = isMars ? "MARS SURFACE EXPEDITION BRIEFING" : "NASA ARTEMIS EXPEDITION BRIEFING";
+    const targetLabel = isMars ? "MARS RESEARCH REGION" : "LUNAR SOUTH POLE";
+    const assuranceLabel = isMars
+      ? "Explore the Martian base, make four mission decisions, and learn how a crew keeps a habitat running."
+      : "Explore the lunar base, make four mission decisions, and learn how a crew keeps a habitat running.";
+    const section = make("section", "moonbase-welcome");
     section.setAttribute("aria-labelledby", "welcome-title");
-    const previewMission = {
-      day: 1,
-      totalDays: 4,
-      resources: { power: 10, water: 10, food: 8, shelterReadiness: 7 },
-      resourceDefinitions: [
-        { key: "power", label: "Power", maximum: 12, unit: "game units" },
-        { key: "water", label: "Water", maximum: 12, unit: "game units" },
-        { key: "food", label: "Food", maximum: 12, unit: "game units" },
-        { key: "shelterReadiness", label: "Shelter", maximum: 12, unit: "game units" }
-      ]
-    };
-    const previewEvent = {
-      day: 1,
-      title: "Solar array inspection",
-      situation: "The base is awake. Let's check the solar panels and get things running."
-    };
-    const objective = make("section", "gameplay-objective welcome-objective");
-    append(objective,
-      append(make("div", "gameplay-objective-head"), make("span", "story-eyebrow", "MISSION OBJECTIVE"), make("span", "objective-diamond", "◆")),
-      make("h1", "gameplay-title", "Keep the base alive"),
-      make("p", "gameplay-objective-copy", "Balance Power, Life Support, Food and Shielding, then finish Day 4 with protection ready."));
-    objective.querySelector?.(".gameplay-title")?.setAttribute("id", "welcome-title");
+    const topHud = make("header", "welcome-top-hud");
+    topHud.setAttribute("aria-label", "Mission reference telemetry");
+    const protocol = make("div", "welcome-protocol");
+    append(protocol,
+      make("span", "welcome-telemetry-icon", "◈"),
+      make("span", "welcome-mono", protocolLabel),
+      make("span", "visually-hidden", "MISSION OBJECTIVE"));
+    const teamBadge = make("div", "welcome-team-badge");
+    append(teamBadge, make("span", "welcome-shield", "◇"), make("span", "welcome-mono", "TEAM RUN 2.0 // CADET SIMULATION"));
+    const referenceStatus = make("div", "welcome-reference-status");
+    append(referenceStatus, make("span", "welcome-status-dot"), make("span", "welcome-mono", "MISSION DATA: CURATED REFERENCE"));
+    append(topHud, protocol, teamBadge, referenceStatus);
 
-    const task = make("aside", "gameplay-task welcome-task");
-    append(task, make("div", "gameplay-task-kicker", "DAY 1 OBJECTIVE"),
-      make("h2", "gameplay-task-title", "Explore the station"),
-      make("p", "gameplay-task-copy", "Fly to the MoonBase 1 airlock and press E to begin Day 1, then repair the solar panels."),
-      append(make("div", "gameplay-task-status"), make("span", "task-status-icon", "!"), make("span", "", "Solar beacon active")));
-
-    const startCard = make("section", "welcome-start-card");
-    append(startCard, make("span", "welcome-start-kicker", "MOONBASE // MISSION DAY 1 OF 4"),
-      make("h1", "welcome-start-title", "Your lunar mission starts here"),
-      make("p", "welcome-start-copy", "Fly to the illuminated MoonBase 1 door and press E to begin the first mission, or use the button below."));
-    const startButton = button(ui.loading ? "Connecting to Mission Control…" : "Start mission", "story-primary-action", startMission, ui.loading);
+    const hero = make("section", "welcome-hero");
+    const heroContent = make("div", "welcome-hero-content");
+    const briefingBadge = make("div", "welcome-briefing-badge");
+    append(briefingBadge, make("span", "welcome-badge-dot"), make("span", "welcome-mono", briefingLabel));
+    const independentNote = make("p", "welcome-independent-note", "NASA Space Apps Challenge · independent team simulation");
+    const title = make("h1", "welcome-title", "MOONBASE");
+    title.id = "welcome-title";
+    const subtitle = make("div", "welcome-subtitle");
+    append(subtitle, make("span", "welcome-rule welcome-rule-left"), make("span", "welcome-mono", "4 DAYS TO SURVIVE"), make("span", "welcome-rule welcome-rule-right"));
+    const lede = make("p", "welcome-lede", "A NASA-Powered Interactive 3D Planetary Survival Expedition for Ages 7–12.");
+    const startWrap = make("div", "welcome-start-wrap");
+    const startButton = button(ui.loading ? "Connecting to Mission Control…" : "Start mission", "welcome-start-button", startMission, ui.loading);
+    startButton.setAttribute("aria-label", ui.loading ? "Connecting to Mission Control" : "Start mission");
     if (ui.loading) {
       startButton.replaceChildren(make("span", "loading-label", "Connecting to Mission Control…"));
       startButton.querySelector(".loading-label").prepend(make("span", "spinner"));
     } else {
-      startButton.append(make("span", "arrow", "→"));
+      startButton.prepend(make("span", "welcome-launch-icon", "↗"));
+      startButton.append(make("span", "welcome-launch-arrow", "→"));
     }
-    startCard.append(startButton);
-
-    const entryHint = make("div", `gameplay-interaction-hint welcome-interaction-hint${ui.interactionTarget ? " is-ready" : ""}`);
-    if (ui.interactionTarget) {
-      append(entryHint,
-        make("span", "interaction-key", "E"),
-        make("span", "interaction-copy", `Enter ${ui.interactionTarget.name}`),
-        make("small", "interaction-description", "The airlock is open. Press E to begin Mission Day 1."));
-    } else {
-      append(entryHint,
-        make("span", "interaction-scan-dot"),
-        make("span", "interaction-copy", "Find the illuminated airlock"),
-        make("small", "interaction-description", "Fly with W A S D · press E when you are near the door"));
+    const hotkey = make("span", "welcome-hotkey");
+    append(hotkey, make("span", "", "PRESS "), make("kbd", "welcome-hotkey-key", "SPACEBAR"), make("span", "", " OR CLICK TO INITIATE SEQUENCE"));
+    append(startWrap, startButton, hotkey);
+    const assurance = make("p", "welcome-assurance", assuranceLabel);
+    if (ui.error) {
+      const error = make("p", "welcome-error", ui.error);
+      error.setAttribute("role", "alert");
+      heroContent.append(error);
     }
+    if (ui.sceneAssetStatus === "error") {
+      const assetError = make("p", "welcome-error", ui.sceneError);
+      assetError.setAttribute("role", "alert");
+      heroContent.append(assetError);
+    }
+    append(heroContent, briefingBadge, independentNote, title, subtitle, lede, startWrap, assurance);
 
-    append(section,
-      renderStoryHud(previewMission, previewEvent),
-      objective,
-      task,
-      renderMissionRadar(),
-      entryHint,
-      renderGameControls(),
-      renderGameDialogue(previewEvent),
-      startCard);
+    const bottomTelemetry = make("footer", "welcome-bottom-telemetry");
+    const referenceRibbon = make("div", "welcome-reference-ribbon");
+    append(referenceRibbon, make("span", "welcome-ribbon-icon", "▦"), make("span", "welcome-mono", "MISSION REFERENCE DATA"));
+    const referenceCopy = make("p", "welcome-reference-copy");
+    append(referenceCopy, make("span", "welcome-mono", "TARGET: "), make("strong", "", targetLabel),
+      make("span", "welcome-telemetry-separator", " // "), make("span", "welcome-mono", "ENVIRONMENT: "), make("strong", "", worldName),
+      make("span", "welcome-telemetry-separator", " // "), make("span", "welcome-mono", "DATA: "), make("strong", "", "NON-LIVE CONTEXT"));
+    const readyCopy = make("div", "welcome-ready-copy");
+    append(readyCopy, make("span", "welcome-status-dot welcome-status-dot-amber"), make("span", "welcome-mono", "SIMULATION HABITAT READY"));
+    append(bottomTelemetry, append(make("div", "welcome-telemetry-left"), referenceRibbon, referenceCopy), readyCopy);
+
+    append(section, topHud, hero, bottomTelemetry);
+    hero.append(heroContent);
     root.append(section);
   }
 
@@ -502,7 +548,7 @@
       make("span", "story-team-inline", "RUN 2.0"));
     append(marker, identity,
       make("strong", "story-hud-title", `Mission day ${day} of ${mission?.totalDays || 4}`),
-      make("span", "story-hud-subtitle", "Lunar outpost survival mission"));
+      make("span", "story-hud-subtitle", ui.world === "mars" ? "Martian outpost survival mission" : "Lunar outpost survival mission"));
     const resources = make("div", "story-resources");
     (mission?.resourceDefinitions || []).forEach((definition) => {
       const value = mission.resources?.[definition.key] ?? 0;
@@ -715,23 +761,186 @@
 
   function renderBriefing() {
     const mission = ui.mission;
-    const section = make("section", "story-shell briefing-story");
-    const stage = make("div", "story-briefing-stage");
-    const dialogue = renderStoryDialogue({
-      speaker: "MISSION CONTROL",
-      title: "Mission briefing",
-      text: "Guide the crew through four mission days. The base is awake, the crew is ready, and every repair can change what happens next.",
-      note: "Your objective: keep Power, Water, and Food above zero, then finish Day 4 with a ready shelter. These are simplified game values, not real engineering measurements."
+    const section = make("section", "mission-briefing-page");
+    section.setAttribute("aria-labelledby", "briefing-title");
+
+    const clearMissionAndReturn = () => {
+      ui.mission = null;
+      ui.decisionHistory = [];
+      ui.selectedChoiceId = null;
+      ui.communicationOpen = false;
+      setScreen("welcome");
+    };
+
+    const nav = make("header", "briefing-nav");
+    const navLeft = make("div", "briefing-nav-left");
+    append(navLeft,
+      button("Back to main menu", "briefing-back-button", clearMissionAndReturn),
+      make("span", "briefing-nav-divider"));
+    const brand = make("div", "briefing-brand");
+    append(brand, make("span", "briefing-brand-icon", "◈"), make("strong", "", "MOONBASE"),
+      make("span", "briefing-brand-divider", "•"), make("span", "briefing-brand-academy", "SPACE EXPLORATION ACADEMY"));
+    navLeft.append(brand);
+    const journey = make("nav", "briefing-journey");
+    journey.setAttribute("aria-label", "Mission journey");
+    append(journey,
+      make("span", "briefing-journey-muted", "WELCOME"), make("span", "briefing-chevron", "›"),
+      make("span", "briefing-journey-active", "CHALLENGE BRIEFING"), make("span", "briefing-chevron", "›"),
+      make("span", "briefing-journey-muted", "WORLD SELECTION"), make("span", "briefing-chevron", "›"),
+      make("span", "briefing-journey-muted", "SURFACE EXPLORATION"));
+    append(nav, navLeft, journey);
+
+    const content = make("div", "briefing-content");
+    const heroCard = make("section", "briefing-hero-card");
+    const heroCopy = make("div", "briefing-hero-copy");
+    append(heroCopy,
+      append(make("div", "briefing-kicker"), make("span", "briefing-kicker-icon", "⚑"), make("span", "", "MISSION BRIEFING")),
+      make("h1", "", "YOUR MISSION STARTS HERE"),
+      make("p", "", "You are about to begin a space exploration mission. Explore unfamiliar environments, investigate mission challenges, understand the science behind them, and make thoughtful decisions along the way."));
+    heroCopy.querySelector?.("h1")?.setAttribute("id", "briefing-title");
+    heroCard.append(heroCopy);
+
+    const objectives = make("section", "briefing-objectives");
+    const objectivesHeader = make("div", "briefing-section-header");
+    append(objectivesHeader,
+      append(make("div", "briefing-section-title"), make("span", "briefing-section-icon", "⌁"), make("h2", "", "YOUR MISSION")),
+      make("span", "briefing-section-count", "4 CORE OBJECTIVES"));
+    const objectiveGrid = make("div", "briefing-objective-grid");
+    [
+      ["01", "EXPLORE", "Discover new places and interact with the world around you.", "Survey planetary terrain", "◌", "primary"],
+      ["02", "OBSERVE", "Look closely and discover what scientific data tells you.", "Read sensor evidence", "◎", "primary"],
+      ["03", "UNDERSTAND", "Learn why space exploration can be challenging.", "Analyze real conditions", "◇", "secondary"],
+      ["04", "DECIDE", "Choose how to respond to mission challenges.", "Execute informed choices", "⌁", "primary"]
+    ].forEach(([number, title, description, footer, icon, tone]) => {
+      const card = make("article", `briefing-objective-card is-${tone}`);
+      const cardTop = make("div", "briefing-objective-top");
+      append(cardTop, make("span", "briefing-objective-number", number), make("span", "briefing-objective-icon", icon));
+      append(card, cardTop, make("h3", "", title), make("p", "", description), make("span", "briefing-objective-footer", footer));
+      objectiveGrid.append(card);
     });
-    const controls = make("div", "story-briefing-controls");
-    append(controls, make("span", "story-eyebrow", "VISUAL MISSION GUIDE"),
-      make("p", "story-briefing-copy", "Read the astronaut's subtitles, watch the highlighted station, then choose one solution. Mission Control calculates every supply change."),
-      renderStoryEffects(mission),
-      button(ui.loading ? "Preparing…" : "Begin Day 1", "story-primary-action", () => setScreen("game"), ui.loading));
-    const demo = renderCommunicationDemo();
-    demo.className = `${demo.className} story-demo`.trim();
-    append(stage, dialogue, controls, demo);
-    append(section, renderStoryHud(mission, mission?.event, 1), stage);
+    append(objectives, objectivesHeader, objectiveGrid);
+
+    const science = make("section", "briefing-science-card");
+    const scienceMain = make("div", "briefing-science-main");
+    const scienceIcon = make("span", "briefing-science-icon", "▤");
+    const scienceCopy = make("div", "briefing-science-copy");
+    const scienceHeading = make("div", "briefing-science-heading");
+    append(scienceHeading, make("h2", "", "SCIENCE MATTERS"), make("span", "briefing-science-tag", "NASA-BASED SCIENCE"));
+    append(scienceCopy, scienceHeading,
+      make("p", "", "Explore scientific information from NASA-supported sources. Measurements keep their original units and source context. Missing data is clearly marked DATA UNAVAILABLE."));
+    append(scienceMain, scienceIcon, scienceCopy);
+    const scienceNote = make("aside", "briefing-science-note");
+    append(scienceNote, make("span", "briefing-science-note-icon", "i"),
+      append(make("div", ""), make("strong", "", "AUTHENTIC EXPLORATION"), make("span", "", "Some scientific measurements may not be available for every location.")));
+    append(science, scienceMain, scienceNote);
+
+    const actionFooter = make("footer", "briefing-action-footer");
+    const footerInner = make("div", "briefing-action-inner");
+    const footerBack = button("Back to main menu", "briefing-footer-back", clearMissionAndReturn);
+    const actionCluster = make("div", "briefing-action-cluster");
+    const actionHint = make("div", "briefing-action-hint");
+    append(actionHint, make("strong", "", "READY TO CONTINUE"), make("span", "", "HOTKEY: PRESS ENTER OR SPACE"));
+    const continueButton = button("Choose your world", "briefing-continue-button", () => setScreen("worldSelection"), ui.loading);
+    continueButton.setAttribute("aria-label", "Choose your world");
+    append(actionCluster, actionHint, continueButton);
+    append(footerInner, footerBack, actionCluster);
+
+    append(content, heroCard, objectives, science);
+    append(section, nav, content, actionFooter);
+    actionFooter.append(footerInner);
+    root.append(section);
+  }
+
+  function renderWorldSelection() {
+    const section = make("section", "world-selection-page");
+    section.setAttribute("aria-labelledby", "world-selection-title");
+
+    const returnToBriefing = () => setScreen("briefing");
+    const nav = make("header", "briefing-nav world-selection-nav");
+    const navLeft = make("div", "briefing-nav-left world-selection-nav-left");
+    const returnButton = button("Back to briefing", "briefing-back-button world-selection-return", returnToBriefing);
+    returnButton.setAttribute("aria-label", "Return to challenge briefing");
+    const brand = make("div", "briefing-brand world-selection-brand");
+    append(brand, make("span", "briefing-brand-icon world-selection-brand-icon", "◈"), make("strong", "", "MOONBASE"),
+      make("span", "briefing-brand-divider world-selection-brand-divider", "•"), make("span", "briefing-brand-academy world-selection-brand-academy", "SPACE EXPLORATION ACADEMY"));
+    append(navLeft, returnButton, make("span", "briefing-nav-divider world-selection-nav-divider"), brand);
+    const journey = make("nav", "briefing-journey world-selection-journey");
+    journey.setAttribute("aria-label", "Mission journey");
+    append(journey,
+      make("span", "briefing-journey-muted world-selection-journey-muted", "WELCOME"), make("span", "briefing-chevron world-selection-chevron", "›"),
+      make("span", "briefing-journey-muted world-selection-journey-muted", "CHALLENGE BRIEFING"), make("span", "briefing-chevron world-selection-chevron", "›"),
+      make("span", "briefing-journey-active world-selection-journey-active", "WORLD SELECTION"), make("span", "briefing-chevron world-selection-chevron", "›"),
+      make("span", "briefing-journey-muted world-selection-journey-muted", "SURFACE EXPLORATION"));
+    append(nav, navLeft, journey);
+
+    const main = make("main", "world-selection-main");
+    const intro = make("header", "world-selection-intro");
+    const destinationTag = make("div", "world-selection-tag");
+    append(destinationTag, make("span", "world-selection-ping"), make("span", "world-selection-tag-icon", "◉"), make("span", "", "DESTINATION SELECT"));
+    const title = make("h1", "", "CHOOSE YOUR WORLD");
+    title.id = "world-selection-title";
+    append(intro, destinationTag, title,
+      make("p", "", "Two worlds. Two different adventures. Where will you explore?"),
+      append(make("div", "world-selection-crosshair"), make("span", "", "╱"), make("span", "world-selection-crosshair-icon", "⌖"), make("span", "", "╲")));
+
+    const destinationGrid = make("section", "destination-grid");
+    destinationGrid.setAttribute("aria-label", "Available destinations");
+
+    const selectWorld = (world) => {
+      ui.world = world === "moon" ? "moon" : "mars";
+      const url = new URL(window.location.href);
+      url.searchParams.set("world", ui.world);
+      window.history.replaceState({}, "", url);
+      setScreen("game");
+      window.MoonBaseScene?.setWorld?.(ui.world);
+    };
+
+    const moonCard = button("", "destination-card destination-card-moon", () => selectWorld("moon"));
+    moonCard.setAttribute("aria-label", "Select destination: The Moon");
+    append(moonCard,
+      append(make("div", "destination-card-image"), (() => {
+        const image = make("img", "", "");
+        image.src = "../assets/backgrounds/moon-world-selection.png";
+        image.alt = "The Moon surface landscape with Earth in the background";
+        return image;
+      })(), make("span", "destination-card-tint")),
+      append(make("div", "destination-card-top"),
+        append(make("span", "destination-card-tag"), make("span", "destination-card-dot"), make("span", "", "DESTINATION 01 // EARTH'S COMPANION")),
+        make("span", "destination-card-symbol", "◐")),
+      append(make("div", "destination-card-content"),
+        append(make("div", "destination-card-heading"), make("span", "destination-card-kicker", "PLANETARY BODY"), make("h2", "", "THE MOON")),
+        append(make("div", "destination-card-pills"), make("span", "", "LUNAR CRATERS"), make("span", "", "DEEP SHADOW CRATERS"), make("span", "", "EARTH IN SIGHT")),
+        make("p", "", "Explore the lunar surface and discover the challenges of working on our nearest celestial neighbor."),
+        append(make("span", "destination-card-action destination-card-action-moon"), make("span", "", "Explore the Moon"), make("span", "", "↗"))));
+
+    const marsCard = button("", "destination-card destination-card-mars", () => selectWorld("mars"));
+    marsCard.setAttribute("aria-label", "Select destination: Mars");
+    append(marsCard,
+      append(make("div", "destination-card-image"), (() => {
+        const image = make("img", "", "");
+        image.src = "../assets/backgrounds/mars-world-selection.png";
+        image.alt = "Mars surface landscape with dunes and canyons";
+        return image;
+      })(), make("span", "destination-card-tint")),
+      append(make("div", "destination-card-top"),
+        append(make("span", "destination-card-tag"), make("span", "destination-card-dot destination-card-dot-mars"), make("span", "", "DESTINATION 02 // THE RED PLANET")),
+        make("span", "destination-card-symbol destination-card-symbol-mars", "✦")),
+      append(make("div", "destination-card-content"),
+        append(make("div", "destination-card-heading"), make("span", "destination-card-kicker destination-card-kicker-mars", "PLANETARY BODY"), make("h2", "", "MARS")),
+        append(make("div", "destination-card-pills"), make("span", "", "DUSTY TERRAIN"), make("span", "", "ANCIENT RIVERBEDS"), make("span", "", "THIN ATMOSPHERE")),
+        make("p", "", "Explore the Red Planet and discover the challenges of exploring a world far beyond Earth."),
+        append(make("span", "destination-card-action destination-card-action-mars"), make("span", "", "EXPLORE MARS"), make("span", "", "↗"))));
+
+    append(destinationGrid, moonCard, marsCard);
+
+    const footer = make("footer", "world-selection-footer");
+    const footerBack = button("Back to challenge briefing", "world-selection-footer-back", returnToBriefing);
+    const footerHint = make("div", "world-selection-footer-hint");
+    append(footerHint, make("span", "world-selection-footer-dot"), make("span", "", "SELECT A DESTINATION TO LAUNCH MISSION BRIEFING"));
+    append(footer, footerBack, footerHint);
+
+    append(main, intro, destinationGrid, footer);
+    append(section, nav, main);
     root.append(section);
   }
 

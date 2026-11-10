@@ -1503,6 +1503,1029 @@ body[data-app-screen="game"] .gameplay-interaction-hint { bottom: 5%; }
   body[data-app-screen="game"] .gameplay-interaction-hint { bottom: 27px; }
 }
 
+/* Final exploration HUD pass: the lunar world remains the primary visual
+   surface while mission information stays readable and accessible. */
+body[data-app-screen="game"] .gameplay-hud {
+  top: 14px !important;
+  left: auto !important;
+  right: 16px !important;
+  width: min(500px, 52vw) !important;
+  grid-template-columns: 1fr auto !important;
+  gap: 6px !important;
+}
+body[data-app-screen="game"] .gameplay-hud .story-resources { gap: 5px !important; }
+body[data-app-screen="game"] .gameplay-hud .story-resource {
+  min-height: 46px !important;
+  padding: 6px 8px 5px !important;
+  border-radius: 10px !important;
+  background: linear-gradient(145deg, rgb(7 26 60 / 78%), rgb(5 14 38 / 67%)) !important;
+  backdrop-filter: blur(8px) !important;
+}
+body[data-app-screen="game"] .gameplay-hud .story-resource-label { gap: 4px !important; font-size: 8px !important; }
+body[data-app-screen="game"] .gameplay-hud .story-resource-icon { width: 14px !important; height: 14px !important; flex-basis: 14px !important; border-radius: 4px !important; }
+body[data-app-screen="game"] .gameplay-hud .story-resource-value { font-size: 15px !important; }
+body[data-app-screen="game"] .gameplay-hud .story-resource-meter { height: 3px !important; margin-top: 3px !important; }
+body[data-app-screen="game"] .gameplay-hud .story-day-progress {
+  min-width: 58px !important;
+  min-height: 46px !important;
+  gap: 5px !important;
+  padding: 6px !important;
+  border-radius: 10px !important;
+  backdrop-filter: blur(8px) !important;
+}
+body[data-app-screen="game"] .gameplay-hud .story-day-caption { font-size: 7px !important; }
+
+body[data-app-screen="game"] .gameplay-objective {
+  top: 88px !important;
+  left: 16px !important;
+  width: min(250px, 22vw) !important;
+  padding: 12px 14px 11px !important;
+  border-radius: 0 12px 12px 0 !important;
+  background: linear-gradient(145deg, rgb(7 29 64 / 68%), rgb(5 15 39 / 56%)) !important;
+  box-shadow: 0 16px 34px rgb(0 3 22 / 23%) !important;
+  backdrop-filter: blur(8px) !important;
+}
+body[data-app-screen="game"] .gameplay-objective .story-eyebrow { font-size: 8px !important; }
+body[data-app-screen="game"] .gameplay-title { margin: 7px 0 6px !important; font-size: clamp(18px, 1.6vw, 23px) !important; }
+body[data-app-screen="game"] .gameplay-objective-copy { max-width: 220px !important; font-size: 10px !important; line-height: 1.35 !important; }
+body[data-app-screen="game"] .gameplay-objective-status { margin-top: 8px !important; padding-top: 7px !important; font-size: 8px !important; }
+
+body[data-app-screen="game"] .gameplay-task {
+  top: 88px !important;
+  right: 16px !important;
+  width: min(220px, 20vw) !important;
+  padding: 10px 12px !important;
+  border-radius: 11px !important;
+  background: linear-gradient(145deg, rgb(7 24 57 / 65%), rgb(5 13 36 / 52%)) !important;
+  box-shadow: 0 16px 34px rgb(0 3 22 / 22%) !important;
+  backdrop-filter: blur(8px) !important;
+}
+body[data-app-screen="game"] .gameplay-task-kicker { font-size: 8px !important; }
+body[data-app-screen="game"] .gameplay-task-title { margin: 5px 0 4px !important; font-size: 13px !important; }
+body[data-app-screen="game"] .gameplay-task-copy { font-size: 9px !important; line-height: 1.3 !important; }
+body[data-app-screen="game"] .gameplay-task-status { margin-top: 7px !important; padding-top: 6px !important; font-size: 8px !important; }
+
+body[data-app-screen="game"] .mission-telemetry {
+  top: 70px !important;
+  left: 50% !important;
+  width: min(285px, 27vw) !important;
+  max-height: 52px !important;
+  overflow: hidden !important;
+  padding: 6px 9px !important;
+  border-radius: 9px !important;
+  opacity: .82 !important;
+  transform: translateX(-50%) !important;
+  backdrop-filter: blur(7px) !important;
+}
+body[data-app-screen="game"] .mission-telemetry-kicker { font-size: 7px !important; }
+body[data-app-screen="game"] .mission-telemetry-status { font-size: 10px !important; }
+body[data-app-screen="game"] .mission-telemetry-copy,
+body[data-app-screen="game"] .mission-telemetry-source { font-size: 7px !important; }
+
+body[data-app-screen="game"] .gameplay-dialogue-live {
+  left: 50% !important;
+  right: auto !important;
+  bottom: 14px !important;
+  width: min(315px, 27vw) !important;
+  min-height: 0 !important;
+  grid-template-columns: 42px minmax(0, 1fr) !important;
+  gap: 8px !important;
+  padding: 8px 10px !important;
+  border-radius: 12px !important;
+  transform: translateX(-50%) !important;
+  backdrop-filter: blur(8px) !important;
+}
+body[data-app-screen="game"] .gameplay-dialogue-live .crew-portrait { width: 42px !important; min-height: 50px !important; border-radius: 9px !important; }
+body[data-app-screen="game"] .gameplay-dialogue-live .story-speaker-line { font-size: 7px !important; }
+body[data-app-screen="game"] .gameplay-dialogue-title { margin: 3px 0 !important; font-size: 12px !important; }
+body[data-app-screen="game"] .gameplay-dialogue-live .story-subtitle { font-size: 9px !important; line-height: 1.25 !important; }
+body[data-app-screen="game"] .gameplay-dialogue-live .story-hazard-signal { margin: 4px 0 0 !important; padding: 4px 5px !important; }
+body[data-app-screen="game"] .gameplay-dialogue-live .story-hazard-type,
+body[data-app-screen="game"] .gameplay-dialogue-live .story-hazard-delay { font-size: 7px !important; }
+
+body[data-app-screen="game"] .gameplay-interaction-hint {
+  bottom: 106px !important;
+  width: min(245px, 24vw) !important;
+  min-width: 0 !important;
+  padding: 7px 9px 7px 7px !important;
+  border-radius: 10px !important;
+}
+body[data-app-screen="game"] .gameplay-interaction-hint .interaction-key { min-height: 26px !important; font-size: 11px !important; }
+body[data-app-screen="game"] .gameplay-interaction-hint .interaction-copy { font-size: 9px !important; }
+body[data-app-screen="game"] .gameplay-interaction-hint .interaction-description { font-size: 7px !important; }
+
+body[data-app-screen="game"] .mission-radar {
+  left: 16px !important;
+  bottom: 16px !important;
+  width: 100px !important;
+  height: 100px !important;
+  opacity: .72 !important;
+}
+body[data-app-screen="game"] .radar-north { left: 47px !important; top: -15px !important; font-size: 9px !important; }
+body[data-app-screen="game"] .gameplay-controls {
+  top: auto !important;
+  right: 16px !important;
+  bottom: 16px !important;
+  width: 160px !important;
+  padding: 9px 10px !important;
+  border-radius: 11px !important;
+  backdrop-filter: blur(8px) !important;
+}
+body[data-app-screen="game"] .gameplay-controls.is-collapsed { width: 48px !important; padding: 8px !important; }
+body[data-app-screen="game"] .gameplay-controls .controls-line { min-height: 21px !important; font-size: 9px !important; }
+body[data-app-screen="game"] .gameplay-controls .control-key { min-height: 19px !important; font-size: 7px !important; }
+
+@media (max-width: 900px) and (min-width: 651px) {
+  body[data-app-screen="game"] .gameplay-objective { width: 235px !important; }
+  body[data-app-screen="game"] .gameplay-task { width: 205px !important; }
+  body[data-app-screen="game"] .gameplay-hud { width: min(460px, 54vw) !important; }
+  body[data-app-screen="game"] .gameplay-dialogue-live { width: min(300px, 30vw) !important; }
+}
+
+@media (max-width: 650px) {
+  body[data-app-screen="game"] .gameplay-hud { top: 62px !important; left: 10px !important; right: 10px !important; width: auto !important; grid-template-columns: 1fr !important; }
+  body[data-app-screen="game"] .gameplay-hud .story-resource { min-height: 40px !important; padding: 5px !important; }
+  body[data-app-screen="game"] .gameplay-objective { top: 128px !important; left: 10px !important; width: min(230px, calc(100vw - 20px)) !important; }
+  body[data-app-screen="game"] .gameplay-task { top: auto !important; right: 10px !important; bottom: 150px !important; width: min(215px, calc(100vw - 20px)) !important; }
+  body[data-app-screen="game"] .mission-telemetry { top: 106px !important; left: auto !important; right: 10px !important; width: 210px !important; transform: none !important; }
+  body[data-app-screen="game"] .gameplay-dialogue-live { left: 10px !important; right: 10px !important; bottom: 10px !important; width: auto !important; transform: translateY(0) !important; }
+  body[data-app-screen="game"] .gameplay-interaction-hint { right: 10px !important; bottom: 112px !important; left: 10px !important; width: auto !important; transform: none !important; }
+  body[data-app-screen="game"] .mission-radar { left: 10px !important; bottom: 10px !important; width: 82px !important; height: 82px !important; }
+  body[data-app-screen="game"] .gameplay-controls { right: 10px !important; bottom: 10px !important; }
+}
+
+/* Exploration mode keeps the first-person information legible without
+   making the player look through a wall of cards. */
+body[data-app-screen="game"] .gameplay-objective {
+  width: min(225px, 20vw) !important;
+  padding: 10px 12px 9px !important;
+}
+body[data-app-screen="game"] .gameplay-objective-copy { font-size: 9px !important; line-height: 1.3 !important; }
+body[data-app-screen="game"] .gameplay-title { font-size: clamp(17px, 1.45vw, 21px) !important; }
+body[data-app-screen="game"] .gameplay-dialogue-live {
+  width: min(270px, 24vw) !important;
+  grid-template-columns: 1fr !important;
+  gap: 3px !important;
+  padding: 7px 9px !important;
+}
+body[data-app-screen="game"] .gameplay-dialogue-live .crew-portrait { display: none !important; }
+body[data-app-screen="game"] .gameplay-dialogue-live .story-subtitle {
+  display: -webkit-box !important;
+  overflow: hidden !important;
+  -webkit-box-orient: vertical !important;
+  -webkit-line-clamp: 2 !important;
+}
+body[data-app-screen="game"] .gameplay-dialogue-live .story-hazard-signal { display: none !important; }
+body[data-app-screen="game"] .gameplay-dialogue-live .story-speaker-line { font-size: 7px !important; }
+body[data-app-screen="game"] .gameplay-dialogue-title { display: none !important; }
+
+@media (max-width: 900px) and (min-width: 651px) {
+  body[data-app-screen="game"] .gameplay-objective { width: 215px !important; }
+  body[data-app-screen="game"] .gameplay-dialogue-live { width: 250px !important; }
+}
+
+@media (max-width: 650px) {
+  body[data-app-screen="game"] .gameplay-objective { width: min(220px, calc(100vw - 20px)) !important; }
+  body[data-app-screen="game"] .gameplay-dialogue-live { width: auto !important; }
+}
+
+/* Mission briefing screen shown after the real mission-start response. */
+body[data-app-screen="briefing"] {
+  overflow-y: auto;
+  background: #080e1a;
+  font-family: "Inter", "Segoe UI", sans-serif;
+}
+
+body[data-app-screen="briefing"] .site-shell {
+  width: 100%;
+  min-height: 100svh;
+  margin: 0;
+  pointer-events: none;
+}
+
+body[data-app-screen="briefing"] .topbar,
+body[data-app-screen="briefing"] .page-footer {
+  display: none !important;
+}
+
+body[data-app-screen="briefing"] .app-shell {
+  width: 100%;
+  min-height: 100svh;
+  padding: 0;
+  pointer-events: auto;
+}
+
+body[data-app-screen="briefing"] .lunar-scene {
+  z-index: 0;
+  pointer-events: none;
+  opacity: 1 !important;
+  background-color: #080e1a;
+  background-image: url("../assets/backgrounds/moonbase-welcome-key-art.png");
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+
+body[data-app-screen="briefing"] #lunar-canvas,
+body[data-app-screen="briefing"] .scene-fallback-art {
+  display: none !important;
+}
+
+body[data-app-screen="briefing"] .scene-vignette {
+  background:
+    linear-gradient(180deg, rgb(8 14 26 / 88%), rgb(8 14 26 / 48%) 35%, rgb(8 14 26 / 76%) 100%),
+    radial-gradient(circle at 50% 40%, transparent 20%, rgb(8 14 26 / 72%) 90%);
+}
+
+.mission-briefing-page {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  min-height: 100svh;
+  color: #dde2f3;
+  font-family: "Inter", "Segoe UI", sans-serif;
+}
+
+.briefing-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  width: 100%;
+  padding: 14px clamp(18px, 4vw, 42px);
+  border-bottom: 1px solid rgb(135 146 154 / 30%);
+  background: rgb(22 28 40 / 86%);
+  box-shadow: 0 8px 24px rgb(0 0 0 / 18%);
+  backdrop-filter: blur(18px);
+}
+
+.briefing-nav-left,
+.briefing-brand,
+.briefing-journey,
+.briefing-section-title,
+.briefing-section-header,
+.briefing-objective-top,
+.briefing-science-main,
+.briefing-science-heading,
+.briefing-action-inner,
+.briefing-action-cluster {
+  display: flex;
+  align-items: center;
+}
+
+.briefing-nav-left { min-width: 0; gap: 16px; }
+.briefing-back-button,
+.briefing-footer-back {
+  min-height: 34px;
+  padding: 0 13px;
+  border: 1px solid rgb(135 146 154 / 42%);
+  border-radius: 7px;
+  color: #bdc8d1;
+  background: rgb(47 53 66 / 64%);
+  box-shadow: none;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+}
+
+.briefing-back-button:hover:not(:disabled),
+.briefing-footer-back:hover:not(:disabled) { color: #8ed5ff; background: rgb(52 57 70 / 82%); box-shadow: none; }
+.briefing-nav-divider { width: 1px; height: 18px; background: rgb(135 146 154 / 40%); }
+.briefing-brand { gap: 9px; min-width: 0; white-space: nowrap; }
+.briefing-brand-icon { color: #8ed5ff; font-size: 22px; text-shadow: 0 0 12px rgb(142 213 255 / 60%); }
+.briefing-brand strong { color: #f5f8ff; font-family: "Space Grotesk", sans-serif; font-size: 18px; letter-spacing: .09em; }
+.briefing-brand-divider { color: rgb(135 146 154 / 68%); }
+.briefing-brand-academy { color: rgb(142 213 255 / 78%); font-family: "JetBrains Mono", monospace; font-size: 9px; font-weight: 600; letter-spacing: .1em; }
+
+.briefing-journey { flex: 0 0 auto; gap: 9px; color: #bdc8d1; font-family: "JetBrains Mono", monospace; font-size: 9px; letter-spacing: .07em; text-transform: uppercase; }
+.briefing-journey-muted { color: rgb(189 200 209 / 58%); }
+.briefing-journey-active { display: inline-flex; align-items: center; gap: 7px; padding: 4px 9px; border: 1px solid rgb(142 213 255 / 40%); border-radius: 999px; color: #8ed5ff; background: rgb(142 213 255 / 11%); font-weight: 700; }
+.briefing-journey-active::before { width: 6px; height: 6px; content: ""; border-radius: 50%; background: #8ed5ff; box-shadow: 0 0 9px rgb(142 213 255 / 80%); }
+.briefing-chevron { color: rgb(135 146 154 / 68%); font-size: 17px; line-height: .5; }
+
+.briefing-content { display: grid; flex: 1 1 auto; gap: 24px; width: min(100% - 40px, 1160px); margin: 0 auto; padding: 26px 0 30px; }
+.briefing-hero-card,
+.briefing-science-card,
+.briefing-objective-card {
+  border: 1px solid rgb(142 213 255 / 24%);
+  background: rgb(36 42 54 / 72%);
+  box-shadow: 0 22px 58px rgb(0 0 0 / 25%);
+  backdrop-filter: blur(14px);
+}
+
+.briefing-hero-card { position: relative; overflow: hidden; padding: 28px clamp(22px, 4vw, 38px); border-radius: 16px; }
+.briefing-hero-card::before { position: absolute; top: 0; right: 0; left: 0; height: 4px; content: ""; background: linear-gradient(90deg, #8ed5ff, #38bdf8 58%, #ffb95f); }
+.briefing-hero-copy { max-width: 760px; }
+.briefing-kicker { display: inline-flex; align-items: center; gap: 8px; padding: 6px 11px; border: 1px solid rgb(142 213 255 / 34%); border-radius: 5px; color: #8ed5ff; background: rgb(142 213 255 / 12%); font-family: "JetBrains Mono", monospace; font-size: 10px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; }
+.briefing-kicker-icon { color: #8ed5ff; font-size: 14px; }
+.briefing-hero-card h1 { margin: 15px 0 9px; color: #fff; font-family: "Space Grotesk", sans-serif; font-size: clamp(31px, 4vw, 52px); font-weight: 700; letter-spacing: .01em; line-height: 1.05; }
+.briefing-hero-card p { max-width: 760px; margin: 0; color: #bdc8d1; font-size: 16px; line-height: 1.6; }
+
+.briefing-section-header { justify-content: space-between; gap: 18px; padding: 0 2px; }
+.briefing-section-title { gap: 10px; }
+.briefing-section-icon { color: #8ed5ff; font-size: 23px; }
+.briefing-section-title h2 { margin: 0; color: #dde2f3; font-family: "Space Grotesk", sans-serif; font-size: 20px; letter-spacing: .08em; }
+.briefing-section-count { color: rgb(142 213 255 / 78%); font-family: "JetBrains Mono", monospace; font-size: 10px; letter-spacing: .1em; text-transform: uppercase; }
+.briefing-objective-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; margin-top: 11px; }
+.briefing-objective-card { display: flex; flex-direction: column; min-height: 210px; padding: 17px; border-color: rgb(135 146 154 / 30%); border-radius: 11px; transition: border-color .18s ease, transform .18s ease, background .18s ease; }
+.briefing-objective-card:hover { transform: translateY(-2px); border-color: rgb(142 213 255 / 55%); background: rgb(47 53 66 / 80%); }
+.briefing-objective-card.is-secondary:hover { border-color: rgb(255 185 95 / 60%); }
+.briefing-objective-top { justify-content: space-between; margin-bottom: 17px; }
+.briefing-objective-number { padding: 3px 8px; border: 1px solid rgb(142 213 255 / 32%); border-radius: 4px; color: #8ed5ff; background: rgb(142 213 255 / 10%); font-family: "JetBrains Mono", monospace; font-size: 10px; font-weight: 700; }
+.is-secondary .briefing-objective-number { border-color: rgb(255 185 95 / 35%); color: #ffb95f; background: rgb(255 185 95 / 10%); }
+.briefing-objective-icon { display: grid; place-items: center; width: 38px; height: 38px; border-radius: 7px; color: #8ed5ff; background: rgb(142 213 255 / 13%); font-size: 25px; }
+.is-secondary .briefing-objective-icon { color: #ffb95f; background: rgb(255 185 95 / 13%); }
+.briefing-objective-card h3 { margin: 0 0 8px; color: #fff; font-family: "Space Grotesk", sans-serif; font-size: 17px; letter-spacing: .08em; }
+.briefing-objective-card p { flex: 1 1 auto; margin: 0; color: #bdc8d1; font-size: 13px; line-height: 1.55; }
+.briefing-objective-footer { margin-top: 15px; padding-top: 10px; border-top: 1px solid rgb(135 146 154 / 20%); color: rgb(142 213 255 / 72%); font-family: "JetBrains Mono", monospace; font-size: 9px; letter-spacing: .04em; text-transform: uppercase; }
+.is-secondary .briefing-objective-footer { color: rgb(255 185 95 / 78%); }
+
+.briefing-science-card { display: flex; align-items: center; justify-content: space-between; gap: 25px; padding: 20px 22px; border-color: rgb(135 146 154 / 35%); border-radius: 11px; }
+.briefing-science-main { min-width: 0; align-items: flex-start; gap: 15px; }
+.briefing-science-icon { display: grid; flex: 0 0 auto; place-items: center; width: 44px; height: 44px; border: 1px solid rgb(142 213 255 / 32%); border-radius: 8px; color: #8ed5ff; background: rgb(142 213 255 / 12%); font-size: 23px; }
+.briefing-science-copy { min-width: 0; }
+.briefing-science-heading { flex-wrap: wrap; gap: 9px; }
+.briefing-science-heading h2 { margin: 0; color: #fff; font-family: "Space Grotesk", sans-serif; font-size: 18px; letter-spacing: .08em; }
+.briefing-science-tag { padding: 3px 7px; border: 1px solid rgb(255 185 95 / 35%); border-radius: 4px; color: #ffb95f; background: rgb(255 185 95 / 10%); font-family: "JetBrains Mono", monospace; font-size: 9px; font-weight: 700; letter-spacing: .06em; }
+.briefing-science-copy p { max-width: 720px; margin: 6px 0 0; color: #bdc8d1; font-size: 13px; line-height: 1.5; }
+.briefing-science-note { display: flex; flex: 0 0 min(295px, 28%); align-items: center; gap: 11px; padding: 12px; border: 1px solid rgb(135 146 154 / 35%); border-radius: 8px; background: rgb(22 28 40 / 90%); }
+.briefing-science-note-icon { display: grid; flex: 0 0 auto; place-items: center; width: 29px; height: 29px; border-radius: 50%; color: #ffb95f; background: rgb(255 185 95 / 15%); font-family: "Space Grotesk", sans-serif; font-weight: 700; }
+.briefing-science-note div { display: grid; gap: 3px; }
+.briefing-science-note strong { color: #ffb95f; font-family: "JetBrains Mono", monospace; font-size: 10px; letter-spacing: .06em; }
+.briefing-science-note span:last-child { color: #bdc8d1; font-family: "JetBrains Mono", monospace; font-size: 9px; line-height: 1.35; }
+
+.briefing-action-footer { position: relative; z-index: 2; border-top: 1px solid rgb(135 146 154 / 30%); background: rgb(22 28 40 / 90%); box-shadow: 0 -12px 30px rgb(0 0 0 / 18%); backdrop-filter: blur(18px); }
+.briefing-action-inner { justify-content: space-between; gap: 20px; width: min(100% - 40px, 1160px); min-height: 78px; margin: 0 auto; }
+.briefing-action-cluster { justify-content: flex-end; gap: 18px; }
+.briefing-action-hint { display: grid; gap: 3px; text-align: right; font-family: "JetBrains Mono", monospace; font-size: 9px; letter-spacing: .05em; text-transform: uppercase; }
+.briefing-action-hint strong { color: #8ed5ff; }
+.briefing-action-hint span { color: rgb(135 146 154 / 78%); }
+.briefing-continue-button { min-height: 50px; padding: 0 27px; border: 1px solid rgb(142 213 255 / 58%); border-radius: 7px; color: #004965; background: #38bdf8; box-shadow: 0 10px 22px rgb(56 189 248 / 25%); font-family: "Space Grotesk", sans-serif; font-size: 16px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+.briefing-continue-button:hover:not(:disabled) { background: #7bd0ff; box-shadow: 0 14px 28px rgb(56 189 248 / 36%); }
+
+@media (max-width: 980px) {
+  .briefing-journey { display: none; }
+  .briefing-objective-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .briefing-science-card { align-items: stretch; flex-direction: column; gap: 16px; }
+  .briefing-science-note { flex-basis: auto; }
+}
+
+@media (max-width: 650px) {
+  body[data-app-screen="briefing"] .briefing-nav { padding: 10px 14px; }
+  .briefing-nav-left { gap: 9px; }
+  .briefing-nav-divider, .briefing-brand-divider, .briefing-brand-academy { display: none; }
+  .briefing-brand { gap: 6px; }
+  .briefing-brand strong { font-size: 15px; }
+  .briefing-brand-icon { font-size: 18px; }
+  .briefing-back-button { padding-inline: 9px; font-size: 8px; }
+  .briefing-content { width: min(100% - 24px, 560px); gap: 15px; padding: 15px 0 20px; }
+  .briefing-hero-card { padding: 22px 17px; }
+  .briefing-hero-card h1 { font-size: 30px; }
+  .briefing-hero-card p { font-size: 13px; line-height: 1.55; }
+  .briefing-section-header { align-items: flex-start; flex-direction: column; gap: 4px; }
+  .briefing-section-title h2 { font-size: 17px; }
+  .briefing-objective-grid { grid-template-columns: 1fr; gap: 10px; }
+  .briefing-objective-card { min-height: 0; padding: 14px; }
+  .briefing-objective-card p { font-size: 12px; }
+  .briefing-science-card { padding: 15px; }
+  .briefing-science-main { gap: 10px; }
+  .briefing-science-copy p { font-size: 12px; }
+  .briefing-action-inner { align-items: stretch; flex-direction: column; width: min(100% - 24px, 560px); padding: 12px 0 15px; }
+  .briefing-footer-back, .briefing-continue-button { width: 100%; }
+  .briefing-action-cluster { align-items: stretch; flex-direction: column-reverse; gap: 9px; }
+  .briefing-action-hint { text-align: center; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .briefing-objective-card { transition: none; }
+  .briefing-objective-card:hover { transform: none; }
+}
+
+/* World selection screen shown after the Mission Briefing. */
+body[data-app-screen="worldSelection"] {
+  overflow-y: auto;
+  background: #080e1a;
+  font-family: "Inter", "Segoe UI", sans-serif;
+}
+
+body[data-app-screen="worldSelection"] .site-shell {
+  width: 100%;
+  min-height: 100svh;
+  margin: 0;
+  pointer-events: none;
+}
+
+body[data-app-screen="worldSelection"] .topbar,
+body[data-app-screen="worldSelection"] .page-footer {
+  display: none !important;
+}
+
+body[data-app-screen="worldSelection"] .app-shell {
+  width: 100%;
+  min-height: 100svh;
+  padding: 0;
+  pointer-events: auto;
+}
+
+body[data-app-screen="worldSelection"] .lunar-scene {
+  z-index: 0;
+  pointer-events: none;
+  opacity: 1 !important;
+  background:
+    radial-gradient(circle at 12% 0%, rgb(56 189 248 / 13%), transparent 28rem),
+    radial-gradient(circle at 88% 0%, rgb(255 185 95 / 10%), transparent 28rem),
+    #080e1a;
+}
+
+body[data-app-screen="worldSelection"] #lunar-canvas,
+body[data-app-screen="worldSelection"] .scene-fallback-art,
+body[data-app-screen="worldSelection"] .scene-vignette {
+  display: none !important;
+}
+
+.world-selection-page {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  min-height: 100svh;
+  overflow: hidden;
+  color: #dde2f3;
+  font-family: "Inter", "Segoe UI", sans-serif;
+  background:
+    linear-gradient(rgb(8 14 26 / 18%), rgb(8 14 26 / 18%)),
+    linear-gradient(90deg, rgb(56 189 248 / 9%) 1px, transparent 1px),
+    linear-gradient(rgb(56 189 248 / 9%) 1px, transparent 1px);
+  background-size: auto, 48px 48px, 48px 48px;
+}
+
+.world-selection-page::before,
+.world-selection-page::after { position: absolute; content: ""; pointer-events: none; }
+.world-selection-page::before { inset: 0; z-index: 0; opacity: .4; background: radial-gradient(circle at 50% 30%, transparent 10%, #080e1a 88%); }
+.world-selection-page::after { top: -8rem; left: 50%; z-index: 0; width: 32rem; height: 32rem; border-radius: 50%; background: rgb(142 213 255 / 7%); filter: blur(100px); transform: translateX(-50%); }
+
+.world-selection-nav,
+.world-selection-main { position: relative; z-index: 1; }
+.world-selection-nav { min-height: 0; padding: 14px clamp(18px, 4vw, 42px); border-bottom-color: rgb(135 146 154 / 30%); background: rgb(22 28 40 / 86%); box-shadow: 0 8px 24px rgb(0 0 0 / 18%); }
+.world-selection-nav-left,
+.world-selection-brand,
+.world-selection-journey,
+.world-selection-tag,
+.world-selection-crosshair,
+.world-selection-footer,
+.destination-card-tag,
+.destination-card-action { display: flex; align-items: center; }
+.world-selection-nav-left { gap: 16px; }
+.world-selection-return,
+.world-selection-footer-back { min-height: 34px; padding: 0 13px; border: 1px solid rgb(135 146 154 / 42%); border-radius: 7px; color: #bdc8d1; background: rgb(47 53 66 / 64%); box-shadow: none; font-family: "JetBrains Mono", monospace; font-size: 10px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; }
+.world-selection-return:hover:not(:disabled),
+.world-selection-footer-back:hover:not(:disabled) { color: #f5f8ff; background: #343946; box-shadow: none; }
+.world-selection-brand { gap: 9px; min-width: 0; white-space: nowrap; }
+.world-selection-brand strong { color: #f5f8ff; font-family: "Space Grotesk", sans-serif; font-size: 18px; letter-spacing: .09em; }
+.world-selection-brand-divider { color: rgb(135 146 154 / 60%); }
+.world-selection-journey { gap: 9px; padding: 0; border: 0; border-radius: 0; background: transparent; }
+.world-selection-journey-muted { padding: 0; color: rgb(189 200 209 / 58%); }
+.world-selection-journey-active { padding: 4px 9px; border: 1px solid rgb(142 213 255 / 40%); border-radius: 999px; color: #8ed5ff; background: rgb(142 213 255 / 11%); font-weight: 700; }
+.world-selection-chevron { color: rgb(135 146 154 / 68%); font-size: 17px; line-height: .5; }
+
+.world-selection-main { display: flex; flex: 1 1 auto; flex-direction: column; width: min(100% - 40px, 1240px); min-height: calc(100svh - 70px); margin: 0 auto; padding: 32px 0 26px; }
+.world-selection-intro { display: flex; flex-direction: column; align-items: center; text-align: center; }
+.world-selection-tag { gap: 8px; padding: 6px 12px; border-radius: 999px; color: #8ed5ff; background: rgb(47 53 66 / 78%); box-shadow: 0 8px 20px rgb(0 0 0 / 15%); font-family: "JetBrains Mono", monospace; font-size: 10px; font-weight: 600; letter-spacing: .11em; text-transform: uppercase; }
+.world-selection-ping { width: 7px; height: 7px; border-radius: 50%; background: #8ed5ff; box-shadow: 0 0 10px rgb(142 213 255 / 80%); }
+.world-selection-tag-icon { font-size: 14px; }
+.world-selection-intro h1 { margin: 14px 0 4px; color: #dde2f3; font-family: "Space Grotesk", sans-serif; font-size: clamp(31px, 5vw, 48px); letter-spacing: .08em; line-height: 1.1; text-shadow: 0 2px 12px rgb(142 213 255 / 25%); }
+.world-selection-intro p { margin: 0; color: #bdc8d1; font-size: 17px; line-height: 1.5; }
+.world-selection-crosshair { justify-content: center; gap: 13px; width: 190px; margin-top: 10px; color: #8ed5ff; font-size: 12px; opacity: .72; }
+.world-selection-crosshair::before,
+.world-selection-crosshair::after { flex: 1 1 auto; height: 1px; content: ""; background: linear-gradient(90deg, transparent, #8ed5ff); }
+.world-selection-crosshair::after { background: linear-gradient(90deg, #8ed5ff, transparent); }
+.world-selection-crosshair-icon { font-size: 16px; }
+
+.destination-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 26px; width: 100%; margin: 28px auto 0; }
+.destination-card { position: relative; display: flex; flex-direction: column; justify-content: space-between; min-height: 445px; overflow: hidden; padding: 0; border: 1px solid rgb(135 146 154 / 30%); border-radius: 11px; color: #dde2f3; background: #080e1a; box-shadow: 0 24px 60px rgb(0 0 0 / 40%); cursor: pointer; text-align: left; transition: transform .24s ease, border-color .24s ease, box-shadow .24s ease; }
+.destination-card:hover:not(:disabled),
+.destination-card:focus-visible { transform: translateY(-6px); border-color: rgb(142 213 255 / 72%); box-shadow: 0 0 40px rgb(56 189 248 / 35%); }
+.destination-card-mars:hover:not(:disabled),
+.destination-card-mars:focus-visible { border-color: rgb(255 185 95 / 72%); box-shadow: 0 0 40px rgb(255 185 95 / 25%); }
+.destination-card-image { position: absolute; inset: 0; overflow: hidden; }
+.destination-card-image img { width: 100%; height: 100%; object-fit: cover; object-position: center; filter: saturate(.86) contrast(1.08) brightness(.72); transition: transform .7s ease; }
+.destination-card:hover .destination-card-image img { transform: scale(1.05); }
+.destination-card-tint { position: absolute; inset: 0; background: linear-gradient(180deg, rgb(8 14 26 / 14%) 0%, rgb(8 14 26 / 48%) 50%, rgb(8 14 26 / 96%) 100%); }
+.destination-card-moon .destination-card-tint { box-shadow: inset 0 0 0 999px rgb(56 189 248 / 6%); }
+.destination-card-mars .destination-card-tint { box-shadow: inset 0 0 0 999px rgb(255 185 95 / 7%); }
+.destination-card-top,
+.destination-card-content { position: relative; z-index: 1; }
+.destination-card-top { justify-content: space-between; gap: 12px; padding: 18px; }
+.destination-card-tag { gap: 7px; padding: 4px 8px; border-radius: 4px; color: #8ed5ff; background: rgb(8 14 26 / 78%); font-family: "JetBrains Mono", monospace; font-size: 9px; letter-spacing: .08em; text-transform: uppercase; }
+.destination-card-dot { width: 6px; height: 6px; border-radius: 50%; background: #8ed5ff; }
+.destination-card-dot-mars { background: #ffb95f; }
+.destination-card-symbol { display: grid; flex: 0 0 auto; place-items: center; width: 31px; height: 31px; border-radius: 50%; color: #8ed5ff; background: rgb(8 14 26 / 72%); font-size: 18px; }
+.destination-card-symbol-mars { color: #ffb95f; }
+.destination-card-content { margin-top: auto; padding: 23px 18px 18px; background: linear-gradient(180deg, transparent, rgb(8 14 26 / 68%) 20%, rgb(8 14 26 / 94%) 45%); }
+.destination-card-heading { display: grid; gap: 4px; }
+.destination-card-kicker { color: #8ed5ff; font-family: "JetBrains Mono", monospace; font-size: 10px; font-weight: 700; letter-spacing: .11em; text-transform: uppercase; }
+.destination-card-kicker-mars { color: #ffb95f; }
+.destination-card-heading h2 { margin: 0; color: #f5f8ff; font-family: "Space Grotesk", sans-serif; font-size: 30px; letter-spacing: .06em; }
+.destination-card-pills { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 13px; }
+.destination-card-pills span { padding: 5px 8px; border-radius: 4px; color: #bdc8d1; background: rgb(47 53 66 / 87%); font-family: "JetBrains Mono", monospace; font-size: 9px; letter-spacing: .03em; text-transform: uppercase; }
+.destination-card-content p { margin: 14px 0 0; color: #bdc8d1; font-size: 13px; line-height: 1.5; }
+.destination-card-action { justify-content: center; gap: 9px; width: 100%; min-height: 48px; margin-top: 16px; border-radius: 8px; font-family: "JetBrains Mono", monospace; font-size: 11px; font-weight: 700; letter-spacing: .11em; text-align: center; text-transform: uppercase; }
+.destination-card-action-moon { color: #00354a; background: #38bdf8; box-shadow: 0 4px 0 #0284c7; }
+.destination-card-action-mars { color: #5b3800; background: #ee9800; box-shadow: 0 4px 0 #b45309; }
+/* Mars is a playable destination, not a disabled preview card. */
+.destination-card-mars { cursor: pointer; }
+.world-selection-footer { justify-content: space-between; gap: 16px; margin-top: 24px; padding-top: 15px; border-top: 1px solid rgb(135 146 154 / 25%); }
+.world-selection-footer-hint { display: inline-flex; align-items: center; gap: 8px; padding: 6px 10px; border-radius: 4px; color: #bdc8d1; background: rgb(8 14 26 / 62%); font-family: "JetBrains Mono", monospace; font-size: 9px; letter-spacing: .08em; text-transform: uppercase; }
+.world-selection-footer-dot { width: 7px; height: 7px; border-radius: 50%; background: #ffb95f; box-shadow: 0 0 9px rgb(255 185 95 / 70%); }
+
+@media (max-width: 980px) {
+  .world-selection-journey { display: none; }
+  .world-selection-main { padding-top: 25px; }
+  .destination-grid { gap: 16px; }
+}
+
+@media (max-width: 700px) {
+  .world-selection-nav { padding: 10px 14px; }
+  .world-selection-nav-left { gap: 9px; }
+  .world-selection-nav-divider, .world-selection-brand-divider, .world-selection-brand-academy { display: none; }
+  .world-selection-brand strong { font-size: 15px; }
+  .world-selection-return { min-height: 31px; padding-inline: 9px; font-size: 8px; }
+  .world-selection-main { width: min(100% - 24px, 560px); min-height: calc(100svh - 60px); padding: 24px 0 18px; }
+  .world-selection-intro h1 { font-size: 31px; }
+  .world-selection-intro p { font-size: 14px; }
+  .destination-grid { grid-template-columns: 1fr; margin-top: 21px; }
+  .destination-card { min-height: 420px; }
+  .world-selection-footer { align-items: stretch; flex-direction: column; }
+  .world-selection-footer-back, .world-selection-footer-hint { justify-content: center; width: 100%; }
+  .world-selection-footer-hint { text-align: center; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .destination-card, .destination-card-image img { transition: none; }
+  .destination-card:hover:not(:disabled), .destination-card:focus-visible { transform: none; }
+}
+
+/*
+ * MoonBase welcome deck
+ *
+ * The landing screen is intentionally scoped to .moonbase-welcome so the
+ * existing briefing, gameplay, feedback, and result screens keep their
+ * current layout and scene controls.
+ */
+body[data-app-screen="welcome"] {
+  overflow: hidden;
+  background: #080e1a;
+  font-family: "Inter", "Segoe UI", sans-serif;
+}
+
+body[data-app-screen="welcome"] .site-shell {
+  width: 100%;
+  min-height: 100svh;
+  margin: 0;
+  pointer-events: none;
+}
+
+body[data-app-screen="welcome"] .topbar,
+body[data-app-screen="welcome"] .page-footer {
+  display: none !important;
+}
+
+body[data-app-screen="welcome"] .app-shell {
+  width: 100%;
+  min-height: 100svh;
+  padding: 0;
+  pointer-events: auto;
+}
+
+body[data-app-screen="welcome"] .lunar-scene {
+  z-index: 0;
+  pointer-events: none;
+  background: #080e1a;
+}
+
+body[data-app-screen="welcome"] #lunar-canvas {
+  opacity: .88;
+  filter: saturate(.78) contrast(1.08) brightness(.72);
+}
+
+body[data-app-screen="welcome"] .scene-vignette {
+  background:
+    linear-gradient(180deg, rgb(8 14 26 / 88%) 0%, rgb(8 14 26 / 10%) 33%, rgb(8 14 26 / 18%) 60%, rgb(8 14 26 / 94%) 100%),
+    radial-gradient(ellipse at center, transparent 40%, rgb(2 7 17 / 68%) 100%);
+}
+
+html[data-scene-status="fallback"] body[data-app-screen="welcome"] .scene-fallback-art {
+  inset: 0 !important;
+  z-index: 0;
+  display: block;
+  width: 100% !important;
+  height: 100%;
+  opacity: .42;
+  filter: saturate(.72) contrast(1.08) brightness(.72);
+}
+
+html[data-scene-status="fallback"] body[data-app-screen="welcome"] .scene-fallback-art img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+body[data-app-screen="welcome"] .moonbase-welcome {
+  position: relative;
+  z-index: 2;
+  isolation: isolate;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  min-height: 100svh;
+  overflow: hidden;
+  color: #dde2f3;
+  font-family: "Inter", "Segoe UI", sans-serif;
+  pointer-events: auto;
+}
+
+.moonbase-welcome::before,
+.moonbase-welcome::after {
+  position: absolute;
+  inset: 0;
+  content: "";
+  pointer-events: none;
+}
+
+.moonbase-welcome::before {
+  z-index: 0;
+  opacity: .22;
+  background-image:
+    linear-gradient(rgb(142 213 255 / 16%) 1px, transparent 1px),
+    linear-gradient(90deg, rgb(142 213 255 / 16%) 1px, transparent 1px);
+  background-size: 80px 80px;
+  mask-image: linear-gradient(180deg, #000, rgb(0 0 0 / 65%) 72%, transparent);
+}
+
+.moonbase-welcome::after {
+  z-index: 0;
+  background:
+    radial-gradient(ellipse at 50% 45%, transparent 18%, rgb(8 14 26 / 8%) 60%, rgb(8 14 26 / 58%) 100%),
+    linear-gradient(180deg, rgb(8 14 26 / 24%), transparent 24%, transparent 68%, rgb(8 14 26 / 42%));
+}
+
+.welcome-top-hud,
+.welcome-hero,
+.welcome-bottom-telemetry {
+  position: relative;
+  z-index: 1;
+}
+
+.welcome-top-hud {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: center;
+  gap: 18px;
+  width: 100%;
+  min-height: 72px;
+  padding: 14px clamp(18px, 3vw, 44px);
+  border-bottom: 1px solid rgb(142 213 255 / 18%);
+  background: linear-gradient(180deg, rgb(8 14 26 / 76%), rgb(8 14 26 / 32%));
+  backdrop-filter: blur(10px);
+}
+
+.welcome-protocol,
+.welcome-team-badge,
+.welcome-reference-status,
+.welcome-ready-copy,
+.welcome-reference-ribbon {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  min-width: 0;
+}
+
+.welcome-protocol { justify-self: start; }
+.welcome-team-badge { justify-self: center; }
+.welcome-reference-status { justify-self: end; }
+
+.welcome-mono {
+  font-family: "JetBrains Mono", "Cascadia Code", monospace;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: .1em;
+  line-height: 1.4;
+  text-transform: uppercase;
+}
+
+.welcome-protocol .welcome-mono,
+.welcome-reference-status .welcome-mono {
+  overflow: hidden;
+  color: #c3cfdf;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.welcome-telemetry-icon,
+.welcome-shield {
+  display: grid;
+  flex: 0 0 auto;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border: 1px solid rgb(142 213 255 / 55%);
+  border-radius: 8px;
+  color: #8ed5ff;
+  background: rgb(56 189 248 / 16%);
+  box-shadow: 0 0 16px rgb(56 189 248 / 22%);
+  font-size: 17px;
+}
+
+.welcome-shield {
+  width: 23px;
+  height: 23px;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+  font-size: 18px;
+}
+
+.welcome-team-badge {
+  padding: 7px 13px;
+  border: 1px solid rgb(142 213 255 / 44%);
+  border-radius: 999px;
+  color: #8ed5ff;
+  background: rgb(14 19 31 / 62%);
+  box-shadow: 0 0 18px rgb(56 189 248 / 18%);
+}
+
+.welcome-team-badge .welcome-mono { color: #8ed5ff; font-size: 9px; }
+
+.welcome-status-dot {
+  display: inline-block;
+  flex: 0 0 auto;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #8ed5ff;
+  box-shadow: 0 0 11px rgb(142 213 255 / 85%);
+}
+
+.welcome-status-dot-amber {
+  background: #ffb95f;
+  box-shadow: 0 0 11px rgb(255 185 95 / 80%);
+}
+
+.welcome-hero {
+  display: grid;
+  flex: 1 1 auto;
+  place-items: center;
+  width: 100%;
+  padding: clamp(28px, 6vh, 74px) 20px;
+  text-align: center;
+}
+
+.welcome-hero-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: min(100%, 900px);
+  animation: welcome-hero-arrival .8s ease-out both;
+}
+
+.welcome-briefing-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  max-width: 100%;
+  padding: 8px 16px;
+  border: 1px solid rgb(142 213 255 / 38%);
+  border-radius: 999px;
+  color: #8ed5ff;
+  background: rgb(8 14 26 / 78%);
+  box-shadow: 0 0 24px rgb(56 189 248 / 18%);
+  backdrop-filter: blur(9px);
+}
+
+.welcome-briefing-badge .welcome-mono { font-size: clamp(9px, 1.1vw, 11px); }
+.welcome-badge-dot { width: 6px; height: 6px; border-radius: 50%; background: #ffb95f; box-shadow: 0 0 10px rgb(255 185 95 / 80%); }
+.welcome-independent-note { margin: 10px 0 0; color: rgb(189 200 209 / 78%); font-size: 10px; letter-spacing: .11em; text-transform: uppercase; }
+
+.welcome-title {
+  margin: 15px 0 0;
+  color: #c4e7ff;
+  font-family: "Space Grotesk", "Segoe UI", sans-serif;
+  font-size: clamp(62px, 12vw, 148px);
+  font-weight: 700;
+  letter-spacing: .1em;
+  line-height: .86;
+  text-indent: .1em;
+  text-shadow: 0 0 16px rgb(123 208 255 / 48%), 0 0 42px rgb(56 189 248 / 34%);
+}
+
+.welcome-subtitle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 15px;
+  margin-top: 18px;
+  color: #ffb95f;
+  text-shadow: 0 0 16px rgb(255 185 95 / 68%);
+}
+
+.welcome-subtitle .welcome-mono {
+  color: #ffb95f;
+  font-size: clamp(13px, 1.9vw, 22px);
+  font-weight: 700;
+  letter-spacing: .24em;
+}
+
+.welcome-rule { display: block; width: clamp(28px, 8vw, 84px); height: 2px; background: linear-gradient(90deg, transparent, #ffb95f); }
+.welcome-rule-right { background: linear-gradient(90deg, #ffb95f, transparent); }
+.welcome-lede { max-width: 650px; margin: 22px 0 0; color: #c0cad8; font-size: clamp(14px, 1.6vw, 18px); font-weight: 500; line-height: 1.55; text-shadow: 0 2px 12px rgb(0 0 0 / 75%); }
+
+.welcome-start-wrap { display: flex; flex-direction: column; align-items: center; width: 100%; margin-top: clamp(26px, 4vh, 40px); }
+.welcome-start-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  min-width: min(100%, 320px);
+  min-height: 66px;
+  padding: 0 28px;
+  border: 1px solid rgb(255 255 255 / 58%);
+  border-radius: 10px;
+  color: #002b3d;
+  background: linear-gradient(100deg, #38bdf8, #8ed5ff 52%, #7bd0ff);
+  box-shadow: 0 0 32px rgb(56 189 248 / 58%), inset 0 1px 0 rgb(255 255 255 / 70%);
+  font-family: "JetBrains Mono", "Cascadia Code", monospace;
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: .13em;
+  text-transform: uppercase;
+}
+
+.welcome-start-button:hover:not(:disabled) { box-shadow: 0 0 48px rgb(142 213 255 / 82%), inset 0 1px 0 rgb(255 255 255 / 85%); }
+.welcome-start-button:active:not(:disabled) { transform: scale(.98); }
+.welcome-start-button:disabled { cursor: wait; }
+.welcome-launch-icon { font-size: 25px; line-height: 1; transform: rotate(-20deg); }
+.welcome-launch-arrow { margin-left: 1px; font-size: 21px; }
+.welcome-start-button .loading-label { display: inline-flex; align-items: center; gap: 10px; }
+
+.welcome-hotkey { margin-top: 14px; color: rgb(189 200 209 / 88%); font-family: "JetBrains Mono", "Cascadia Code", monospace; font-size: 10px; letter-spacing: .11em; text-transform: uppercase; }
+.welcome-hotkey-key { display: inline-block; margin: 0 4px; padding: 4px 7px; border: 1px solid rgb(135 146 154 / 64%); border-radius: 4px; color: #8ed5ff; background: rgb(47 53 66 / 76%); box-shadow: 0 2px 8px rgb(0 0 0 / 30%); font-size: 10px; }
+.welcome-assurance { max-width: 560px; margin: 21px 0 0; color: rgb(189 200 209 / 72%); font-size: 12px; line-height: 1.5; }
+.welcome-error { max-width: 560px; margin: 18px 0 0; padding: 10px 14px; border: 1px solid rgb(255 180 171 / 58%); border-radius: 6px; color: #ffdad6; background: rgb(105 0 5 / 48%); font-size: 12px; line-height: 1.45; }
+
+.welcome-bottom-telemetry {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  width: 100%;
+  min-height: 58px;
+  padding: 10px clamp(18px, 3vw, 44px);
+  border-top: 1px solid rgb(142 213 255 / 22%);
+  background: rgb(8 14 26 / 76%);
+  backdrop-filter: blur(12px);
+}
+
+.welcome-telemetry-left { display: flex; flex: 1 1 auto; align-items: center; flex-wrap: wrap; gap: 10px 15px; min-width: 0; }
+.welcome-reference-ribbon { flex: 0 0 auto; padding: 5px 8px; border: 1px solid rgb(142 213 255 / 42%); border-radius: 4px; color: #8ed5ff; background: rgb(56 189 248 / 14%); }
+.welcome-reference-ribbon .welcome-mono { font-size: 9px; }
+.welcome-ribbon-icon { color: #8ed5ff; font-size: 13px; }
+.welcome-reference-copy { margin: 0; color: #cbd4df; font-family: "JetBrains Mono", "Cascadia Code", monospace; font-size: 10px; line-height: 1.5; }
+.welcome-reference-copy strong { color: #8ed5ff; font-weight: 600; }
+.welcome-telemetry-separator { color: rgb(135 146 154 / 76%); }
+.welcome-ready-copy { flex: 0 0 auto; color: #ffb95f; }
+.welcome-ready-copy .welcome-mono { font-size: 9px; }
+
+@keyframes welcome-hero-arrival {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 760px) {
+  body[data-app-screen="welcome"] { overflow-y: auto; }
+  body[data-app-screen="welcome"] .moonbase-welcome { min-height: 100svh; overflow: visible; }
+  .welcome-top-hud { grid-template-columns: minmax(0, 1fr) auto; min-height: 64px; padding: 11px 14px; }
+  .welcome-team-badge { display: none; }
+  .welcome-protocol .welcome-mono, .welcome-reference-status .welcome-mono { font-size: 8px; letter-spacing: .07em; }
+  .welcome-telemetry-icon { width: 26px; height: 26px; font-size: 14px; }
+  .welcome-hero { min-height: calc(100svh - 122px); padding: 44px 16px 50px; }
+  .welcome-independent-note { max-width: 300px; font-size: 9px; line-height: 1.45; }
+  .welcome-title { font-size: clamp(54px, 18vw, 92px); letter-spacing: .06em; }
+  .welcome-subtitle { gap: 9px; margin-top: 15px; }
+  .welcome-subtitle .welcome-mono { font-size: clamp(11px, 3vw, 16px); letter-spacing: .16em; }
+  .welcome-lede { max-width: 420px; margin-top: 18px; font-size: 14px; }
+  .welcome-start-button { min-width: min(100%, 320px); min-height: 60px; font-size: 13px; }
+  .welcome-hotkey { font-size: 9px; text-align: center; }
+  .welcome-assurance { margin-top: 18px; font-size: 11px; }
+  .welcome-bottom-telemetry { align-items: flex-start; flex-direction: column; gap: 8px; padding: 11px 14px; }
+  .welcome-ready-copy { align-self: flex-end; }
+}
+
+@media (max-width: 980px) {
+  .welcome-team-badge { display: none; }
+  .welcome-top-hud { grid-template-columns: minmax(0, 1fr) minmax(0, auto); }
+}
+
+@media (max-height: 640px) and (min-width: 761px) {
+  .welcome-top-hud { min-height: 58px; padding-block: 10px; }
+  .welcome-hero { padding-block: 15px 18px; }
+  .welcome-briefing-badge { padding-block: 6px; }
+  .welcome-independent-note { margin-top: 6px; font-size: 8px; }
+  .welcome-title { margin-top: 9px; font-size: clamp(54px, 10vw, 88px); }
+  .welcome-subtitle { gap: 10px; margin-top: 10px; }
+  .welcome-subtitle .welcome-mono { font-size: 14px; }
+  .welcome-lede { margin-top: 11px; font-size: 13px; }
+  .welcome-start-wrap { margin-top: 17px; }
+  .welcome-start-button { min-height: 52px; }
+  .welcome-hotkey { margin-top: 9px; }
+  .welcome-assurance { display: none; }
+  .welcome-bottom-telemetry { min-height: 50px; padding-block: 8px; overflow: hidden; }
+  .welcome-telemetry-left { width: 100%; flex-wrap: nowrap; }
+  .welcome-reference-copy { min-width: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+  .welcome-ready-copy { display: none; }
+}
+
+@media (max-width: 460px) {
+  .welcome-reference-status { max-width: 38vw; }
+  .welcome-reference-status .welcome-mono { white-space: normal; }
+  .welcome-protocol { max-width: 54vw; }
+  .welcome-briefing-badge { gap: 7px; padding: 7px 10px; }
+  .welcome-briefing-badge .welcome-mono { font-size: 8px; letter-spacing: .07em; }
+  .welcome-title { font-size: clamp(48px, 18vw, 74px); }
+  .welcome-rule { width: 20px; }
+  .welcome-subtitle .welcome-mono { font-size: 10px; letter-spacing: .12em; }
+  .welcome-lede { font-size: 13px; }
+  .welcome-hotkey { max-width: 280px; line-height: 1.8; }
+  .welcome-reference-copy { font-size: 9px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .welcome-hero-content { animation: none; }
+  .welcome-start-button:hover:not(:disabled) { transform: none; }
+}
+
+/* Local key art is the fully opaque welcome backdrop. The playable mission
+   still switches back to the existing Three.js canvas after launch. */
+body[data-app-screen="welcome"] .lunar-scene {
+  opacity: 1 !important;
+  background-color: #05070c;
+  background-image: url("../assets/backgrounds/moonbase-welcome-key-art.png");
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+
+/* A Mars environment preview keeps the same cinematic HUD but reveals the
+   actual dusty 3D profile when the scene is opened with ?world=mars. */
+body[data-app-world="mars"][data-app-screen="welcome"] .lunar-scene {
+  background: #7a4737;
+}
+
+body[data-app-world="mars"][data-app-screen="welcome"] #lunar-canvas {
+  display: block;
+  opacity: 0.94;
+  filter: saturate(0.96) contrast(1.04) brightness(0.9);
+}
+
+body[data-app-screen="welcome"] #lunar-canvas,
+body[data-app-screen="welcome"] .scene-fallback-art {
+  display: none !important;
+}
+
+body[data-app-world="mars"][data-app-screen="welcome"] .lunar-scene {
+  background-image: none;
+}
+
+body[data-app-world="mars"][data-app-screen="welcome"] #lunar-canvas {
+  display: block !important;
+}
+
+/* Compact the welcome chrome so the full telemetry footer stays inside the
+   viewport on short laptop and desktop captures. */
+body[data-app-screen="welcome"] .welcome-top-hud {
+  min-height: 60px;
+  padding-block: 9px;
+}
+
+body[data-app-screen="welcome"] .welcome-hero {
+  padding-block: clamp(18px, 4vh, 46px) clamp(14px, 3vh, 30px);
+}
+
+body[data-app-screen="welcome"] .welcome-bottom-telemetry {
+  position: relative;
+  z-index: 4;
+  min-height: 54px;
+  padding-block: 8px;
+  transform: translateY(-10px);
+}
+
+@media (max-width: 760px) {
+  body[data-app-screen="welcome"] .welcome-top-hud { min-height: 58px; padding-block: 8px; }
+  body[data-app-screen="welcome"] .welcome-bottom-telemetry { transform: none; }
+}
+
 /* Opening HUD alignment: the welcome screen uses the same compact MoonBase
    identity bar as the playable mission. Keep the entry instructions separate
    from the start card so neither one can disappear behind the other. */
@@ -4286,13 +5309,13 @@ body[data-app-screen="game"] .app-shell > .gameplay-shell {
     position: fixed !important;
     z-index: 60 !important;
     top: auto !important;
-    bottom: 180px !important;
+    bottom: 14px !important;
     height: auto !important;
-    min-height: 116px !important;
-    max-height: 170px !important;
-    overflow: visible !important;
+    min-height: 0 !important;
+    max-height: 76px !important;
+    overflow: hidden !important;
   }
-  body[data-app-screen="game"] .gameplay-interaction-hint { bottom: 318px !important; }
+  body[data-app-screen="game"] .gameplay-interaction-hint { bottom: 106px !important; }
 }
 body[data-app-screen="game"] .topbar {
   top: 16px !important;
@@ -4311,13 +5334,13 @@ body[data-app-screen="game"] .topbar {
 }
 body[data-app-screen="game"] .topbar-right { display: none !important; }
 body[data-app-screen="game"] .gameplay-hud {
-  top: 16px !important;
+  top: 14px !important;
   left: auto !important;
-  right: max(16px, calc((100vw - 1440px) / 2)) !important;
-  width: min(670px, calc(100vw - 430px)) !important;
-  min-height: 58px !important;
+  right: 16px !important;
+  width: min(500px, 52vw) !important;
+  min-height: 46px !important;
   grid-template-columns: minmax(0, 1fr) 82px !important;
-  gap: 10px !important;
+  gap: 6px !important;
   padding: 0 !important;
   border: 0 !important;
   background: transparent !important;
@@ -4329,70 +5352,73 @@ body[data-app-screen="game"] .gameplay-hud .story-hud-marker { display: none !im
 body[data-app-screen="game"] .gameplay-hud .story-resources {
   display: grid !important;
   grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
-  gap: 8px !important;
+  gap: 5px !important;
 }
 body[data-app-screen="game"] .gameplay-hud .story-resource {
-  min-height: 58px !important;
-  padding: 8px 10px 7px !important;
+  min-height: 46px !important;
+  padding: 6px 8px 5px !important;
   border: 1px solid rgb(107 205 255 / 27%) !important;
-  border-radius: 14px !important;
+  border-radius: 10px !important;
   background: linear-gradient(145deg, rgb(7 26 60 / 91%), rgb(5 14 38 / 84%)) !important;
   box-shadow: 0 12px 26px rgb(0 3 20 / 22%), inset 0 1px 0 rgb(255 255 255 / 11%) !important;
 }
 body[data-app-screen="game"] .gameplay-hud .story-resource.is-warning { border-color: rgb(255 190 85 / 68%) !important; }
 body[data-app-screen="game"] .gameplay-hud .story-resource.is-critical { border-color: rgb(255 111 103 / 75%) !important; }
-body[data-app-screen="game"] .gameplay-hud .story-resource-label { font-size: 10px !important; color: #c8dced !important; }
-body[data-app-screen="game"] .gameplay-hud .story-resource-value { font-size: 17px !important; color: #f7fcff !important; }
-body[data-app-screen="game"] .gameplay-hud .story-resource-meter { height: 4px !important; margin-top: 0 !important; }
+body[data-app-screen="game"] .gameplay-hud .story-resource-label { gap: 4px !important; font-size: 8px !important; color: #c8dced !important; }
+body[data-app-screen="game"] .gameplay-hud .story-resource-icon { width: 14px !important; height: 14px !important; flex-basis: 14px !important; }
+body[data-app-screen="game"] .gameplay-hud .story-resource-value { font-size: 15px !important; color: #f7fcff !important; }
+body[data-app-screen="game"] .gameplay-hud .story-resource-meter { height: 3px !important; margin-top: 3px !important; }
 body[data-app-screen="game"] .gameplay-hud .story-day-progress {
   min-width: 0 !important;
-  min-height: 58px !important;
+  min-height: 46px !important;
   display: grid !important;
   grid-template-columns: 1fr !important;
   align-content: center !important;
-  gap: 7px !important;
-  padding: 9px !important;
+  gap: 5px !important;
+  padding: 6px !important;
   border: 1px solid rgb(139 210 255 / 28%) !important;
-  border-radius: 14px !important;
+  border-radius: 10px !important;
   background: rgb(7 18 45 / 82%) !important;
 }
 body[data-app-screen="game"] .gameplay-objective {
-  top: 106px !important;
-  left: max(16px, calc((100vw - 1440px) / 2)) !important;
+  top: 88px !important;
+  left: 16px !important;
   right: auto !important;
-  width: min(326px, 25vw) !important;
-  padding: 18px 20px 17px !important;
-  border-radius: 0 16px 16px 0 !important;
+  width: min(225px, 20vw) !important;
+  padding: 10px 12px 9px !important;
+  border-radius: 0 12px 12px 0 !important;
   background: linear-gradient(145deg, rgb(7 29 64 / 86%), rgb(5 15 39 / 78%)) !important;
   backdrop-filter: blur(14px) !important;
 }
-body[data-app-screen="game"] .gameplay-title { font-size: clamp(22px, 2vw, 30px) !important; }
-body[data-app-screen="game"] .gameplay-objective-copy { font-size: 12px !important; }
+body[data-app-screen="game"] .gameplay-title { margin: 7px 0 6px !important; font-size: clamp(17px, 1.45vw, 21px) !important; }
+body[data-app-screen="game"] .gameplay-objective-copy { max-width: 205px !important; font-size: 9px !important; line-height: 1.3 !important; }
+body[data-app-screen="game"] .gameplay-objective-status { margin-top: 8px !important; padding-top: 7px !important; font-size: 8px !important; }
 body[data-app-screen="game"] .gameplay-task {
-  top: 106px !important;
-  right: calc(max(16px, calc((100vw - 1440px) / 2)) + 198px) !important;
+  top: 88px !important;
+  right: 16px !important;
   left: auto !important;
-  width: min(270px, 21vw) !important;
-  padding: 15px 17px 14px !important;
-  border-radius: 16px !important;
+  width: min(220px, 20vw) !important;
+  padding: 10px 12px !important;
+  border-radius: 11px !important;
   background: linear-gradient(145deg, rgb(7 24 57 / 82%), rgb(5 13 36 / 73%)) !important;
   backdrop-filter: blur(13px) !important;
 }
 body[data-app-screen="game"] .gameplay-controls {
-  top: 106px !important;
-  right: max(16px, calc((100vw - 1440px) / 2)) !important;
-  bottom: auto !important;
-  width: 184px !important;
-  padding: 13px 13px 12px !important;
-  border-radius: 16px !important;
+  top: auto !important;
+  right: 16px !important;
+  bottom: 16px !important;
+  width: 160px !important;
+  padding: 9px 10px !important;
+  border-radius: 11px !important;
   background: linear-gradient(145deg, rgb(7 23 55 / 91%), rgb(5 12 34 / 84%)) !important;
   backdrop-filter: blur(15px) !important;
 }
 body[data-app-screen="game"] .mission-radar {
-  left: max(16px, calc((100vw - 1440px) / 2)) !important;
-  bottom: 150px !important;
-  width: 126px !important;
-  height: 126px !important;
+  left: 16px !important;
+  bottom: 16px !important;
+  width: 100px !important;
+  height: 100px !important;
+  opacity: .72 !important;
 }
 body[data-app-screen="game"] .gameplay-controls .controls-header { grid-template-columns: auto 1fr auto !important; }
 body[data-app-screen="game"] .gameplay-controls .controls-line { grid-template-columns: 54px minmax(0, 1fr) !important; min-height: 24px !important; }
@@ -4401,17 +5427,23 @@ body[data-app-screen="game"] .gameplay-controls.is-collapsed { width: 52px !impo
 body[data-app-screen="game"] .gameplay-dialogue-live {
   top: auto !important;
   right: auto !important;
-  bottom: 180px !important;
+  bottom: 14px !important;
   left: 50% !important;
-  width: min(450px, 38vw) !important;
-  min-height: 116px !important;
-  grid-template-columns: 64px minmax(0, 1fr) !important;
-  gap: 14px !important;
-  padding: 14px 17px 15px !important;
-  border-radius: 18px !important;
+  width: min(270px, 24vw) !important;
+  min-height: 0 !important;
+  max-height: 76px !important;
+  grid-template-columns: 1fr !important;
+  gap: 3px !important;
+  padding: 7px 9px !important;
+  border-radius: 12px !important;
   transform: translateX(-50%) translateY(10px) !important;
 }
 body[data-app-screen="game"] .gameplay-dialogue-live.is-open { transform: translateX(-50%) translateY(0) !important; }
+body[data-app-screen="game"] .gameplay-dialogue-live .crew-portrait { display: none !important; }
+body[data-app-screen="game"] .gameplay-dialogue-live .story-speaker-line { font-size: 7px !important; }
+body[data-app-screen="game"] .gameplay-dialogue-title { display: none !important; }
+body[data-app-screen="game"] .gameplay-dialogue-live .story-subtitle { display: -webkit-box !important; overflow: hidden !important; -webkit-box-orient: vertical !important; -webkit-line-clamp: 2 !important; font-size: 9px !important; line-height: 1.25 !important; }
+body[data-app-screen="game"] .gameplay-dialogue-live .story-hazard-signal { display: none !important; }
 body[data-app-screen="game"] .gameplay-dialogue-live.is-briefing {
   top: 154px !important;
   bottom: auto !important;
@@ -4457,9 +5489,9 @@ body[data-app-screen="game"] .gameplay-decision-panel {
 
 @media (max-width: 900px) and (min-width: 651px) {
   body[data-app-screen="game"] .gameplay-hud { right: 16px !important; width: min(560px, calc(100vw - 370px)) !important; }
-  body[data-app-screen="game"] .gameplay-task { top: 185px !important; left: max(16px, calc((100vw - 1440px) / 2)) !important; right: auto !important; width: 250px !important; }
+  body[data-app-screen="game"] .gameplay-task { top: 88px !important; left: auto !important; right: 16px !important; width: 210px !important; }
   body[data-app-screen="game"] .gameplay-controls { right: 16px !important; }
-  body[data-app-screen="game"] .gameplay-dialogue-live { width: min(420px, 48vw) !important; }
+  body[data-app-screen="game"] .gameplay-dialogue-live { width: 250px !important; }
 }
 
 @media (max-width: 650px) {

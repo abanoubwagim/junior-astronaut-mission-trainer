@@ -1,27 +1,35 @@
 export function createAstronautCharacter(THREE, parent, options = {}) {
   const palette = {
-    suit: options.suitColor || 0xeaf2ff,
-    suitShadow: options.suitShadow || 0x93a9d3,
+    suit: options.suitColor || 0xf1f5f7,
+    suitShadow: options.suitShadow || 0x9aa8b2,
     accent: options.accentColor || 0x63e9ef,
-    visor: options.visorColor || 0x102856,
-    pack: options.packColor || 0x354a80,
-    glove: options.gloveColor || 0xc6d7f1
+    visor: options.visorColor || 0x0b263d,
+    pack: options.packColor || 0x263744,
+    glove: options.gloveColor || 0xdbe4e9,
+    seam: options.seamColor || 0x344957,
+    insignia: options.insigniaColor || 0xf3bf58,
+    boot: options.bootColor || 0x2d414d
   };
   const materials = {
-    suit: new THREE.MeshStandardMaterial({ color: palette.suit, roughness: 0.68 }),
+    suit: new THREE.MeshStandardMaterial({ color: palette.suit, roughness: 0.64 }),
     suitShadow: new THREE.MeshStandardMaterial({ color: palette.suitShadow, roughness: 0.74 }),
     accent: new THREE.MeshStandardMaterial({ color: palette.accent, emissive: palette.accent, emissiveIntensity: 1.15, roughness: 0.32 }),
-    visor: new THREE.MeshStandardMaterial({ color: palette.visor, emissive: 0x164c86, emissiveIntensity: 0.72, roughness: 0.16, metalness: 0.18 }),
+    visor: new THREE.MeshStandardMaterial({ color: palette.visor, emissive: 0x164c86, emissiveIntensity: 0.58, roughness: 0.12, metalness: 0.52 }),
     pack: new THREE.MeshStandardMaterial({ color: palette.pack, roughness: 0.6, metalness: 0.12 }),
     glove: new THREE.MeshStandardMaterial({ color: palette.glove, roughness: 0.72 }),
     thruster: new THREE.MeshStandardMaterial({ color: palette.accent, emissive: palette.accent, emissiveIntensity: 2.1, roughness: 0.25 }),
-    oxygen: new THREE.MeshStandardMaterial({ color: 0xd8e5f3, roughness: 0.42, metalness: 0.24 })
+    oxygen: new THREE.MeshStandardMaterial({ color: 0xd8e5f3, roughness: 0.42, metalness: 0.24 }),
+    seam: new THREE.MeshStandardMaterial({ color: palette.seam, roughness: 0.82, metalness: 0.08 }),
+    insignia: new THREE.MeshStandardMaterial({ color: palette.insignia, emissive: 0x5e3d0b, emissiveIntensity: 0.2, roughness: 0.42, metalness: 0.35 }),
+    boot: new THREE.MeshStandardMaterial({ color: palette.boot, roughness: 0.78, metalness: 0.08 })
   };
 
   const root = new THREE.Group();
   root.name = options.name || "astronaut-character";
-  root.userData.characterType = "procedural-articulated-astronaut";
-  root.userData.assetStatus = "fallback";
+  root.userData.characterType = "moonbase-eva-astronaut";
+  root.userData.assetStatus = "procedural";
+  root.userData.identityId = "moonbase-cadet-01";
+  root.userData.sharedAcrossWorlds = true;
   parent.add(root);
 
   function mesh(geometry, material, position = [0, 0, 0], rotation = [0, 0, 0], scale = [1, 1, 1]) {
@@ -35,13 +43,31 @@ export function createAstronautCharacter(THREE, parent, options = {}) {
   }
 
   const hips = new THREE.Group();
+  hips.name = "pelvis-rig";
   hips.position.y = 0.48;
   root.add(hips);
 
   const torso = mesh(new THREE.CylinderGeometry(0.34, 0.43, 0.72, 12), materials.suit, [0, 0.53, 0]);
+  torso.name = "pressure-torso";
   hips.add(torso);
-  hips.add(mesh(new THREE.BoxGeometry(0.23, 0.48, 0.2), materials.pack, [0, 0.55, 0.34]));
+  // The torso is layered like a modern EVA suit: pressure fabric, a hard
+  // chest shell, ribbed waist seals, and a small readable life-support panel.
+  hips.add(mesh(new THREE.BoxGeometry(0.58, 0.14, 0.33), materials.suitShadow, [0, 0.83, -0.02], [0, 0, 0], [1, 0.75, 1]));
+  hips.add(mesh(new THREE.BoxGeometry(0.38, 0.24, 0.045), materials.pack, [0, 0.59, -0.38], [0.08, 0, 0]));
+  hips.add(mesh(new THREE.BoxGeometry(0.28, 0.13, 0.018), materials.seam, [0, 0.61, -0.41]));
+  hips.add(mesh(new THREE.BoxGeometry(0.07, 0.045, 0.02), materials.accent, [-0.11, 0.65, -0.425]));
+  hips.add(mesh(new THREE.BoxGeometry(0.07, 0.045, 0.02), materials.insignia, [0.11, 0.65, -0.425]));
+  for (const y of [0.31, 0.36]) {
+    hips.add(mesh(new THREE.TorusGeometry(0.37, 0.014, 6, 20), materials.seam, [0, y, 0], [Math.PI / 2, 0, 0]));
+  }
+  hips.add(mesh(new THREE.BoxGeometry(0.72, 0.11, 0.28), materials.suitShadow, [0, 0.2, 0]));
   hips.add(mesh(new THREE.BoxGeometry(0.29, 0.14, 0.43), materials.accent, [0, 0.28, -0.05]));
+
+  // Belt hardware and a compact utility pouch keep the silhouette readable
+  // from the front, side, and the over-the-shoulder gameplay camera.
+  hips.add(mesh(new THREE.BoxGeometry(0.13, 0.18, 0.14), materials.pack, [-0.38, 0.27, -0.03]));
+  hips.add(mesh(new THREE.BoxGeometry(0.13, 0.18, 0.14), materials.pack, [0.38, 0.27, -0.03]));
+  hips.add(mesh(new THREE.BoxGeometry(0.15, 0.08, 0.06), materials.insignia, [0, 0.25, -0.24]));
 
   // Twin oxygen cylinders sit visibly behind the suit, with mounting rings,
   // top valves, a regulator block, and a dark hose leading toward the chest.
@@ -54,13 +80,27 @@ export function createAstronautCharacter(THREE, parent, options = {}) {
     hips.add(mesh(new THREE.CylinderGeometry(0.045, 0.055, 0.1, 10), materials.pack, [x, 0.97, 0.54]));
     hips.add(mesh(new THREE.SphereGeometry(0.035, 8, 6), materials.accent, [x, 1.04, 0.54]));
   }
+  hips.add(mesh(new THREE.BoxGeometry(0.54, 0.7, 0.25), materials.pack, [0, 0.61, 0.37]));
+  hips.add(mesh(new THREE.BoxGeometry(0.4, 0.18, 0.32), materials.suitShadow, [0, 0.96, 0.35]));
+  hips.add(mesh(new THREE.BoxGeometry(0.18, 0.32, 0.07), materials.seam, [-0.34, 0.61, 0.31]));
+  hips.add(mesh(new THREE.BoxGeometry(0.18, 0.32, 0.07), materials.seam, [0.34, 0.61, 0.31]));
   hips.add(mesh(new THREE.BoxGeometry(0.22, 0.18, 0.1), materials.pack, [0, 0.67, 0.7]));
+  hips.add(mesh(new THREE.CylinderGeometry(0.045, 0.05, 0.15, 10), materials.accent, [-0.27, 0.92, 0.51]));
+  hips.add(mesh(new THREE.CylinderGeometry(0.045, 0.05, 0.15, 10), materials.accent, [0.27, 0.92, 0.51]));
   const oxygenHose = new THREE.CatmullRomCurve3([
     new THREE.Vector3(-0.18, 0.82, 0.62),
     new THREE.Vector3(-0.3, 0.9, 0.46),
     new THREE.Vector3(-0.27, 1.04, 0.24)
   ]);
   hips.add(new THREE.Mesh(new THREE.TubeGeometry(oxygenHose, 12, 0.025, 8, false), materials.pack));
+  for (const side of [-1, 1]) {
+    const shoulderHose = new THREE.CatmullRomCurve3([
+      new THREE.Vector3(side * 0.2, 0.86, 0.45),
+      new THREE.Vector3(side * 0.35, 0.89, 0.22),
+      new THREE.Vector3(side * 0.42, 0.78, 0.02)
+    ]);
+    hips.add(new THREE.Mesh(new THREE.TubeGeometry(shoulderHose, 10, 0.026, 8, false), materials.seam));
+  }
 
   // Small backpack nozzles and downward exhaust cones provide a readable,
   // restrained visual cue only when the player actively uses the thruster.
@@ -80,46 +120,92 @@ export function createAstronautCharacter(THREE, parent, options = {}) {
   hips.add(thrusterLight);
 
   const head = new THREE.Group();
+  head.name = "helmet-rig";
   head.position.set(0, 1.04, 0);
   hips.add(head);
-  head.add(mesh(new THREE.SphereGeometry(0.38, 16, 12), materials.suit));
-  head.add(mesh(new THREE.SphereGeometry(0.285, 16, 10), materials.visor, [0, 0, -0.25], [0.12, 0, 0]));
-  head.add(mesh(new THREE.TorusGeometry(0.3, 0.018, 6, 20), materials.accent, [0, 0, -0.27], [Math.PI / 2, 0, 0]));
+  head.add(mesh(new THREE.SphereGeometry(0.38, 24, 16), materials.suit, [0, 0, 0], [0, 0, 0], [1, 1.06, 0.98]));
+  head.add(mesh(new THREE.TorusGeometry(0.29, 0.035, 8, 24), materials.seam, [0, -0.02, -0.24]));
+  head.add(mesh(new THREE.SphereGeometry(0.295, 24, 16), materials.visor, [0, 0.01, -0.265], [0.08, 0, 0], [1.12, 0.77, 0.42]));
+  head.add(mesh(new THREE.TorusGeometry(0.3, 0.018, 8, 24), materials.accent, [0, 0.01, -0.30]));
+  // A single soft reflection strip keeps the glass readable and friendly
+  // without drawing a face or adding dialogue/UI to the character.
+  head.add(mesh(new THREE.BoxGeometry(0.14, 0.025, 0.018), materials.accent, [-0.09, 0.11, -0.414], [0, 0, -0.22], [1, 0.72, 1]));
+  head.add(mesh(new THREE.BoxGeometry(0.06, 0.13, 0.06), materials.pack, [-0.36, 0.0, 0], [0, 0, Math.PI / 2]));
+  head.add(mesh(new THREE.BoxGeometry(0.06, 0.13, 0.06), materials.pack, [0.36, 0.0, 0], [0, 0, Math.PI / 2]));
+  head.add(mesh(new THREE.BoxGeometry(0.045, 0.08, 0.04), materials.accent, [0.21, 0.35, 0]));
+  hips.add(mesh(new THREE.TorusGeometry(0.27, 0.035, 8, 22), materials.seam, [0, 0.91, 0], [Math.PI / 2, 0, 0]));
 
   const leftArm = new THREE.Group();
   const rightArm = new THREE.Group();
+  leftArm.name = "left-arm-rig";
+  rightArm.name = "right-arm-rig";
   leftArm.position.set(-0.42, 0.77, 0);
   rightArm.position.set(0.42, 0.77, 0);
   hips.add(leftArm, rightArm);
+  leftArm.add(mesh(new THREE.SphereGeometry(0.14, 14, 10), materials.suitShadow));
+  rightArm.add(mesh(new THREE.SphereGeometry(0.14, 14, 10), materials.suitShadow));
   leftArm.add(mesh(new THREE.CapsuleGeometry(0.105, 0.34, 4, 8), materials.suit, [0, -0.18, 0], [0, 0, -0.08]));
   rightArm.add(mesh(new THREE.CapsuleGeometry(0.105, 0.34, 4, 8), materials.suit, [0, -0.18, 0], [0, 0, 0.08]));
+  leftArm.add(mesh(new THREE.TorusGeometry(0.115, 0.018, 6, 16), materials.seam, [0, -0.36, 0], [Math.PI / 2, 0, 0]));
+  rightArm.add(mesh(new THREE.TorusGeometry(0.115, 0.018, 6, 16), materials.seam, [0, -0.36, 0], [Math.PI / 2, 0, 0]));
+  // MoonBase insignia: an intentionally small gold mission mark on the
+  // shoulder, visible at close range but never mistaken for official NASA branding.
+  leftArm.add(mesh(new THREE.CylinderGeometry(0.075, 0.075, 0.014, 16), materials.insignia, [-0.13, -0.03, -0.02], [0, 0, Math.PI / 2]));
+  leftArm.add(mesh(new THREE.BoxGeometry(0.018, 0.07, 0.012), materials.accent, [-0.139, -0.03, -0.02], [0, 0, Math.PI / 2]));
+  leftArm.add(mesh(new THREE.BoxGeometry(0.07, 0.018, 0.012), materials.accent, [-0.139, -0.03, -0.02], [0, 0, Math.PI / 2]));
   const leftForearm = new THREE.Group();
   const rightForearm = new THREE.Group();
+  leftForearm.name = "left-forearm-rig";
+  rightForearm.name = "right-forearm-rig";
   leftForearm.position.set(0, -0.37, 0);
   rightForearm.position.set(0, -0.37, 0);
   leftArm.add(leftForearm);
   rightArm.add(rightForearm);
   leftForearm.add(mesh(new THREE.CapsuleGeometry(0.095, 0.28, 4, 8), materials.suitShadow, [0, -0.16, 0]));
   rightForearm.add(mesh(new THREE.CapsuleGeometry(0.095, 0.28, 4, 8), materials.suitShadow, [0, -0.16, 0]));
-  leftForearm.add(mesh(new THREE.SphereGeometry(0.12, 10, 8), materials.glove, [0, -0.34, 0]));
-  rightForearm.add(mesh(new THREE.SphereGeometry(0.12, 10, 8), materials.glove, [0, -0.34, 0]));
+  leftForearm.add(mesh(new THREE.TorusGeometry(0.10, 0.018, 6, 16), materials.seam, [0, -0.29, 0], [Math.PI / 2, 0, 0]));
+  rightForearm.add(mesh(new THREE.TorusGeometry(0.10, 0.018, 6, 16), materials.seam, [0, -0.29, 0], [Math.PI / 2, 0, 0]));
+  leftForearm.add(mesh(new THREE.BoxGeometry(0.13, 0.11, 0.035), materials.pack, [-0.05, -0.16, -0.105], [0.1, 0, -0.12]));
+  rightForearm.add(mesh(new THREE.BoxGeometry(0.13, 0.11, 0.035), materials.pack, [0.05, -0.16, -0.105], [-0.1, 0, 0.12]));
+  leftForearm.add(mesh(new THREE.SphereGeometry(0.12, 14, 10), materials.glove, [0, -0.34, 0], [0, 0, 0], [1, 0.83, 1.08]));
+  rightForearm.add(mesh(new THREE.SphereGeometry(0.12, 14, 10), materials.glove, [0, -0.34, 0], [0, 0, 0], [1, 0.83, 1.08]));
+  for (const side of [-1, 1]) {
+    const glove = side < 0 ? leftForearm : rightForearm;
+    for (const offset of [-0.045, 0, 0.045]) {
+      glove.add(mesh(new THREE.CapsuleGeometry(0.018, 0.055, 3, 6), materials.glove, [offset, -0.39, -0.07]));
+    }
+  }
 
   const leftLeg = new THREE.Group();
   const rightLeg = new THREE.Group();
+  leftLeg.name = "left-leg-rig";
+  rightLeg.name = "right-leg-rig";
   // A wider stance gives the astronaut a stable, deliberate lunar gait.
   leftLeg.position.set(-0.23, 0.2, 0);
   rightLeg.position.set(0.23, 0.2, 0);
   hips.add(leftLeg, rightLeg);
+  leftLeg.add(mesh(new THREE.SphereGeometry(0.14, 14, 10), materials.suitShadow));
+  rightLeg.add(mesh(new THREE.SphereGeometry(0.14, 14, 10), materials.suitShadow));
   leftLeg.add(mesh(new THREE.CapsuleGeometry(0.12, 0.36, 4, 8), materials.suit, [0, -0.2, 0]));
   rightLeg.add(mesh(new THREE.CapsuleGeometry(0.12, 0.36, 4, 8), materials.suit, [0, -0.2, 0]));
+  leftLeg.add(mesh(new THREE.BoxGeometry(0.18, 0.14, 0.05), materials.suitShadow, [0, -0.36, -0.12]));
+  rightLeg.add(mesh(new THREE.BoxGeometry(0.18, 0.14, 0.05), materials.suitShadow, [0, -0.36, -0.12]));
   const leftBoot = new THREE.Group();
   const rightBoot = new THREE.Group();
+  leftBoot.name = "left-boot-rig";
+  rightBoot.name = "right-boot-rig";
   leftBoot.position.set(0, -0.42, 0);
   rightBoot.position.set(0, -0.42, 0);
   leftLeg.add(leftBoot);
   rightLeg.add(rightBoot);
-  leftBoot.add(mesh(new THREE.CapsuleGeometry(0.13, 0.3, 4, 8), materials.suitShadow, [0, -0.16, -0.03], [Math.PI / 2, 0, 0]));
-  rightBoot.add(mesh(new THREE.CapsuleGeometry(0.13, 0.3, 4, 8), materials.suitShadow, [0, -0.16, -0.03], [Math.PI / 2, 0, 0]));
+  leftBoot.add(mesh(new THREE.CapsuleGeometry(0.13, 0.3, 4, 8), materials.boot, [0, -0.16, -0.03], [Math.PI / 2, 0, 0]));
+  rightBoot.add(mesh(new THREE.CapsuleGeometry(0.13, 0.3, 4, 8), materials.boot, [0, -0.16, -0.03], [Math.PI / 2, 0, 0]));
+  leftBoot.add(mesh(new THREE.BoxGeometry(0.28, 0.07, 0.43), materials.seam, [0, -0.31, -0.07]));
+  rightBoot.add(mesh(new THREE.BoxGeometry(0.28, 0.07, 0.43), materials.seam, [0, -0.31, -0.07]));
+  for (const z of [-0.2, -0.08, 0.04]) {
+    leftBoot.add(mesh(new THREE.BoxGeometry(0.22, 0.025, 0.035), materials.suitShadow, [0, -0.35, z]));
+    rightBoot.add(mesh(new THREE.BoxGeometry(0.22, 0.025, 0.035), materials.suitShadow, [0, -0.35, z]));
+  }
 
   const animation = {
     action: "idle",
@@ -136,6 +222,15 @@ export function createAstronautCharacter(THREE, parent, options = {}) {
   let loadedModel = null;
   let loadedClips = [];
   let activeClipAction = null;
+  let loadedRig = null;
+
+  function reportAssetStatus(status, error = null) {
+    root.userData.assetStatus = status;
+    if (typeof document !== "undefined" && root.name === "junior-astronaut") {
+      document.documentElement.dataset.astronautAssetStatus = status;
+    }
+    options.onAssetStatus?.({ status, error, character: root.name, identityId: root.userData.identityId });
+  }
 
   function disposeObject(object) {
     object.traverse?.((child) => {
@@ -149,29 +244,28 @@ export function createAstronautCharacter(THREE, parent, options = {}) {
 
   function clipForAction(action) {
     const patterns = {
-      idle: /idle|t-?pose/i,
+      idle: /idle|stand|t-?pose/i,
       walk: /walk/i,
-      float: /float|idle/i,
-      talk: /talk|idle/i,
-      point: /point|idle/i,
-      react: /react|run/i,
-      celebrate: /celebrat|jump|run/i,
-      disappointed: /sad|hurt|idle/i,
+      float: /float|idle|stand|t-?pose/i,
       "lunar-walk": /walk|idle/i,
-      loping: /run|walk|idle/i,
-      jumping: /jump|celebrat|idle/i,
-      airborne: /float|idle/i,
-      thruster: /float|idle/i,
-      landing: /land|idle/i
+      loping: /run|jog/i
     };
     const pattern = patterns[action] || patterns.idle;
-    return loadedClips.find((clip) => pattern.test(clip.name)) || loadedClips[0] || null;
+    const matched = loadedClips.find((clip) => pattern.test(clip.name || ""));
+    if (matched) return matched;
+    return ["walk", "lunar-walk", "loping"].includes(action)
+      ? loadedClips.find((clip) => /walk|run|jog/i.test(clip.name || "")) || null
+      : null;
   }
 
   function updateLoadedAction(action) {
     if (!mixer) return;
     const clip = clipForAction(action);
-    if (!clip) return;
+    if (!clip) {
+      activeClipAction?.fadeOut(0.16);
+      activeClipAction = null;
+      return;
+    }
     const nextAction = mixer.clipAction(clip);
     if (activeClipAction === nextAction) return;
     nextAction.reset().setEffectiveWeight(1).fadeIn(0.16).play();
@@ -195,6 +289,83 @@ export function createAstronautCharacter(THREE, parent, options = {}) {
     root.userData.thrusterActive = animation.thrusterActive;
   }
 
+  function findBone(pattern) {
+    let found = null;
+    loadedModel?.traverse?.((child) => {
+      if (!found && child.isBone && pattern.test(child.name || "")) found = child;
+    });
+    return found;
+  }
+
+  function setBoneRotation(bone, x, y, z, weight = 1) {
+    if (!bone) return;
+    bone.rotation.x = x * weight;
+    bone.rotation.y = y * weight;
+    bone.rotation.z = z * weight;
+  }
+
+  function updateLoadedRigPose(time) {
+    if (!loadedRig) return;
+    const action = animation.action;
+    const breathing = Math.sin(time * 1.8) * 0.025;
+    const poseWeight = animation.blend;
+    const presentation = {
+      head: loadedRig.head,
+      neck: loadedRig.neck,
+      leftArm: loadedRig.leftArm,
+      rightArm: loadedRig.rightArm,
+      leftForeArm: loadedRig.leftForeArm,
+      rightForeArm: loadedRig.rightForeArm,
+      leftLeg: loadedRig.leftLeg,
+      rightLeg: loadedRig.rightLeg,
+      leftFoot: loadedRig.leftFoot,
+      rightFoot: loadedRig.rightFoot,
+      spine: loadedRig.spine
+    };
+    Object.values(presentation).forEach((bone) => {
+      if (!bone) return;
+      bone.userData.baseRotation ||= { x: bone.rotation.x, y: bone.rotation.y, z: bone.rotation.z };
+    });
+    // Let the source walk/run clips own the skeleton. Rig-bone poses below
+    // are only for states that the downloaded asset does not provide.
+    if (["walk", "lunar-walk", "loping"].includes(action)) return;
+    const base = (bone) => bone?.userData.baseRotation || { x: 0, y: 0, z: 0 };
+    const restore = (bone) => {
+      if (!bone) return;
+      const rotation = base(bone);
+      bone.rotation.set(rotation.x, rotation.y, rotation.z);
+    };
+    Object.values(presentation).forEach(restore);
+    if (action === "idle" || action === "float") {
+      setBoneRotation(loadedRig.spine, breathing, 0, 0, poseWeight);
+      setBoneRotation(loadedRig.head, 0, Math.sin(time * 1.2) * 0.025, 0, poseWeight);
+    } else if (action === "jumping" || action === "airborne" || action === "thruster") {
+      setBoneRotation(loadedRig.leftArm, 0.28, 0, -0.28, poseWeight);
+      setBoneRotation(loadedRig.rightArm, 0.28, 0, 0.28, poseWeight);
+      setBoneRotation(loadedRig.leftLeg, -0.18, 0, -0.08, poseWeight);
+      setBoneRotation(loadedRig.rightLeg, -0.18, 0, 0.08, poseWeight);
+      setBoneRotation(loadedRig.spine, -0.12, 0, 0, poseWeight);
+    } else if (action === "landing") {
+      setBoneRotation(loadedRig.leftLeg, 0.3, 0, -0.04, poseWeight);
+      setBoneRotation(loadedRig.rightLeg, 0.3, 0, 0.04, poseWeight);
+      setBoneRotation(loadedRig.spine, -0.16, 0, 0, poseWeight);
+    } else if (action === "talk" || action === "react") {
+      setBoneRotation(loadedRig.head, Math.sin(time * 2.5) * 0.05, Math.sin(time * 2.1) * 0.08, 0, poseWeight);
+      setBoneRotation(loadedRig.rightForeArm, -0.24, 0, 0.12, poseWeight);
+    } else if (action === "point") {
+      setBoneRotation(loadedRig.rightArm, -0.9, 0, 0.18, poseWeight);
+      setBoneRotation(loadedRig.rightForeArm, -0.42, 0, 0.05, poseWeight);
+      setBoneRotation(loadedRig.head, 0, -0.12, 0, poseWeight);
+    } else if (action === "celebrate") {
+      setBoneRotation(loadedRig.leftArm, -0.95, 0, -0.32, poseWeight);
+      setBoneRotation(loadedRig.rightArm, -0.95, 0, 0.32, poseWeight);
+      setBoneRotation(loadedRig.spine, -0.08, 0, 0, poseWeight);
+    } else if (action === "disappointed") {
+      setBoneRotation(loadedRig.head, 0.22, 0, 0, poseWeight);
+      setBoneRotation(loadedRig.spine, 0.08, 0, 0, poseWeight);
+    }
+  }
+
   function moveTo(position, duration = 1.8) {
     motion.from.copy(root.position);
     motion.to.set(...position);
@@ -207,6 +378,7 @@ export function createAstronautCharacter(THREE, parent, options = {}) {
   function update(delta, time) {
     animation.elapsed += delta;
     mixer?.update(delta);
+    updateLoadedRigPose(animation.elapsed);
     animation.blend = Math.min(1, animation.blend + delta * 4.2);
     if (motion.active) {
       motion.elapsed += delta;
@@ -312,57 +484,85 @@ export function createAstronautCharacter(THREE, parent, options = {}) {
   setAction("idle");
 
   async function loadAnimatedAsset() {
-    const assetUrl = options.assetUrl || window.MOONBASE_ASTRONAUT_ASSET_URL
-      || "https://cdn.jsdelivr.net/gh/mrdoob/three.js@r180/examples/models/gltf/Soldier.glb";
+    // The procedural MoonBase EVA is the canonical playable identity. A GLB
+    // may be supplied explicitly for a future production art pass, but the
+    // game must never silently replace the astronaut with a generic soldier
+    // or rely on a remote asset for the playable character.
+    const assetUrl = options.assetUrl || window.MOONBASE_ASTRONAUT_ASSET_URL;
+    if (!assetUrl) return;
+    reportAssetStatus("loading");
     try {
       const { GLTFLoader } = await import("https://cdn.jsdelivr.net/npm/three@0.180.0/examples/jsm/loaders/GLTFLoader.js");
       const loader = new GLTFLoader();
       loader.load(assetUrl, (gltf) => {
-        if (!gltf?.scene || !root.parent) return;
+        if (!gltf?.scene || !root.parent) {
+          reportAssetStatus("error", new Error("The astronaut GLB did not contain a scene."));
+          return;
+        }
         fallbackChildren.forEach((child) => {
           root.remove(child);
           disposeObject(child);
         });
         loadedModel = gltf.scene;
         loadedModel.name = `${root.name}-gltf`;
+        loadedModel.rotation.y = Number(options.assetRotationY || 0);
         loadedModel.scale.setScalar(Number(options.assetScale || 1));
-        loadedModel.position.y = Number(options.assetYOffset || 0);
+        const sourceBounds = new THREE.Box3().setFromObject(loadedModel);
+        const sourceSize = sourceBounds.getSize(new THREE.Vector3());
+        const targetHeight = Number(options.assetHeight || 1.95);
+        if (sourceSize.y > 0 && targetHeight > 0) loadedModel.scale.multiplyScalar(targetHeight / sourceSize.y);
+        const normalizedBounds = new THREE.Box3().setFromObject(loadedModel);
+        loadedModel.position.y = -normalizedBounds.min.y + Number(options.assetYOffset || 0);
         loadedModel.traverse((child) => {
           if (child.isMesh) {
             child.castShadow = true;
             child.receiveShadow = true;
-            const materialName = `${child.name || ""} ${child.material?.name || ""}`.toLowerCase();
-            const visor = /visor|eye|face|head/.test(materialName);
-            const equipment = /boot|belt|pack|armor|weapon|joint/.test(materialName);
-            const previousMaterial = child.material;
-            const material = new THREE.MeshStandardMaterial({
-              color: visor ? 0x102856 : equipment ? 0x4a5f92 : 0xeaf2ff,
-              emissive: visor ? 0x164c86 : 0x000000,
-              emissiveIntensity: visor ? 0.72 : 0,
-              roughness: visor ? 0.18 : 0.68,
-              metalness: visor ? 0.18 : 0.04
+            const materialsToTune = Array.isArray(child.material) ? child.material : [child.material];
+            materialsToTune.filter(Boolean).forEach((material) => {
+              material.needsUpdate = true;
+              if (material.isMeshStandardMaterial || material.isMeshPhysicalMaterial) {
+                material.envMapIntensity = material.envMapIntensity || 1;
+              }
             });
-            child.material = material;
-            if (previousMaterial) {
-              const previousMaterials = Array.isArray(previousMaterial) ? previousMaterial : [previousMaterial];
-              previousMaterials.forEach((oldMaterial) => oldMaterial.dispose?.());
-            }
           }
         });
+        const modelBounds = new THREE.Box3().setFromObject(loadedModel);
+        const modelSize = modelBounds.getSize(new THREE.Vector3());
+        const badge = new THREE.Group();
+        badge.name = "moonbase-insignia";
+        badge.position.set(-modelSize.x * 0.33, modelSize.y * 0.69, -modelSize.z * 0.49);
+        badge.rotation.x = Math.PI / 2;
+        badge.add(mesh(new THREE.CylinderGeometry(Math.max(0.035, modelSize.x * 0.045), Math.max(0.035, modelSize.x * 0.045), 0.012, 16), materials.insignia));
+        badge.add(mesh(new THREE.BoxGeometry(Math.max(0.008, modelSize.x * 0.012), Math.max(0.04, modelSize.y * 0.04), 0.014), materials.accent, [0, 0, -0.012]));
+        loadedModel.add(badge);
         root.add(loadedModel);
         loadedClips = gltf.animations || [];
         mixer = loadedClips.length ? new THREE.AnimationMixer(loadedModel) : null;
-        root.userData.characterType = "animated-gltf-astronaut";
-        root.userData.assetStatus = "loaded";
+        loadedRig = {
+          head: findBone(/^(head|headfront)$/i),
+          neck: findBone(/^neck$/i),
+          leftArm: findBone(/^leftarm$/i),
+          rightArm: findBone(/^rightarm$/i),
+          leftForeArm: findBone(/^leftforearm$/i),
+          rightForeArm: findBone(/^rightforearm$/i),
+          leftLeg: findBone(/^leftupleg$/i),
+          rightLeg: findBone(/^rightupleg$/i),
+          leftFoot: findBone(/^leftfoot$/i),
+          rightFoot: findBone(/^rightfoot$/i),
+          spine: findBone(/^spine02$/i)
+        };
+        root.userData.characterType = "rigged-glb-astronaut";
+        root.userData.animationClips = loadedClips.map((clip) => clip.name || "(unnamed)");
         updateLoadedAction(animation.action);
+        reportAssetStatus("ready");
       }, undefined, () => {
-        root.userData.assetStatus = "fallback";
+        reportAssetStatus("error", new Error("The local astronaut GLB could not be loaded."));
       });
-    } catch {
-      root.userData.assetStatus = "fallback";
+    } catch (error) {
+      reportAssetStatus("error", error);
     }
   }
 
-  if (options.loadAsset !== false) loadAnimatedAsset();
+  if (options.loadAsset !== false && (options.assetUrl || window.MOONBASE_ASTRONAUT_ASSET_URL)) loadAnimatedAsset();
   return { root, setAction, setThrusterActive, moveTo, update, dispose };
 }

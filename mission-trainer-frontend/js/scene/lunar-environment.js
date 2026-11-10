@@ -111,9 +111,113 @@ export function createLunarEnvironment(THREE, scene) {
     storm: { x: -9.0, z: -23.7 }
   });
 
+  // These are visual-simulation features, not a claim that MoonBase occupies
+  // a surveyed lunar coordinate. Their profiles are intentionally varied so
+  // the terrain mesh, not a decorative bowl, defines the lunar silhouette.
+  const terrainCraters = Object.freeze([
+    { x: -20.5, z: -26.0, radius: 7.2, depth: 1.18, rim: 0.72, age: "degraded", seed: 11 },
+    { x: 21.0, z: -28.0, radius: 5.8, depth: 1.48, rim: 0.92, age: "fresh", seed: 17 },
+    { x: -27.0, z: -7.5, radius: 4.7, depth: 0.84, rim: 0.54, age: "ancient", seed: 23 },
+    { x: 27.0, z: -8.0, radius: 4.2, depth: 0.98, rim: 0.62, age: "fresh", seed: 29 },
+    { x: 17.0, z: 10.8, radius: 6.5, depth: 0.74, rim: 0.46, age: "ancient", seed: 31 },
+    { x: -18.0, z: 11.5, radius: 5.6, depth: 1.02, rim: 0.6, age: "degraded", seed: 37 },
+    { x: 3.6, z: -19.8, radius: 3.5, depth: 0.62, rim: 0.43, age: "fresh", seed: 41 },
+    { x: -1.8, z: -29.5, radius: 2.5, depth: 0.48, rim: 0.34, age: "fresh", seed: 43 },
+    { x: 12.2, z: -22.8, radius: 2.25, depth: 0.38, rim: 0.26, age: "fresh", seed: 47 },
+    { x: -28.0, z: -22.0, radius: 2.9, depth: 0.5, rim: 0.31, age: "degraded", seed: 53 },
+    { x: 24.0, z: 4.8, radius: 2.8, depth: 0.42, rim: 0.28, age: "fresh", seed: 59 },
+    { x: -9.5, z: 18.0, radius: 3.2, depth: 0.48, rim: 0.3, age: "ancient", seed: 61 },
+    { x: 7.8, z: -11.2, radius: 1.7, depth: 0.28, rim: 0.2, age: "fresh", seed: 67 },
+    { x: -13.4, z: -14.2, radius: 1.45, depth: 0.22, rim: 0.16, age: "fresh", seed: 71 }
+  ]);
+
+  // Broad landforms make the playable area read as a geological landscape
+  // before the smaller craters and rocks are even visible. These are
+  // procedural visual features, not measurements of a named lunar site.
+  const terrainHighlands = Object.freeze([
+    { x: -23, z: -15, width: 15, depth: 5.2, height: 2.35, rotation: 0.32, seed: 101 },
+    { x: 22, z: -17, width: 18, depth: 5.8, height: 2.15, rotation: -0.24, seed: 109 },
+    { x: 1, z: -36, width: 27, depth: 6.8, height: 2.05, rotation: 0.06, seed: 113 },
+    { x: -31, z: 9, width: 16, depth: 8.2, height: 1.85, rotation: 0.55, seed: 127 },
+    { x: 30, z: 11, width: 17, depth: 7.4, height: 1.72, rotation: -0.48, seed: 131 }
+  ]);
+
   function hash2(x, z) {
     const value = Math.sin(x * 127.1 + z * 311.7 + 17.3) * 43758.5453;
     return value - Math.floor(value);
+  }
+
+  function smoothstep(edge0, edge1, value) {
+    const t = Math.max(0, Math.min(1, (value - edge0) / Math.max(0.0001, edge1 - edge0)));
+    return t * t * (3 - 2 * t);
+  }
+
+  function valueNoise(x, z) {
+    const x0 = Math.floor(x);
+    const z0 = Math.floor(z);
+    const tx = smoothstep(0, 1, x - x0);
+    const tz = smoothstep(0, 1, z - z0);
+    const a = hash2(x0, z0);
+    const b = hash2(x0 + 1, z0);
+    const c = hash2(x0, z0 + 1);
+    const d = hash2(x0 + 1, z0 + 1);
+    const ab = a + (b - a) * tx;
+    const cd = c + (d - c) * tx;
+    return ab + (cd - ab) * tz;
+  }
+
+  function fractalNoise(x, z) {
+    let value = 0;
+    let amplitude = 0.56;
+    let frequency = 0.035;
+    let total = 0;
+    for (let octave = 0; octave < 4; octave += 1) {
+      value += (valueNoise(x * frequency + octave * 17.3, z * frequency - octave * 9.1) * 2 - 1) * amplitude;
+      total += amplitude;
+      amplitude *= 0.5;
+      frequency *= 2.05;
+    }
+    return value / total;
+  }
+
+  function highlandProfile(form, x, z) {
+    const cosine = Math.cos(form.rotation);
+    const sine = Math.sin(form.rotation);
+    const dx = x - form.x;
+    const dz = z - form.z;
+    const along = (dx * cosine - dz * sine) / Math.max(0.1, form.width * 0.5);
+    const across = (dx * sine + dz * cosine) / Math.max(0.1, form.depth * 0.5);
+    const envelope = Math.exp(-0.5 * (along * along + across * across));
+    const brokenProfile = 0.82 + valueNoise(x * 0.18 + form.seed, z * 0.18 - form.seed) * 0.28;
+    const shoulder = 0.88 + Math.max(0, 1 - Math.abs(along)) * 0.12;
+    return form.height * envelope * brokenProfile * shoulder;
+  }
+
+  function craterProfile(crater, x, z) {
+    const dx = x - crater.x;
+    const dz = z - crater.z;
+    const angle = Math.atan2(dz, dx);
+    const irregularity = 1 + (valueNoise(Math.cos(angle) * 2.5 + crater.seed, Math.sin(angle) * 2.5 - crater.seed) - 0.5) * 0.28;
+    const radial = Math.hypot(dx, dz) / Math.max(0.1, crater.radius * irregularity);
+    if (radial > 1.62) return 0;
+
+    const floorDepth = crater.age === "ancient" ? crater.depth * 0.64 : crater.depth;
+    const rimScale = crater.age === "degraded" ? crater.rim * 0.7 : crater.rim;
+    if (radial < 0.42) {
+      const floorBlend = smoothstep(0.05, 0.42, radial);
+      return -floorDepth * (0.88 - floorBlend * 0.2);
+    }
+    if (radial < 0.94) {
+      const wall = smoothstep(0.42, 0.94, radial);
+      return -floorDepth * (1 - wall) + rimScale * Math.pow(wall, 2.2) * 0.18;
+    }
+    if (radial < 1.18) {
+      const rim = 1 - smoothstep(0.94, 1.18, radial);
+      const unevenRim = 0.74 + valueNoise(x * 0.7 + crater.seed, z * 0.7 - crater.seed) * 0.42;
+      return rimScale * rim * unevenRim;
+    }
+    const ejecta = 1 - smoothstep(1.18, 1.62, radial);
+    return rimScale * 0.24 * ejecta * (0.75 + valueNoise(x * 0.28, z * 0.28) * 0.5);
   }
 
   function createRockTexture(size, seed, normal = false) {
@@ -164,21 +268,45 @@ export function createLunarEnvironment(THREE, scene) {
   });
 
   function createRockMaterial(color, { roughness = 0.98, normalScale = 0.32, flatShading = true } = {}) {
-    return new THREE.MeshStandardMaterial({
+    const material = new THREE.MeshStandardMaterial({
       color,
       roughness,
       metalness: 0,
       flatShading,
-      normalMap: rockNormalTexture,
-      normalScale: new THREE.Vector2(normalScale, normalScale),
-      roughnessMap: rockRoughnessTexture
+      normalScale: new THREE.Vector2(normalScale, normalScale)
     });
+    // The materials are created before the deterministic texture maps are
+    // generated. Assign maps only after they exist to avoid undefined-map
+    // warnings during WebGL material construction.
+    if (rockNormalTexture) material.normalMap = rockNormalTexture;
+    if (rockRoughnessTexture) material.roughnessMap = rockRoughnessTexture;
+    return material;
   }
 
   function groundHeight(x, z) {
-    const broad = Math.sin(x * 0.19 + 0.8) * 0.035 + Math.cos(z * 0.16 - 1.4) * 0.028;
-    const detail = Math.sin((x + z) * 0.58) * 0.012 + Math.cos((x - z) * 0.43) * 0.01;
-    return broad + detail;
+    // Multi-scale highland relief gives the playable map broad slopes and
+    // ridges. Crater profiles are then stamped into the same height function,
+    // so floors and rims are part of the displaced terrain mesh.
+    let height = fractalNoise(x, z) * 0.92;
+    height += fractalNoise(x * 0.43 + 19, z * 0.43 - 11) * 1.35;
+    height += (valueNoise(x * 0.92 + 8, z * 0.92 - 4) - 0.5) * 0.18;
+    terrainHighlands.forEach((form) => { height += highlandProfile(form, x, z); });
+    terrainCraters.forEach((crater) => { height += craterProfile(crater, x, z); });
+
+    const padZones = [
+      [0, -3.8, 7.6],
+      [missionLocations.solar.x, missionLocations.solar.z, 3.5],
+      [missionLocations.water.x, missionLocations.water.z, 3.5],
+      [missionLocations.grow.x, missionLocations.grow.z, 3.5],
+      [missionLocations.storm.x, missionLocations.storm.z, 3.5],
+      [-10.5, -10.5, 3.1], [11.8, -13.8, 3.1], [-12.8, -23.5, 3.1]
+    ];
+    padZones.forEach(([padX, padZ, radius]) => {
+      const distance = Math.hypot(x - padX, z - padZ);
+      const flatten = 1 - smoothstep(radius * 0.62, radius, distance);
+      height *= 1 - flatten;
+    });
+    return height;
   }
 
   function createRockGeometry(type, seed) {
@@ -522,7 +650,10 @@ export function createLunarEnvironment(THREE, scene) {
   }
 
   function createGround() {
-    const geometry = new THREE.PlaneGeometry(WORLD.size, WORLD.size, 96, 96);
+    // The height field is the primary lunar surface. A dense grid keeps the
+    // crater walls, floors, broad highlands, and small regolith undulations
+    // visible from the third-person camera instead of reducing them to props.
+    const geometry = new THREE.PlaneGeometry(WORLD.size, WORLD.size, 192, 192);
     geometry.rotateX(-Math.PI / 2);
     const position = geometry.attributes.position;
     const groundColors = new Float32Array(position.count * 3);
@@ -530,8 +661,13 @@ export function createLunarEnvironment(THREE, scene) {
     for (let index = 0; index < position.count; index += 1) {
       const x = position.getX(index);
       const z = position.getZ(index) + WORLD.centerZ;
-      position.setY(index, groundHeight(x, z));
-      const variation = 0.86 + hash2(x * 2.7, z * 3.1) * 0.24;
+      const height = groundHeight(x, z);
+      position.setY(index, height);
+      // Relate vertex tone to relief as well as deterministic mineral
+      // variation so ridges catch sunlight and crater floors stay visually
+      // distinct without an artificial painted ring.
+      const reliefTone = Math.max(-0.08, Math.min(0.1, height * 0.035));
+      const variation = 0.86 + hash2(x * 2.7, z * 3.1) * 0.24 + reliefTone;
       groundColors[index * 3] = Math.min(1, baseGround.r * variation + 0.015);
       groundColors[index * 3 + 1] = Math.min(1, baseGround.g * variation + 0.012);
       groundColors[index * 3 + 2] = Math.min(1, baseGround.b * variation + 0.008);
@@ -544,7 +680,10 @@ export function createLunarEnvironment(THREE, scene) {
       [0, -1.105, WORLD.centerZ], [-Math.PI / 2, 0, 0], [1, 0.86, 1]);
     underlay.material.opacity = 0.16;
 
-    const craterAnchors = [];
+    // Craters are stamped into groundHeight(), so these anchors are only used
+    // to distribute ejecta rocks and fragments around the already-displaced
+    // surface. No bowl or ring is placed over the ground anymore.
+    const craterAnchors = terrainCraters;
     const clearZones = [
       [0, -3.8, 7.6],
       [missionLocations.solar.x, missionLocations.solar.z, 3.3],
@@ -574,72 +713,6 @@ export function createLunarEnvironment(THREE, scene) {
       if (clearZones.some(([zoneX, zoneZ, radius]) => Math.hypot(x - zoneX, z - zoneZ) < radius + padding)) return true;
       return traversalSegments.some(([x1, z1, x2, z2]) => distanceToSegment(x, z, x1, z1, x2, z2) < 2.2 + padding);
     };
-
-    const createImpactCraterGeometry = (radius, index) => {
-      const segments = 24;
-      const ringRadii = [0, radius * 0.46, radius * 0.7, radius * 0.88, radius * 1.08];
-      const ringHeights = [0.024, 0.012, 0.006, 0.095, 0.016];
-      const vertices = [];
-      const indices = [];
-      const ringStart = [0];
-      vertices.push(0, ringHeights[0], 0);
-      for (let ring = 1; ring < ringRadii.length; ring += 1) {
-        ringStart[ring] = vertices.length / 3;
-        for (let segment = 0; segment < segments; segment += 1) {
-          const angle = segment / segments * Math.PI * 2;
-          const irregular = 0.9 + hash2(index * 7 + ring, segment * 11 + 41) * 0.18;
-          const ringRadius = ringRadii[ring] * irregular;
-          vertices.push(
-            Math.cos(angle) * ringRadius,
-            ringHeights[ring] + hash2(index * 13 + ring, segment * 17 + 53) * 0.014,
-            Math.sin(angle) * ringRadius
-          );
-        }
-      }
-      for (let segment = 0; segment < segments; segment += 1) {
-        const next = (segment + 1) % segments;
-        indices.push(0, ringStart[1] + segment, ringStart[1] + next);
-        for (let ring = 1; ring < ringRadii.length - 1; ring += 1) {
-          const current = ringStart[ring] + segment;
-          const currentNext = ringStart[ring] + next;
-          const outer = ringStart[ring + 1] + segment;
-          const outerNext = ringStart[ring + 1] + next;
-          indices.push(current, outer, currentNext, currentNext, outer, outerNext);
-        }
-      }
-      const craterGeometry = new THREE.BufferGeometry();
-      craterGeometry.setAttribute("position", new THREE.Float32BufferAttribute(vertices, 3));
-      craterGeometry.setIndex(indices);
-      craterGeometry.computeVertexNormals();
-      return craterGeometry;
-    };
-
-    const createCrater = (x, z, radius, index) => {
-      const crater = new THREE.Group();
-      crater.position.set(x, -1.075 + groundHeight(x, z), z);
-      crater.rotation.z = hash2(index, 5) * Math.PI;
-      crater.scale.set(1.35 + hash2(index, 8) * 0.6, 1, 0.82 + hash2(index, 9) * 0.3);
-      const bowl = new THREE.Mesh(createImpactCraterGeometry(radius, index), materials.craterBowl);
-      bowl.castShadow = true;
-      bowl.receiveShadow = true;
-      crater.add(bowl);
-      // A broken outer lip catches the low sun without producing a perfect
-      // torus. The irregular geometry is what makes these read as impacts.
-      const rim = new THREE.Mesh(new THREE.RingGeometry(radius * 0.88, radius * 1.08, 24), materials.craterRim);
-      rim.rotation.x = -Math.PI / 2;
-      rim.position.y = 0.034;
-      rim.scale.set(0.98 + hash2(index, 17) * 0.16, 1, 0.9 + hash2(index, 19) * 0.18);
-      crater.add(rim);
-      root.add(crater);
-      craterAnchors.push({ x, z, radius, index });
-    };
-
-    for (let index = 0; index < 44; index += 1) {
-      const x = -32 + hash2(index, 31) * 64;
-      const z = -34 + hash2(index, 37) * 58;
-      if (Math.abs(x) < 7.5 && z > -12 && z < 3) continue;
-      createCrater(x, z, 0.45 + hash2(index, 41) * 1.55, index);
-    }
 
     // Large boulders stay on the outer perimeter so the base remains easy to
     // navigate. Their low-poly silhouettes and fractured shoulders are the
@@ -744,8 +817,8 @@ export function createLunarEnvironment(THREE, scene) {
     // From the lunar surface Earth is a small, bright disk—not a nearby
     // planet-sized prop. Keep it high in the black sky and far behind the
     // base so it reads as a distant celestial body.
-    group.position.set(-3.2, 6.55, -22.5);
-    group.scale.setScalar(0.72);
+    group.position.set(-5.5, 8.1, -30);
+    group.scale.setScalar(0.42);
     group.rotation.z = -0.16;
     signal.earth = group;
     const earthMaterial = new THREE.MeshStandardMaterial({ color: colors.earth, roughness: 0.88, metalness: 0 });
@@ -767,19 +840,31 @@ export function createLunarEnvironment(THREE, scene) {
   function createHorizon() {
     const horizon = new THREE.Group();
     horizon.name = "lunar-horizon-ridges";
-    // Low, broken ridges preserve line-of-sight while giving the site the
-    // layered elevated terrain visible in Apollo horizon photography.
+    // Build distant highlands from displaced ridge meshes rather than scaled
+    // spheres. Their broken silhouettes extend the same geological language as
+    // the playable height field and make the horizon feel genuinely elevated.
     const ridgeMaterial = new THREE.MeshStandardMaterial({ color: 0x4c4a47, roughness: 1, metalness: 0, flatShading: true });
     const ridgePositions = [
-      [-32, 0.3, -34, 4.2], [-25, 0.15, -37, 5.6], [-17, 0.25, -35, 4.4],
-      [-8, 0.2, -38, 5.2], [1, 0.3, -36, 5.8], [11, 0.18, -38, 4.6],
-      [21, 0.28, -35, 5.2], [30, 0.12, -37, 4.5], [-36, 0.2, -12, 4.1],
-      [36, 0.25, -16, 4.8]
+      [0, -40, 28, 8.2, 3.5, 601], [-25, -38, 20, 7.2, 2.9, 607],
+      [27, -37, 19, 7.4, 3.1, 613]
     ];
-    ridgePositions.forEach(([x, y, z, radius], index) => {
-      const ridge = addMesh(horizon, new THREE.SphereGeometry(1, 12, 6), ridgeMaterial,
-        [x, -0.48 + y * 0.2, z], [0, index * 0.4, 0], [radius * 1.5, 0.6 + hash2(index, 711) * 0.32, radius * 0.75]);
+    ridgePositions.forEach(([x, z, width, depth, height, seed], index) => {
+      const ridgeGeometry = new THREE.PlaneGeometry(width, depth, 18, 6);
+      ridgeGeometry.rotateX(-Math.PI / 2);
+      const ridgePosition = ridgeGeometry.attributes.position;
+      for (let vertex = 0; vertex < ridgePosition.count; vertex += 1) {
+        const localX = ridgePosition.getX(vertex);
+        const localZ = ridgePosition.getZ(vertex);
+        const across = Math.max(0, 1 - Math.abs(localX / Math.max(0.1, width * 0.5)));
+        const depthProfile = 0.62 + Math.cos((localZ / Math.max(0.1, depth)) * Math.PI) * 0.24;
+        const broken = 0.78 + valueNoise(localX * 0.24 + seed, localZ * 0.34 - seed) * 0.46;
+        ridgePosition.setY(vertex, height * Math.pow(across, 0.68) * depthProfile * broken);
+      }
+      ridgeGeometry.computeVertexNormals();
+      const ridge = addMesh(horizon, ridgeGeometry, ridgeMaterial,
+        [x, -1.08 + groundHeight(x, z) + 0.1, z], [0, (index - 2) * 0.12, 0]);
       ridge.castShadow = false;
+      ridge.receiveShadow = true;
     });
     root.add(horizon);
   }
@@ -1472,24 +1557,20 @@ export function createLunarEnvironment(THREE, scene) {
   }
 
   function loadMoonSurfaceTexture() {
-    const loader = new THREE.TextureLoader();
-    loader.setCrossOrigin?.("anonymous");
-    const url = window.MOONBASE_MOON_TEXTURE_URL
-      || "https://threejs.org/examples/textures/planets/moon_1024.jpg";
-    loader.load(url, (texture) => {
-      texture.colorSpace = THREE.SRGBColorSpace;
-      texture.wrapS = THREE.RepeatWrapping;
-      texture.wrapT = THREE.RepeatWrapping;
-      texture.anisotropy = 4;
-      texture.repeat.set(5.5, 5.5);
-      materials.ground.map = texture;
-      materials.ground.bumpMap = texture;
-      materials.ground.bumpScale = 0.24;
-      materials.ground.needsUpdate = true;
-      signal.moonTexture = texture;
-    }, undefined, () => {
-      // The procedural craters remain the offline fallback when the texture is unavailable.
-    });
+    // Keep the lunar surface self-contained. The procedural texture uses the
+    // same deterministic noise family as the rock normal/roughness maps, so
+    // the game does not depend on a remote texture request at runtime.
+    const texture = createRockTexture(64, 211, false);
+    texture.colorSpace = THREE.SRGBColorSpace;
+    texture.wrapS = THREE.RepeatWrapping;
+    texture.wrapT = THREE.RepeatWrapping;
+    texture.anisotropy = 4;
+    texture.repeat.set(5.5, 5.5);
+    materials.ground.map = texture;
+    materials.ground.bumpMap = texture;
+    materials.ground.bumpScale = 0.24;
+    materials.ground.needsUpdate = true;
+    signal.moonTexture = texture;
   }
 
   createStars();
@@ -1711,6 +1792,9 @@ export function createLunarEnvironment(THREE, scene) {
     getLocations: () => signal.locations,
     getInteractiveObjects: () => signal.interactiveObjects,
     getCollisionObjects: () => signal.collisionObjects,
+    // World-space terrain query shared by the player and camera controllers.
+    // The value includes the environment group's base Y offset.
+    getTerrainHeight: (x, z) => -1.08 + groundHeight(Number(x) || 0, Number(z) || 0),
     dispose
   };
 }
