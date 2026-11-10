@@ -7,17 +7,43 @@
   <meta name="description" content="A four-day lunar base survival game for curious young explorers.">
   <title>MoonBase: 4 Days to Survive</title>
   <link rel="icon" href="../assets/moonbase-mark.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="../css/style.css">
-  <script defer src="../js/app.js?v=20261031-v1"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Orbitron:wght@500;600;700;800;900&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/style.css?v=20261110-v48">
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js"
+      }
+    }
+  </script>
+    <script>window.MOONBASE_REQUEST_TIMEOUT_MS = 15000;</script>
+    <script defer src="../js/scene/scene-manager.js?v=20261110-v47"></script>
+    <script defer src="../js/app.js?v=20261109-v43"></script>
 </head>
 <body>
   <div class="site-shell">
+    <a class="skip-link" href="#app">Skip to mission controls</a>
+    <div id="lunar-scene" class="lunar-scene" data-scene-status="loading" aria-hidden="true">
+      <canvas id="lunar-canvas" tabindex="0" aria-hidden="true"></canvas>
+      <div class="scene-vignette"></div>
+      <div class="scene-fallback-art" aria-hidden="true">
+        <img src="../assets/moonbase-scene.svg" alt="">
+      </div>
+    </div>
     <header class="topbar">
       <div class="brand-lockup" aria-label="MoonBase mission trainer">
         <span class="brand-mark" aria-hidden="true"><span></span></span>
         <span class="brand-name">MOON<span>BASE</span></span>
       </div>
-      <div class="mission-chip"><span class="chip-star" aria-hidden="true">✦</span> 4-DAY SURVIVAL MISSION</div>
+      <div class="topbar-right">
+        <div class="team-badge" aria-label="Team RUN 2.0">
+          <span class="team-badge-label">TEAM</span>
+          <strong>RUN <span>2.0</span></strong>
+        </div>
+        <div class="mission-chip"><span class="chip-star" aria-hidden="true">✦</span> 4-DAY SURVIVAL MISSION</div>
+      </div>
     </header>
 
     <main id="app" class="app-shell" tabindex="-1"></main>

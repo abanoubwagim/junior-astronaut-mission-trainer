@@ -41,7 +41,21 @@ public final class MissionDtos {
             String situation,
             String scienceFact,
             List<ScienceSource> scienceSources,
-            List<Choice> choices
+            List<Choice> choices,
+            String hazardType,
+            String hazardLevel,
+            double oneWayCommunicationDelaySeconds,
+            String dataStatus
+    ) {
+    }
+
+    public record SpaceWeatherStatus(
+            String signal,
+            String severity,
+            String sourceTitle,
+            String sourceUrl,
+            String dataNote,
+            double oneWayCommunicationDelaySeconds
     ) {
     }
 
@@ -82,6 +96,7 @@ public final class MissionDtos {
             ResourceValues resources,
             List<ResourceDefinition> resourceDefinitions,
             Event event,
+            SpaceWeatherStatus spaceWeather,
             List<String> activeEffects,
             List<DecisionInput> decisionHistory,
             SystemState systems,

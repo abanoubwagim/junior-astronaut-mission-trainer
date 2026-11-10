@@ -118,8 +118,8 @@ This is a positive scientific boundary: the project does not falsely present fic
 - **Official URLs:** [DONKI system](https://ccmc.gsfc.nasa.gov/tools/DONKI/); [CCMC public APIs](https://ccmc.gsfc.nasa.gov/tools/API/); [DONKI data reference](https://ccmc.gsfc.nasa.gov/DONKI/guide/data-reference/); [event guide](https://ccmc.gsfc.nasa.gov/DONKI/guide/events/).
 - **What it provides:** near-real-time analyses, notifications, models, and linked space-weather events such as solar flares (FLR), solar energetic particles (SEP), coronal mass ejections (CME), interplanetary shocks, geomagnetic storms, radiation-belt enhancements, and high-speed streams.
 - **Format/type:** public REST/OpenAPI web services; event records and analyses are queried by date and event type.
-- **Repository status:** not used. No DONKI URL, client, key, response model, cache, or event transformation exists in the running application.
-- **Suitable future use:** a separate, clearly labeled “space weather context” panel or teacher activity could show a historical/curated event record and ask what a crew would plan. The current fictional Day 4 alert should not silently become live.
+- **Repository status:** used as an attributed source context only. The backend returns the DONKI catalog URL, a visible `CURATED NASA DONKI SCENARIO` label, and a statement that the prototype does not claim to be a live measurement. No API key, live request, cache, or dose transformation is used.
+- **MoonBase usage:** the Day 1–4 event payloads expose the hazard level and NASA source context; the Day 4 solar-particle event uses DONKI as a traceable space-weather reference while keeping all resource effects as game-only rules.
 - **Limitation:** a DONKI SEP event record is not a local lunar-habitat radiation-dose measurement. It may describe event observations, analyses, forecasts, or links between events, but habitat dose requires particle spectra/fluence at the location, shielding geometry and materials, transport calculations, instrumentation, and crew/habitat context. A DONKI event must not be converted directly to a `Shelter readiness` value without a defensible scientific model.
 - **Data quality note:** CCMC says DONKI information and simulations are provided in a prototyping/research context and should be used with relevant forecasters, model developers, or researchers for validation studies.
 
@@ -167,7 +167,7 @@ No future integration is required for the current prototype. If the team chooses
 1. **Historical DONKI context card:** select a fixed, archived event at build time, show the source record and event type, and ask the child what preparation would be sensible. Do not map it to dose or automatically change game state.
 2. **Teacher-facing OSDR reading link:** link a specific plant or human-spaceflight study with a plain-language question; do not convert study results into game units.
 3. **NASA image or mission context:** use a fixed, attributed NASA asset with a documented license/usage check. It should improve orientation or science explanation, not drive balance.
-4. **Communication source link:** add the NASA Webb explainer and the NTRS communication-delay record to the optional demo without connecting the demo to gameplay.
+4. **Communication source link:** the gameplay now surfaces the 1.3-second one-way lunar light-time context and exposes the NASA source alongside the event. The delay is used as an educational trade-off, not as a fake network simulator.
 
 Any live data feature would need a visible “live/archived/simulated” label, a fallback when the NASA service is unavailable, reproducible tests with fixed fixtures, a source timestamp, and a clear statement of what the data does **not** measure.
 

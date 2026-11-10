@@ -48,14 +48,15 @@ After[d,r] = clamp(Before[d,r] + Daily[d,r] + Scheduled[d,r] + Event[d,r] + Choi
 |----------------------------|--------------------------|--------------------------------|----------------------------------------------------------------------------------|
 | 1: Dust on the solar array | `clean_solar_array`      | Power −1                       | Power +1 on Days 2–4. Lowers current Power to improve later output.              |
 | 1: Dust on the solar array | `connect_spare_battery`  | Power +1                       | No later effect. Gives a smaller immediate boost without a rover task.           |
-| 1: Dust and storm planning | `prepare_storm_shelter`  | Power −1, Shelter readiness +2 | Prevents normal Shelter-readiness wear on Days 2–4.                              |
+| 1: Dust and storm planning | `prepare_storm_shelter`  | Power −1, Shelter readiness +2 | Maps a regolith/stored-mass protection area and prevents normal Shelter-readiness wear on Days 2–4. |
 | 2: Water loop needs care   | `service_water_recycler` | Power −1, Water +1             | Water +1 on Days 3–4, on top of normal consumption.                              |
 | 2: Water loop needs care   | `use_backup_water_pack`  | Power −2, Water +5             | No later effect. Water is capped at 12.                                          |
 | 2: Water and air systems   | `inspect_co2_removal_loop` | Power −1                       | Power upkeep is 1 lower on Days 3–4 as a simplified game rule; it generates no Oxygen or Water. |
 | 3: Fresh food for the crew | `start_grow_light_tray`  | Power −2, Water −1             | Food +2 or +4 on Day 4, based on Water after upkeep and scheduled recovery. The one-turn harvest is compressed game time. |
 | 3: Fresh food for the crew | `open_meal_crate`        | Power −1, Food +3              | No later effect; helps immediately.                                              |
-| 4: A solar storm warning   | `full_storm_shelter`     | Power −1 prepared / −2 unprepared, Shelter readiness +4 | Activates FULL mode; an unprepared setup activates emergency protection. |
+| 4: A solar-particle warning | `full_storm_shelter`     | Power −1 prepared / −2 unprepared, Shelter readiness +4 | Activates FULL mode; regolith or stored mass is the science context, while the values remain game-only. |
 | 4: A solar storm warning   | `passive_storm_shelter`  | Shelter readiness +2           | Uses no Power; valid only with prior shielding preparation.                       |
+| 4: Solar-particle warning  | `wait_for_earth_instructions` | No immediate resource effect | Demonstrates communication latency; waiting does not activate protection before the event check. |
 
 Choice descriptions, IDs, current events, resource definitions, and science source links are returned by the backend. No choice outcome is calculated in the browser.
 
@@ -89,3 +90,9 @@ No score is awarded. Success/failure is based only on the documented resource, S
 ## History validation
 
 The decisions API accepts one to four items with sequential day numbers beginning at 1. Each ID must belong to that day's event. Empty, malformed, duplicate, missing, out-of-order, unknown-choice, over-four-day, and post-terminal histories are rejected as client errors. The backend replays from the canonical initial values for every request and stores nothing between requests.
+
+## NASA data context and communication delay
+
+Every event now carries a visible hazard type, hazard level, data-status label, and a Moon communication delay context. The mission response also returns a `spaceWeather` object with the NASA DONKI source link, a severity label, a clear note that the scenario is curated rather than live, and a 1.3-second one-way Moon light-time value. These fields educate the player and support traceability; they do not drive a real radiation-dose calculation.
+
+Day 4 is a solar-particle event scenario, not a live forecast. NASA describes solar-particle events, monitoring, shielding, and timely shelter decisions as important protection topics. MoonBase models those ideas with qualitative Shelter readiness and Protection readiness game states. The `wait_for_earth_instructions` choice makes communication delay a visible operational trade-off: a short signal delay can still matter when the crew must act locally.

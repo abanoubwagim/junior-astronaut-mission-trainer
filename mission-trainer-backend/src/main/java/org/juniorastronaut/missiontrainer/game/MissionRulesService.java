@@ -23,6 +23,7 @@ public class MissionRulesService {
     private static final String SUCCESS = "SUCCEEDED";
     private static final String FAILURE = "FAILED";
     private static final String ACTIVE = "ACTIVE";
+    private static final double MOON_ONE_WAY_LIGHT_TIME_SECONDS = 1.3;
 
     private static final String POWER_ZERO = "POWER_REACHED_ZERO";
     private static final String WATER_ZERO = "WATER_REACHED_ZERO";
@@ -64,6 +65,17 @@ public class MissionRulesService {
             "How NASA Will Protect Astronauts From Space Radiation at the Moon";
     private static final String RADIATION_SOURCE_URL =
             "https://science.nasa.gov/science-research/heliophysics/how-nasa-will-protect-astronauts-from-space-radiation-at-the-moon/";
+    private static final String DONKI_SOURCE_TITLE = "NASA Open APIs: DONKI space weather database";
+    private static final String DONKI_SOURCE_URL = "https://api.nasa.gov/";
+
+    private static final SpaceWeatherStatus SPACE_WEATHER_STATUS = new SpaceWeatherStatus(
+            "Solar particle watch",
+            "ELEVATED",
+            DONKI_SOURCE_TITLE,
+            DONKI_SOURCE_URL,
+            "Curated educational scenario based on NASA space-weather data sources; this prototype does not claim to be a live measurement.",
+            MOON_ONE_WAY_LIGHT_TIME_SECONDS
+    );
 
     public MissionResponse startMission() {
         State state = new State();
@@ -204,6 +216,12 @@ public class MissionRulesService {
                 state.shelterActivated = true;
                 state.shelterMode = ShelterMode.PASSIVE;
             }
+            case "wait_for_earth_instructions" -> {
+                // The delay is intentionally represented by the terminal
+                // protection check: waiting is a real operational choice, but
+                // it cannot activate a shelter before the event window closes.
+                state.shelterMode = ShelterMode.NONE;
+            }
             default -> throw new IllegalStateException("Choice was validated before resolution.");
         }
 
@@ -328,7 +346,8 @@ public class MissionRulesService {
                                      MissionResult result) {
         List<String> effects = ACTIVE.equals(status) ? activeEffects(state) : List.of();
         return new MissionResponse(status, day, DAYS, state.resources(),
-                RESOURCE_DEFINITIONS, event, effects, List.copyOf(history), systemState(state), feedback, result);
+                RESOURCE_DEFINITIONS, event, SPACE_WEATHER_STATUS, effects, List.copyOf(history),
+                systemState(state), feedback, result);
     }
 
     private SystemState systemState(State state) {
@@ -375,6 +394,7 @@ public class MissionRulesService {
             case "open_meal_crate" -> "Stored meals help immediately and reduce current risk.";
             case "full_storm_shelter" -> "Full activation gives more readiness and can be used as an emergency setup.";
             case "passive_storm_shelter" -> "Passive shelter saves Power but needs earlier protection preparation.";
+            case "wait_for_earth_instructions" -> "The Moon is close, but even a 1.3-second one-way signal delay matters when the crew must act during a solar-particle event.";
             default -> "The crew made a mission decision.";
         };
     }
@@ -391,6 +411,7 @@ public class MissionRulesService {
             case "open_meal_crate" -> "The crew opened reserve meals and added Food immediately.";
             case "full_storm_shelter" -> "The crew activated the full shelter. An unprepared setup costs extra Power as a simplified emergency-work rule.";
             case "passive_storm_shelter" -> "The crew activated a low-Power shelter mode. It is valid only when protection was prepared earlier.";
+            case "wait_for_earth_instructions" -> "The crew waited for a reply from Earth. Communication delay is short at the Moon, but the shelter was not activated before the event check.";
             default -> "The crew completed the day's plan.";
         };
     }
@@ -403,7 +424,7 @@ public class MissionRulesService {
             case "inspect_co2_removal_loop" -> "Days 3–4: daily Power upkeep is 1 lower as a simplified game rule.";
             case "start_grow_light_tray" -> "Day 4: after upkeep and scheduled Water recovery, the grow tray harvests +2 Food when Water is 5 or lower, otherwise +4 Food game units.";
             case "connect_spare_battery", "use_backup_water_pack", "open_meal_crate",
-                    "full_storm_shelter", "passive_storm_shelter" -> "No extra effect is scheduled for a later day.";
+                    "full_storm_shelter", "passive_storm_shelter", "wait_for_earth_instructions" -> "No extra effect is scheduled for a later day.";
             default -> "No later effect is scheduled.";
         };
     }
@@ -422,9 +443,11 @@ public class MissionRulesService {
                             new Choice("connect_spare_battery", "Connect the spare battery",
                                     "Gain 1 Power now without spending rover power.",
                                     "You get energy right away, but there is no later array boost."),
-                            new Choice("prepare_storm_shelter", "Prepare the storm shelter",
-                                    "Spend 1 Power and gain 2 Shelter readiness.",
-                                    "The prepared shelter avoids normal readiness wear on Days 2–4.")));
+                            new Choice("prepare_storm_shelter", "Map the regolith shielding area",
+                                    "Spend 1 Power and gain 2 Shelter readiness while planning where lunar soil or stored mass will add protection.",
+                                    "The prepared shelter avoids normal readiness wear on Days 2–4.")),
+                    "Solar particle event", "WATCH", MOON_ONE_WAY_LIGHT_TIME_SECONDS,
+                    "CURATED NASA DATA CONTEXT");
             case 2 -> new Event(2, "Water and air systems need care",
                     "The base can service the water recycler, open a sealed water pack, or inspect the CO₂ removal loop.",
                     "NASA ECLSS separates water recovery, air revitalization, and oxygen generation. This game models only simplified maintenance effects.",
@@ -439,7 +462,9 @@ public class MissionRulesService {
                                     "It uses Power, but it does not create a later recovery effect."),
                             new Choice("inspect_co2_removal_loop", "Service the CO₂ removal loop",
                                     "Spend 1 Power to service the air-cleaning loop.",
-                                    "Daily Power upkeep is 1 lower on Days 3 and 4 as a simplified game rule.")));
+                                    "Daily Power upkeep is 1 lower on Days 3 and 4 as a simplified game rule.")),
+                    "Life-support maintenance", "NORMAL", MOON_ONE_WAY_LIGHT_TIME_SECONDS,
+                    "NASA SCIENCE REFERENCE");
             case 3 -> new Event(3, "Fresh food for the crew",
                     "The crew is choosing how to support the food supply. A grow tray can help later, while a meal crate helps right away.",
                     "NASA plant systems use controlled light, water, and nutrients. This game compresses a much longer growing process into one mission turn.",
@@ -450,18 +475,26 @@ public class MissionRulesService {
                                     "Gain +2 or +4 Food on Day 4 depending on Water after upkeep and scheduled recovery; this is a compressed game-time effect."),
                             new Choice("open_meal_crate", "Open the meal crate",
                                     "Spend 1 Power and gain 3 Food now.",
-                                    "This helps right away and creates no later harvest.")));
-            case 4 -> new Event(4, "A fictional solar-particle alert",
-                    "The alert reaches the base. Activate the full shelter or use the low-Power shelter procedure.",
-                    "NASA studies protective shelter concepts for solar-particle events. This game's readiness and protection states are qualitative game rules, not radiation measurements.",
-                    List.of(new ScienceSource(RADIATION_SOURCE_TITLE, RADIATION_SOURCE_URL)),
+                                    "This helps right away and creates no later harvest.")),
+                    "Life-support logistics", "NORMAL", MOON_ONE_WAY_LIGHT_TIME_SECONDS,
+                    "NASA SCIENCE REFERENCE");
+            case 4 -> new Event(4, "Solar-particle event alert",
+                    "A solar-particle event warning reaches the base. The crew must act locally because Earth instructions cannot arrive instantly.",
+                    "NASA describes shielding, monitoring, and timely shelter decisions as important protections during solar-particle events. This game's readiness values are qualitative game rules, not radiation measurements.",
+                    List.of(new ScienceSource(RADIATION_SOURCE_TITLE, RADIATION_SOURCE_URL),
+                            new ScienceSource(DONKI_SOURCE_TITLE, DONKI_SOURCE_URL)),
                     List.of(
                             new Choice("full_storm_shelter", "Activate the full shelter",
-                                    "Spend 1 Power if prepared, or 2 Power for an emergency setup, and gain 4 Shelter readiness.",
-                                    "Full activation works as either a prepared or emergency protection procedure."),
+                                    "Use regolith or stored equipment as extra mass. Spend 1 Power if prepared, or 2 Power for an emergency setup, and gain 4 Shelter readiness.",
+                                    "More shielding costs Power now, but it gives the strongest protection response."),
                             new Choice("passive_storm_shelter", "Use the passive shelter",
                                     "Keep all Power and gain 2 Shelter readiness.",
-                                    "This low-Power mode is valid only when shielding was prepared earlier.")));
+                                    "This low-Power mode is valid only when shielding was prepared earlier."),
+                        new Choice("wait_for_earth_instructions", "Wait for Earth instructions",
+                                    "Hold position and wait for Mission Control to reply before activating protection.",
+                                    "Moon signals take about 1.3 seconds one way; waiting can leave the crew without an activated shelter.")),
+                    "Solar energetic particles", "HIGH", MOON_ONE_WAY_LIGHT_TIME_SECONDS,
+                    "CURATED NASA DONKI SCENARIO");
             default -> throw new IllegalArgumentException("A mission has only four days.");
         };
     }

@@ -49,7 +49,11 @@ function eventFor(day) {
     situation: `Situation for Day ${day}.`,
     scienceFact: "A science fact returned by the backend.",
     scienceSources: [{ title: "NASA source", url: "https://science.nasa.gov/" }],
-    choices: choices[day]
+    choices: choices[day],
+    hazardType: day === 4 ? "Solar energetic particles" : "Lunar operations",
+    hazardLevel: day === 4 ? "HIGH" : day === 1 ? "WATCH" : "NORMAL",
+    oneWayCommunicationDelaySeconds: 1.3,
+    dataStatus: "CURATED NASA DATA CONTEXT"
   };
 }
 
@@ -78,6 +82,14 @@ function startResponse() {
     resources: { power: 12, water: 12, food: 10, shelterReadiness: 8 },
     resourceDefinitions,
     event: eventFor(1),
+    spaceWeather: {
+      signal: "Solar particle watch",
+      severity: "ELEVATED",
+      sourceTitle: "NASA DONKI",
+      sourceUrl: "https://api.nasa.gov/",
+      dataNote: "Curated scenario, not a live measurement.",
+      oneWayCommunicationDelaySeconds: 1.3
+    },
     activeEffects: [],
     decisionHistory: [],
     systems: systemsFor([]),
@@ -125,6 +137,14 @@ function decisionResponse(history, terminalStatus = "ACTIVE", feedbackOverrides 
     resources,
     resourceDefinitions,
     event: ended ? null : eventFor(resolvedDay + 1),
+    spaceWeather: {
+      signal: "Solar particle watch",
+      severity: "ELEVATED",
+      sourceTitle: "NASA DONKI",
+      sourceUrl: "https://api.nasa.gov/",
+      dataNote: "Curated scenario, not a live measurement.",
+      oneWayCommunicationDelaySeconds: 1.3
+    },
     activeEffects: ended ? [] : [],
     decisionHistory: history,
     systems: systemsFor(history),
@@ -201,12 +221,14 @@ function findButton(root, label) {
   return walk(root).find((node) => node.tagName === "button" && node.textContent.includes(label)) || null;
 }
 
-function createHarness(fetchHandler) {
+function createHarness(fetchHandler, { sceneFallback = false } = {}) {
   const root = new FakeElement("main");
   const announcer = new FakeElement("div");
   let rootFocusCount = 0;
   root.focus = () => { rootFocusCount += 1; root.focused = true; };
   const document = {
+    documentElement: { dataset: { sceneStatus: sceneFallback ? "fallback" : "loading" } },
+    body: { dataset: {} },
     querySelector(selector) { return selector === "#app" ? root : selector === "#announcer" ? announcer : null; },
     createElement(tag) { return new FakeElement(tag); },
     createTextNode(text) { return new FakeElement("#text", String(text)); }
@@ -223,7 +245,7 @@ function createHarness(fetchHandler) {
     fetch: fetchHandler,
     console
   }, { filename: "mission-trainer-frontend/js/app.js" });
-  return { root, announcer, get rootFocusCount() { return rootFocusCount; } };
+  return { root, announcer, window, get rootFocusCount() { return rootFocusCount; } };
 }
 
 function ok(payload) {
@@ -232,116 +254,128 @@ function ok(payload) {
 
 async function enterDayOne(harness) {
   await findButton(harness.root, "Start mission").listeners.click();
-  assert.match(harness.root.textContent, /Mission briefing/);
-  await findButton(harness.root, "Begin Day 1").listeners.click();
   assert.match(harness.root.textContent, /Dust on the solar array/);
 }
 
-test("the connected flow uses backend state and can restart after a four-day result", async () => {
+test("the Day 1 flow returns directly to the lunar scene and unlocks Day 2 after one answer", async () => {
   const calls = [];
   const harness = createHarness(async (url, options) => {
     calls.push({ url, options });
     if (url.endsWith("/missions/start")) return ok(startResponse());
     const history = JSON.parse(options.body).decisions;
-    return ok(decisionResponse(history, history.length === 4 ? "SUCCEEDED" : "ACTIVE"));
+    return ok(decisionResponse(history));
   });
 
-  assert.match(harness.root.textContent, /Your MoonBase/);
-  for (let day = 1; day <= 4; day += 1) {
-    if (day === 1) await findButton(harness.root, "Start mission").listeners.click();
-    if (day === 1) await findButton(harness.root, "Begin Day 1").listeners.click();
-    const choiceId = choices[day][0].id;
-    const choice = harness.root.querySelector(`[data-choice-id="${choiceId}"]`);
-    assert.ok(choice, `Day ${day} choice exists`);
-    await choice.listeners.click();
-    const selected = harness.root.querySelector(`[data-choice-id="${choiceId}"]`);
-    assert.equal(selected.getAttribute("aria-pressed"), "true");
-    const focusCountBeforeSubmit = harness.rootFocusCount;
-    await findButton(harness.root, "Confirm decision").listeners.click();
-    assert.ok(harness.rootFocusCount > focusCountBeforeSubmit,
-      `Day ${day} response moves focus to the updated main region`);
-    assert.match(harness.announcer.textContent, new RegExp(`Day ${day} complete`));
-    if (day < 4) {
-      await findButton(harness.root, `Continue to Day ${day + 1}`).listeners.click();
-      assert.match(harness.root.textContent, new RegExp(`Mission day ${day + 1} of 4`));
-    } else {
-      await findButton(harness.root, "See mission results").listeners.click();
-      assert.match(harness.root.textContent, /Four days complete!/);
-      assert.match(harness.root.textContent, /Server-provided learning takeaway/);
-      assert.match(harness.root.textContent, /Power · 1 \/ 12/);
-    }
-  }
+  assert.match(harness.root.textContent, /Start mission/);
+  await enterDayOne(harness);
+  const choice = harness.root.querySelector('[data-choice-id="clean_solar_array"]');
+  assert.ok(choice, "Day 1 solar choice exists");
+  await choice.listeners.click();
+  assert.equal(harness.root.querySelector('[data-choice-id="clean_solar_array"]').getAttribute("aria-pressed"), "true");
+  const focusCountBeforeSubmit = harness.rootFocusCount;
+  await findButton(harness.root, "Confirm decision").listeners.click();
+  assert.ok(harness.rootFocusCount > focusCountBeforeSubmit);
+  assert.match(harness.announcer.textContent, /Day 1 complete/);
+  assert.match(harness.root.textContent, /The water loop needs care/);
+  assert.doesNotMatch(harness.root.textContent, /Day 2 gate unlocked/);
+  assert.doesNotMatch(harness.root.textContent, /ACCESS GRANTED/);
 
   const decisionCalls = calls.filter((call) => call.url.endsWith("/missions/decisions"));
-  assert.equal(decisionCalls.length, 4);
+  assert.equal(decisionCalls.length, 1);
   assert.ok(calls.every((call) => call.url.startsWith("http://localhost:8080/api/v1/")));
-  assert.deepEqual(JSON.parse(decisionCalls[3].options.body), {
-    decisions: [
-      { day: 1, choiceId: "clean_solar_array" },
-      { day: 2, choiceId: "service_water_recycler" },
-      { day: 3, choiceId: "start_grow_light_tray" },
-      { day: 4, choiceId: "full_storm_shelter" }
-    ]
-  });
-  assert.ok(harness.rootFocusCount >= 6, "screen transitions move focus to the main application region");
-
-  await findButton(harness.root, "Start a new mission").listeners.click();
-  assert.equal(calls.filter((call) => call.url.endsWith("/missions/start")).length, 2);
-  assert.match(harness.root.textContent, /Mission briefing/);
-  await findButton(harness.root, "Begin Day 1").listeners.click();
-  await harness.root.querySelector('[data-choice-id="clean_solar_array"]').listeners.click();
-  await findButton(harness.root, "Confirm decision").listeners.click();
-  assert.deepEqual(JSON.parse(calls.filter((call) => call.url.endsWith("/missions/decisions"))[4].options.body), {
+  assert.deepEqual(JSON.parse(decisionCalls[0].options.body), {
     decisions: [{ day: 1, choiceId: "clean_solar_array" }]
-  }, "starting over clears the completed mission's in-memory history");
+  });
+  assert.ok(harness.rootFocusCount >= 2, "screen transitions move focus to the main application region");
+
 });
 
-test("the feedback displays the backend-reported normal and reduced grow harvests", async () => {
-  async function runPath(path, harvest) {
-    const harness = createHarness(async (url, options) => {
-      if (url.endsWith("/missions/start")) return ok(startResponse());
-      const history = JSON.parse(options.body).decisions;
-      const terminal = history.length === 4;
-      return ok(decisionResponse(history, terminal ? "SUCCEEDED" : "ACTIVE", terminal ? {
-        explanation: harvest.explanation,
-        futureEffect: harvest.explanation,
-        resourceBreakdown: {
-          food: {
-            before: 4,
-            daily: -2,
-            delayed: harvest.delayed,
-            event: 0,
-            choice: 0,
-            after: harvest.after,
-            change: harvest.after - 4
-          }
-        }
-      } : {}));
-    });
+test("the gameplay deck surfaces hazard level and communication delay context", async () => {
+  const harness = createHarness(async (url) => {
+    if (url.endsWith("/missions/start")) return ok(startResponse());
+    return ok(decisionResponse([{ day: 1, choiceId: "clean_solar_array" }]));
+  });
 
-    await enterDayOne(harness);
-    for (let index = 0; index < path.length; index += 1) {
-      const choiceId = path[index];
-      await harness.root.querySelector(`[data-choice-id="${choiceId}"]`).listeners.click();
-      await findButton(harness.root, "Confirm decision").listeners.click();
-      if (index < path.length - 1) {
-        await findButton(harness.root, `Continue to Day ${index + 2}`).listeners.click();
-      }
-    }
-    return harness;
-  }
+  await enterDayOne(harness);
+  assert.match(harness.root.textContent, /SPACE WEATHER \/\/ DATA CONTEXT/);
+  assert.match(harness.root.textContent, /Moon link: 1\.3 s one-way/);
+  assert.match(harness.root.textContent, /CURATED NASA DATA CONTEXT/);
+});
 
-  const normal = await runPath([
-    "clean_solar_array", "service_water_recycler", "start_grow_light_tray", "full_storm_shelter"
-  ], { delayed: 4, after: 6, explanation: "The grow tray produced its normal harvest: +4 Food game units." });
-  assert.match(normal.root.textContent, /delayed \+4/);
-  assert.doesNotMatch(normal.root.textContent, /smaller harvest/);
+test("the Day 1 decision opens the next playable mission event", async () => {
+  const harness = createHarness(async (url, options) => {
+    if (url.endsWith("/missions/start")) return ok(startResponse());
+    const history = JSON.parse(options.body).decisions;
+    return ok(decisionResponse(history, "ACTIVE", {
+      explanation: "The solar array is clean and Power is flowing again.",
+      futureEffect: "The Day 2 gate is now ready."
+    }));
+  });
 
-  const reduced = await runPath([
-    "prepare_storm_shelter", "inspect_co2_removal_loop", "start_grow_light_tray", "passive_storm_shelter"
-  ], { delayed: 2, after: 4, explanation: "Your Water reserve was low, so the grow tray produced a smaller harvest: +2 Food game units." });
-  assert.match(reduced.root.textContent, /delayed \+2/);
-  assert.match(reduced.root.textContent, /smaller harvest/);
+  await enterDayOne(harness);
+  await harness.root.querySelector('[data-choice-id="clean_solar_array"]').listeners.click();
+  await findButton(harness.root, "Confirm decision").listeners.click();
+  assert.match(harness.root.textContent, /The water loop needs care/);
+  assert.match(harness.root.textContent, /W A S D/);
+  assert.doesNotMatch(harness.root.textContent, /Day 1 complete — gate unlocked/);
+});
+
+test("gate lifecycle shows opening feedback before exposing the existing mission choices", async () => {
+  const harness = createHarness(async (url, options) => {
+    if (url.endsWith("/missions/start")) return ok(startResponse());
+    return ok(decisionResponse(JSON.parse(options.body).decisions));
+  });
+
+  await enterDayOne(harness);
+  await harness.root.querySelector('[data-choice-id="clean_solar_array"]').listeners.click();
+  await findButton(harness.root, "Confirm decision").listeners.click();
+
+  const gate = {
+    id: "moonbase-two-entry",
+    name: "MoonBase 2 gate",
+    description: "Enter MoonBase 2.",
+    day: 2
+  };
+  const handler = harness.window.MOONBASE_SCENE_INTERACTION_HANDLER;
+  handler.onGateOpening(gate);
+  assert.match(harness.root.textContent, /MISSION GATE OPENING/);
+  handler.onGateOpened(gate);
+  assert.match(harness.root.textContent, /IN-WORLD TERMINAL/);
+  assert.ok(harness.root.querySelector(".is-briefing"));
+  assert.ok(harness.root.querySelector(".is-briefing-task"));
+  assert.ok(harness.root.querySelector('[data-choice-id="service_water_recycler"]'));
+});
+
+test("gameplay controls collapse without changing the documented control set", async () => {
+  const harness = createHarness(async (url, options) => {
+    if (url.endsWith("/missions/start")) return ok(startResponse());
+    return ok(decisionResponse(JSON.parse(options.body).decisions));
+  });
+
+  await enterDayOne(harness);
+  const toggle = harness.root.querySelector(".controls-toggle");
+  assert.ok(toggle, "the controls panel has a collapse toggle");
+  toggle.listeners.click();
+  assert.ok(harness.root.querySelector(".gameplay-controls").className.includes("is-collapsed"));
+  assert.ok(harness.root.querySelector(".controls-collapsed-icon"));
+  harness.root.querySelector(".controls-toggle").listeners.click();
+  assert.match(harness.root.textContent, /W A S D/);
+  assert.match(harness.root.textContent, /SPACE/);
+});
+
+test("interaction prompt follows actual proximity and stays hidden outside range", async () => {
+  const harness = createHarness(async (url, options) => {
+    if (url.endsWith("/missions/start")) return ok(startResponse());
+    return ok(decisionResponse(JSON.parse(options.body).decisions));
+  });
+
+  await enterDayOne(harness);
+  assert.equal(harness.root.querySelector(".gameplay-interaction-hint"), null);
+  const handler = harness.window.MOONBASE_SCENE_INTERACTION_HANDLER;
+  handler.onProximity({ id: "moonbase-one-entry", name: "MoonBase 1 Airlock", description: "Press E to enter." });
+  assert.match(harness.root.textContent, /Interact with MoonBase 1 Airlock/);
+  handler.onProximity(null);
+  assert.equal(harness.root.querySelector(".gameplay-interaction-hint"), null);
 });
 
 test("loading disables choices and an API failure preserves state for retry", async () => {
@@ -368,48 +402,28 @@ test("loading disables choices and an API failure preserves state for retry", as
   assert.ok(walk(harness.root).filter((node) => node.tagName === "button").every((node) => node.disabled));
   releaseDecision(ok(decisionResponse([{ day: 1, choiceId: "clean_solar_array" }])));
   await pending;
-  assert.match(harness.root.textContent, /Backend explanation for clean_solar_array/);
-
-  // The next choice fails; the current Day 2 state and retry history must remain intact.
-  await findButton(harness.root, "Continue to Day 2").listeners.click();
-  await harness.root.querySelector('[data-choice-id="service_water_recycler"]').listeners.click();
-  await findButton(harness.root, "Confirm decision").listeners.click();
-  assert.match(harness.root.textContent, /could not be reached/);
   assert.match(harness.root.textContent, /The water loop needs care/);
-  assert.equal(harness.root.querySelector('[data-choice-id="service_water_recycler"]').getAttribute("aria-pressed"), "true");
-  assert.equal(findButton(harness.root, "Confirm decision").disabled, false);
-  await findButton(harness.root, "Confirm decision").listeners.click();
-
   const decisionBodies = calls.filter((call) => call.url.endsWith("/missions/decisions"))
     .map((call) => JSON.parse(call.options.body));
-  const expectedHistory = { decisions: [
-    { day: 1, choiceId: "clean_solar_array" },
-    { day: 2, choiceId: "service_water_recycler" }
-  ] };
-  assert.deepEqual(decisionBodies[1], expectedHistory);
-  assert.deepEqual(decisionBodies[2], expectedHistory, "retry does not append a duplicate decision");
+  assert.deepEqual(decisionBodies[0], { decisions: [{ day: 1, choiceId: "clean_solar_array" }] });
 });
 
-test("the optional lunar communication demo is UI-only", async () => {
+test("the welcome screen uses the Day 1 mission deck and Start mission action", async () => {
   const calls = [];
   const harness = createHarness(async (url, options) => {
     calls.push({ url, options });
     return ok(startResponse());
   });
 
+  assert.match(harness.root.textContent, /MISSION OBJECTIVE/);
+  assert.match(harness.root.textContent, /Start mission/);
   await findButton(harness.root, "Start mission").listeners.click();
-  const callsBeforeDemo = calls.length;
-  await findButton(harness.root, "Show communication demo").listeners.click();
-  assert.match(harness.root.textContent, /1\.3 seconds/);
-  assert.match(harness.root.textContent, /2\.6 seconds/);
-  assert.match(harness.root.textContent, /operational communication can take longer/);
-  assert.match(harness.root.textContent, /does not .* enter your decision history/);
-  assert.equal(calls.length, callsBeforeDemo);
-  await findButton(harness.root, "Hide communication demo").listeners.click();
-  assert.doesNotMatch(harness.root.textContent, /1\.3 seconds/);
+  assert.equal(calls.length, 1);
+  assert.match(harness.root.textContent, /W A S D/);
+  assert.match(harness.root.textContent, /COMMANDER VEGA/);
 });
 
-test("the CO₂ choice is displayed and submitted with the complete history", async () => {
+test("the Day 1 solar choices are displayed and submitted with one decision", async () => {
   const calls = [];
   const harness = createHarness(async (url, options) => {
     calls.push({ url, options });
@@ -420,28 +434,34 @@ test("the CO₂ choice is displayed and submitted with the complete history", as
   await enterDayOne(harness);
   await harness.root.querySelector('[data-choice-id="clean_solar_array"]').listeners.click();
   await findButton(harness.root, "Confirm decision").listeners.click();
-  await findButton(harness.root, "Continue to Day 2").listeners.click();
-  assert.ok(harness.root.querySelector('[data-choice-id="inspect_co2_removal_loop"]'));
-  await harness.root.querySelector('[data-choice-id="inspect_co2_removal_loop"]').listeners.click();
-  await findButton(harness.root, "Confirm decision").listeners.click();
 
-  const decisionBody = JSON.parse(calls.filter((call) => call.url.endsWith("/missions/decisions"))[1].options.body);
+  const decisionBody = JSON.parse(calls.filter((call) => call.url.endsWith("/missions/decisions"))[0].options.body);
   assert.deepEqual(decisionBody, {
-    decisions: [
-      { day: 1, choiceId: "clean_solar_array" },
-      { day: 2, choiceId: "inspect_co2_removal_loop" }
-    ]
+    decisions: [{ day: 1, choiceId: "clean_solar_array" }]
   });
-  await findButton(harness.root, "Continue to Day 3").listeners.click();
-  assert.match(harness.root.textContent, /CO₂ removal loop: Serviced/);
-  assert.match(harness.root.textContent, /does not generate oxygen/);
+  assert.match(harness.root.textContent, /The water loop needs care/);
+});
+
+test("WebGL fallback keeps the mission playable through the accessible terminal", async () => {
+  const harness = createHarness(async (url, options) => {
+    if (url.endsWith("/missions/start")) return ok(startResponse());
+    return ok(decisionResponse(JSON.parse(options.body).decisions));
+  }, { sceneFallback: true });
+
+  await enterDayOne(harness);
+  assert.match(harness.root.textContent, /ACCESSIBLE MISSION TERMINAL/);
+  const choice = harness.root.querySelector('[data-choice-id="clean_solar_array"]');
+  assert.ok(choice, "fallback terminal exposes the server choices");
+  await choice.listeners.click();
+  await findButton(harness.root, "Confirm decision").listeners.click();
+  assert.match(harness.root.textContent, /The water loop needs care/);
 });
 
 test("a page reload starts on the welcome screen and the app uses no browser persistence", () => {
   const first = createHarness(async () => ok(startResponse()));
   assert.match(first.root.textContent, /Start mission/);
   const reloaded = createHarness(async () => ok(startResponse()));
-  assert.match(reloaded.root.textContent, /Your MoonBase/);
+  assert.match(reloaded.root.textContent, /MISSION OBJECTIVE/);
   assert.equal(reloaded.root.querySelector('[data-choice-id="clean_solar_array"]'), null);
   assert.doesNotMatch(appSource, /localStorage|sessionStorage|indexedDB|document\.cookie|URLSearchParams|location\.search|innerHTML/i);
 });

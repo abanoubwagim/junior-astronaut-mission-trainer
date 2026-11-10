@@ -1,0 +1,228 @@
+export function createCameraController(THREE, camera, options = {}) {
+  const reducedMotion = window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches;
+  const canvas = options.canvas || null;
+  const target = new THREE.Vector3(0, 1.6, 10.8);
+  const lookTarget = new THREE.Vector3(0, 0.55, -3.4);
+  const desired = new THREE.Vector3();
+  const safePosition = new THREE.Vector3();
+  const playerPosition = new THREE.Vector3();
+  const probe = new THREE.Vector3();
+  const pointer = { x: 0, y: 0 };
+  const presets = {
+    welcome: { position: [0, 2.1, 11.4], target: [0, 0.2, -3.2], strength: 1 },
+    briefing: { position: [0.2, 1.7, 9.7], target: [0, 0.45, -3.9], strength: 0.7 },
+    game: { position: [0, 3.2, 9.2], target: [0, 0.5, -1.8], strength: 0.42 },
+    feedback: { position: [-0.5, 1.9, 9.5], target: [0, 0.65, -3.8], strength: 0.52 },
+    day1Complete: { position: [-0.8, 2.15, 8.8], target: [0, 0.8, -3.7], strength: 0.62 },
+    result: { position: [0, 2.4, 10.5], target: [0, 0.7, -3.2], strength: 0.78 }
+  };
+  let mode = "welcome";
+  let storyTarget = "base";
+  let player = null;
+  let collisionObjects = options.collisionObjects || [];
+  let gameplayActive = false;
+  let presentationActive = false;
+  let yaw = 0;
+  // Start with a wide over-the-shoulder composition so the astronaut and the
+  // MoonBase read together in the first frame. Scroll still allows close-up inspection.
+  let pitch = 0.2;
+  let distance = 8.8;
+  let pointerListenerAttached = false;
+  let canvasListenerAttached = false;
+  let wheelListenerAttached = false;
+
+  const storyTargets = {
+    base: { position: [0, 2.1, 11.4], target: [0, 0.4, -3.7] },
+    solar: { position: [4.8, 2.3, 4.7], target: [4.35, 0.55, -3.15] },
+    water: { position: [4.7, 2.25, 4.4], target: [3.15, 0.55, -4.2] },
+    grow: { position: [4.35, 2.0, 5.1], target: [3.18, 0.55, -2.35] },
+    storm: { position: [0.3, 2.7, 5.8], target: [0.1, 0.8, -6.25] },
+    // Each mission briefing is presented at the gate that owns that mission.
+    // These targets face the front of the four airlocks instead of the old
+    // station locations inside MoonBase 1.
+    gate1: { position: [1.7, 2.05, 5.9], target: [1.55, 0.3, -0.7] },
+    gate2: { position: [-8.6, 2.05, -4.6], target: [-8.6, 0.3, -10.8] },
+    gate3: { position: [13.4, 2.05, -7.6], target: [13.4, 0.3, -14.0] },
+    gate4: { position: [-11.3, 2.05, -17.3], target: [-11.3, 0.3, -23.7] }
+  };
+
+  function onPointerMove(event) {
+    if (gameplayActive) {
+      if (document.pointerLockElement !== canvas) return;
+      yaw -= event.movementX * 0.0026;
+      pitch = Math.max(-0.18, Math.min(0.9, pitch - event.movementY * 0.0022));
+      return;
+    }
+    if (reducedMotion) return;
+    pointer.x = (event.clientX / Math.max(window.innerWidth, 1) - 0.5) * 2;
+    pointer.y = (event.clientY / Math.max(window.innerHeight, 1) - 0.5) * 2;
+    document.documentElement.style.setProperty("--ui-tilt-x", pointer.x.toFixed(3));
+    document.documentElement.style.setProperty("--ui-tilt-y", pointer.y.toFixed(3));
+  }
+
+  function onPointerLeave() {
+    pointer.x = 0;
+    pointer.y = 0;
+    document.documentElement.style.setProperty("--ui-tilt-x", "0");
+    document.documentElement.style.setProperty("--ui-tilt-y", "0");
+  }
+
+  function requestPointerLock() {
+    if (!gameplayActive || !canvas || document.pointerLockElement === canvas) return;
+    canvas.focus?.({ preventScroll: true });
+    canvas.requestPointerLock?.();
+  }
+
+  function onCanvasPointerDown(event) {
+    if (event.button === 0) requestPointerLock();
+  }
+
+  function onCanvasWheel(event) {
+    if (!gameplayActive) return;
+    distance = Math.max(4.2, Math.min(12, distance + event.deltaY * 0.004));
+    event.preventDefault();
+  }
+
+  function attachListeners() {
+    if (!pointerListenerAttached) {
+      window.addEventListener("pointermove", onPointerMove, { passive: true });
+      window.addEventListener("blur", onPointerLeave, { passive: true });
+      pointerListenerAttached = true;
+    }
+    if (!canvasListenerAttached && canvas) {
+      canvas.addEventListener("pointerdown", onCanvasPointerDown, { passive: true });
+      canvasListenerAttached = true;
+    }
+    if (!wheelListenerAttached && canvas) {
+      canvas.addEventListener("wheel", onCanvasWheel, { passive: false });
+      wheelListenerAttached = true;
+    }
+  }
+
+  function collides(position, padding = 0.12) {
+    if (position.y < -0.6) return true;
+    return collisionObjects.some((collider) => {
+      const minX = collider.center[0] - collider.halfExtents[0] - padding;
+      const maxX = collider.center[0] + collider.halfExtents[0] + padding;
+      const minZ = collider.center[1] - collider.halfExtents[1] - padding;
+      const maxZ = collider.center[1] + collider.halfExtents[1] + padding;
+      return position.x > minX && position.x < maxX && position.z > minZ && position.z < maxZ;
+    });
+  }
+
+  function collisionSafeCameraPosition(destination) {
+    safePosition.copy(playerPosition);
+    safePosition.y += 1.45;
+    const origin = safePosition.clone();
+    const steps = 24;
+    for (let index = 1; index <= steps; index += 1) {
+      const progress = index / steps;
+      probe.lerpVectors(origin, destination, progress);
+      if (collides(probe, 0.18)) break;
+      safePosition.copy(probe);
+    }
+    return safePosition;
+  }
+
+  function updateGameplay(delta) {
+    if (!player) return;
+    playerPosition.copy(player.position);
+    const horizontal = Math.cos(pitch) * distance;
+    desired.set(
+      playerPosition.x - Math.sin(yaw) * horizontal,
+      playerPosition.y + 1.45 + Math.sin(pitch) * distance,
+      playerPosition.z + Math.cos(yaw) * horizontal
+    );
+    const safe = collisionSafeCameraPosition(desired);
+    const smoothing = 1 - Math.pow(0.00025, delta);
+    camera.position.lerp(safe, smoothing);
+    // Bias the look target toward the station so the third-person silhouette
+    // stays readable without losing the base, Earth, or objective beacon.
+    const forwardX = Math.sin(yaw);
+    const forwardZ = -Math.cos(yaw);
+    lookTarget.set(playerPosition.x + forwardX * 2.6, playerPosition.y + 0.78, playerPosition.z + forwardZ * 2.6);
+    camera.lookAt(lookTarget);
+  }
+
+  function updateStory(delta) {
+    const preset = presets[mode] || presets.welcome;
+    const destination = storyTargets[storyTarget] || storyTargets.base;
+    const motion = reducedMotion ? 0 : preset.strength;
+    target.set(destination.position[0] + pointer.x * motion * 0.48, destination.position[1] - pointer.y * motion * 0.24, destination.position[2]);
+    lookTarget.set(destination.target[0] + pointer.x * motion * 0.24, destination.target[1] - pointer.y * motion * 0.12, destination.target[2]);
+    const smoothing = 1 - Math.pow(0.0008, delta);
+    camera.position.lerp(target, smoothing);
+    camera.lookAt(lookTarget);
+  }
+
+  function setMode(nextMode) {
+    mode = presets[nextMode] ? nextMode : "welcome";
+    gameplayActive = mode === "game";
+    if (mode === "welcome" || mode === "briefing") storyTarget = "base";
+    if (!gameplayActive && document.pointerLockElement === canvas) document.exitPointerLock?.();
+    attachListeners();
+  }
+
+  function setStoryTarget(nextTarget) {
+    storyTarget = storyTargets[nextTarget] ? nextTarget : "base";
+  }
+
+  function setPlayer(nextPlayer) {
+    player = nextPlayer || null;
+  }
+
+  function setCollisionObjects(nextObjects) {
+    collisionObjects = nextObjects || [];
+  }
+
+  function setGameplayActive(nextActive) {
+    gameplayActive = Boolean(nextActive);
+    if (!gameplayActive && document.pointerLockElement === canvas) document.exitPointerLock?.();
+  }
+
+  function setPresentationActive(nextActive) {
+    presentationActive = Boolean(nextActive);
+    if (presentationActive && document.pointerLockElement === canvas) document.exitPointerLock?.();
+  }
+
+  function setDistance(nextDistance) {
+    distance = Math.max(4.2, Math.min(12, Number(nextDistance) || 8.8));
+  }
+
+  function setHeading(nextYaw) {
+    const value = Number(nextYaw);
+    if (Number.isFinite(value)) yaw = value;
+  }
+
+  function update(delta) {
+    if (gameplayActive && player && !presentationActive) updateGameplay(delta);
+    else updateStory(delta);
+  }
+
+  function dispose() {
+    if (pointerListenerAttached) {
+      window.removeEventListener("pointermove", onPointerMove);
+      window.removeEventListener("blur", onPointerLeave);
+    }
+    if (canvasListenerAttached && canvas) canvas.removeEventListener("pointerdown", onCanvasPointerDown);
+    if (wheelListenerAttached && canvas) canvas.removeEventListener("wheel", onCanvasWheel);
+    if (document.pointerLockElement === canvas) document.exitPointerLock?.();
+  }
+
+  attachListeners();
+  setMode("welcome");
+  return {
+    setMode,
+    setStoryTarget,
+    setPlayer,
+    setCollisionObjects,
+    setGameplayActive,
+    setPresentationActive,
+    setDistance,
+    setHeading,
+    getCamera: () => camera,
+    getMovementBasis: () => ({ yaw }),
+    update,
+    dispose
+  };
+}

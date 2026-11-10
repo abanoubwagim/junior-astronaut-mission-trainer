@@ -46,6 +46,14 @@ mission-trainer-backend/     Java 17 / Spring Boot stateless API and rules engin
 docs/                        Audit, game rules, science references, API, judges' briefing
 ```
 
+## Team contributions
+
+- **Reem — Team Leader & Frontend Developer:** Coordinated the team and contributed to the frontend structure and mission flow.
+- **Roqia — Presentation Designer:** Designed the presentation structure and visual storytelling.
+- **Fadwa — Researcher:** Researched NASA sources and translated scientific concepts into educational game content.
+- **Kareem — JavaScript & Frontend Developer:** Implemented frontend interactions, API integration, mission feedback, and science references.
+- **Abanoub — Backend Developer:** Built the Java 17 / Spring Boot REST API and deterministic mission rules engine.
+
 ## Documentation
 
 - [Repository audit](docs/PROJECT_AUDIT.md)
