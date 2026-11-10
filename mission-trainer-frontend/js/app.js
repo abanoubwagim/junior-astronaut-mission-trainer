@@ -28,9 +28,9 @@
     sceneAvailable: document.documentElement?.dataset?.sceneStatus !== "fallback",
     sceneError: "",
     sceneAssetStatus: "loading",
-    // Mars is the primary playable environment. The Moon remains available
-    // through an explicit world query/selection for comparison and legacy runs.
-    world: window.MOONBASE_SCENE_WORLD === "moon" ? "moon" : "mars",
+    // The Moon is the default playable environment. Mars remains available
+    // through an explicit world query/selection.
+    world: window.MOONBASE_SCENE_WORLD === "mars" ? "mars" : "moon",
     gateProgress: {},
     feedbackDismissed: true,
     dayOneComplete: false,
@@ -324,15 +324,17 @@
     if (!payload || typeof payload.status !== "string") {
       throw new Error("Mission Control returned an incomplete mission response. Please try again.");
     }
-    if (!payload.resources || !Array.isArray(payload.resourceDefinitions)
-        || !Array.isArray(payload.decisionHistory) || !payload.systems) {
+    if (!payload.qualitativeState || !Array.isArray(payload.decisionHistory)) {
       throw new Error("Mission Control returned an incomplete mission state. Your mission was not advanced.");
     }
     if (payload.status === "ACTIVE" && !payload.event) {
       throw new Error("Mission Control did not return the next mission event. Your mission was not advanced.");
     }
-    if (payload.status !== "ACTIVE" && !payload.result) {
+    if (payload.status === "DAY_1_COMPLETE" && (!payload.result || payload.event)) {
       throw new Error("Mission Control did not return the terminal mission result. Your mission was not advanced.");
+    }
+    if (!["ACTIVE", "DAY_1_COMPLETE"].includes(payload.status)) {
+      throw new Error("Mission Control returned an unsupported mission status. Your mission was not advanced.");
     }
     return payload;
   }
@@ -389,7 +391,7 @@
 
   async function submitChoice() {
     const event = ui.mission?.event;
-    if (!event || !ui.selectedChoiceId || ui.loading) return;
+    if (!event || ui.mission?.status !== "ACTIVE" || !ui.selectedChoiceId || ui.loading) return;
 
     const candidateHistory = [
       ...ui.decisionHistory,
@@ -422,9 +424,9 @@
       ui.dayTwoComplete = event.day === 2;
       ui.dayThreeComplete = event.day === 3;
       ui.dayFourComplete = event.day === 4;
-      // The scene remains playable after each response; the server report is
-      // shown in-world while the next station becomes the active objective.
-      ui.screen = event.day <= 3 ? "game" : "result";
+      // Day 1 is the only playable mission in this slice. Keep the terminal
+      // report separate so Days 2–4 cannot be opened accidentally.
+      ui.screen = event.day === 1 ? "day1Complete" : "result";
       announce(`Day ${event.day} complete. ${updatedMission.latestDecision.explanation}`);
     } catch (error) {
       ui.error = displayError(error);
@@ -549,35 +551,16 @@
     append(marker, identity,
       make("strong", "story-hud-title", `Mission day ${day} of ${mission?.totalDays || 4}`),
       make("span", "story-hud-subtitle", ui.world === "mars" ? "Martian outpost survival mission" : "Lunar outpost survival mission"));
-    const resources = make("div", "story-resources");
-    (mission?.resourceDefinitions || []).forEach((definition) => {
-      const value = mission.resources?.[definition.key] ?? 0;
-      const resource = make("div", "story-resource");
-      resource.classList?.add(`resource-${definition.key}`);
-      const resourceRatio = definition.maximum ? value / definition.maximum : 0;
-      resource.classList?.add(resourceRatio <= 0.25 ? "is-critical" : resourceRatio <= 0.5 ? "is-warning" : "is-healthy");
-      const resourceTop = make("div", "story-resource-top");
-      const label = make("span", "story-resource-label");
-      const iconKey = definition.key === "shelterReadiness" ? "shelter" : definition.key;
-      const displayLabel = definition.key === "shelterReadiness" ? "Shelter" : definition.label;
-      append(label, make("span", `story-resource-icon resource-icon-${iconKey}`), document.createTextNode(displayLabel));
-      const amount = make("div", "story-resource-amount");
-      const valueElement = make("strong", "story-resource-value", String(value));
-      valueElement.setAttribute("aria-label", `${definition.label}: ${value} of ${definition.maximum} ${definition.unit}`);
-      append(amount, valueElement, make("span", "story-resource-limit", `/${definition.maximum}`));
-      append(resourceTop, label, amount,
-        make("span", "visually-hidden", `${definition.label} · ${value} / ${definition.maximum}`));
-      const meter = make("span", "story-resource-meter");
-      meter.setAttribute("role", "meter");
-      meter.setAttribute("aria-label", `${definition.label}: ${value} of ${definition.maximum} ${definition.unit}`);
-      meter.setAttribute("aria-valuemin", String(definition.minimum ?? 0));
-      meter.setAttribute("aria-valuemax", String(definition.maximum));
-      meter.setAttribute("aria-valuenow", String(value));
-      const fill = make("span");
-      fill.style.width = `${Math.max(0, Math.min(100, (value / definition.maximum) * 100))}%`;
-      meter.append(fill);
-      resource.append(resourceTop, meter);
-      resources.append(resource);
+    const state = mission?.qualitativeState || {};
+    const status = make("div", "story-qualitative-status");
+    [
+      ["SOLAR INPUT", state.solarInput || "DATA UNAVAILABLE"],
+      ["POWER PLAN", state.powerAllocation || "PENDING"],
+      ["DATA", state.dataStatus || "DATA UNAVAILABLE"]
+    ].forEach(([label, value]) => {
+      const chip = make("div", "story-qualitative-chip");
+      append(chip, make("span", "story-qualitative-label", label), make("strong", "story-qualitative-value", value));
+      status.append(chip);
     });
     const progress = make("div", "story-day-progress");
     progress.setAttribute("aria-label", `Mission day ${day} of ${mission?.totalDays || 4}`);
@@ -587,7 +570,7 @@
       dot.setAttribute("aria-hidden", "true");
       progress.append(dot);
     }
-    append(hud, marker, resources, progress);
+    append(hud, marker, status, progress);
     return hud;
   }
 
@@ -614,15 +597,6 @@
     append(copy,
       make("div", "story-speaker-line", "COMMANDER VEGA"),
       make("p", "story-subtitle", event.situation));
-    if (event.hazardType || event.hazardLevel || event.oneWayCommunicationDelaySeconds) {
-      const signal = make("div", "story-hazard-signal");
-      const level = event.hazardLevel || "NORMAL";
-      append(signal,
-        make("span", `story-hazard-level is-${level.toLowerCase()}`, `RISK ${level}`),
-        make("strong", "story-hazard-type", event.hazardType || "Mission environment"),
-        make("span", "story-hazard-delay", `Moon link: ${Number(event.oneWayCommunicationDelaySeconds || 1.3).toFixed(1)} s one-way`));
-      copy.append(signal);
-    }
     if (ui.interactionOpen && event.scienceFact) {
       copy.append(make("p", "gameplay-dialogue-note", event.scienceFact));
     }
@@ -701,30 +675,25 @@
   function renderStoryEffects(mission) {
     const effects = make("div", "story-effects");
     if (mission?.activeEffects?.length) {
-      append(effects, make("span", "story-effects-label", "ACTIVE SYSTEMS"),
+      append(effects, make("span", "story-effects-label", "ACTIVE MISSION STATES"),
         make("span", "story-effects-value", mission.activeEffects.join(" · ")));
     } else {
       append(effects, make("span", "story-effects-label", "MISSION CONTROL"),
-        make("span", "story-effects-value", "No delayed systems yet. Your next choice can change the future."));
+        make("span", "story-effects-value", "No qualitative power plan recorded yet."));
     }
     return effects;
   }
 
   function renderStorySystems(mission) {
-    const systems = mission?.systems;
     const strip = make("div", "story-system-strip");
-    if (!systems) return strip;
+    const state = mission?.qualitativeState || {};
     const statuses = [
-      ["CO₂ removal loop", systems.airLoopServiced ? "Serviced" : "Not serviced"],
-      ["Shielding preparation", systems.shieldingPrepared ? "Prepared" : "Not prepared"],
-      ["Shelter activation", systems.shelterActivated ? "Activated" : "Not activated"],
-      ["Protection readiness", systems.protectionReady ? "Ready" : "Not ready"]
+      ["CREW SUPPORT", state.crewSupport || "DATA UNAVAILABLE"],
+      ["BACKUP RESERVE", state.backupReserve || "DATA UNAVAILABLE"],
+      ["VALUE ORIGIN", state.valueOrigin || "GAME_SIMULATION"]
     ];
     statuses.forEach(([label, value]) => {
       const chip = make("span", "story-system-chip", `${label}: ${value}`);
-      if (label === "CO₂ removal loop") {
-        chip.append(make("span", "visually-hidden", " Air cleaning removes carbon dioxide; it does not generate oxygen."));
-      }
       strip.append(chip);
     });
     return strip;
@@ -740,16 +709,11 @@
       make("h2", "mission-feedback-title", decision.headline || `Day ${decision.day} decision report`),
       make("p", "mission-feedback-explanation", decision.explanation || "Mission Control accepted the decision."),
       make("p", "mission-feedback-why", decision.whyItMatters || "This choice changed the outpost state."));
-    const changes = make("div", "mission-feedback-changes");
-    (mission.resourceDefinitions || []).forEach((definition) => {
-      const change = decision.resourceBreakdown?.[definition.key];
-      if (!change) return;
-      const delta = Number(change.change ?? (change.after - change.before));
-      const label = delta > 0 ? `+${delta}` : String(delta);
-      const line = make("span", `mission-feedback-change${delta < 0 ? " is-negative" : ""}`);
-      append(line, make("strong", "", definition.label), make("span", "", `${label} · ${change.after}/${definition.maximum}`));
-      changes.append(line);
-    });
+    const changes = make("div", "mission-feedback-qualitative");
+    append(changes,
+      make("p", "mission-feedback-change", `PRESERVED: ${decision.preserved || "DATA UNAVAILABLE"}`),
+      make("p", "mission-feedback-change", `REDUCED OR DELAYED: ${decision.reducedOrDelayed || "DATA UNAVAILABLE"}`),
+      make("p", "mission-feedback-change", `RESERVE STATE: ${decision.reserveState || "DATA UNAVAILABLE"}`));
     append(report, changes,
       make("p", "mission-feedback-future", decision.futureEffect || "Your next objective is now active."),
       button("Hide report and continue exploring", "button-secondary mission-feedback-dismiss", () => {
@@ -944,63 +908,6 @@
     root.append(section);
   }
 
-  function renderCommunicationDemo() {
-    const panel = make("article", "panel communication-demo");
-    const heading = make("div", "communication-heading");
-    append(heading, make("div", "section-kicker", "Optional science"),
-      make("h2", "", "How messages travel to Earth"));
-    const toggle = button(ui.communicationOpen ? "Hide communication demo" : "Show communication demo",
-      "button-secondary", () => {
-        ui.communicationOpen = !ui.communicationOpen;
-        render();
-        root.focus({ preventScroll: true });
-      });
-    append(panel, heading, make("p", "", "The Moon is close enough for a quick signal, but real mission teams still plan for more than light-travel time."), toggle);
-
-    if (ui.communicationOpen) {
-      const delay = Number(ui.mission?.spaceWeather?.oneWayCommunicationDelaySeconds || 1.3);
-      const facts = make("div", "communication-facts");
-      const track = make("div", "communication-track");
-      append(track, make("span", "communication-node", "Earth"),
-        make("span", "communication-pulse", "⇄"), make("span", "communication-node", "Moon"));
-      append(facts, track,
-        make("p", "", `One-way light-travel time is about ${delay.toFixed(1)} seconds.`),
-        make("p", "", `The minimum light-only round trip is about ${(delay * 2).toFixed(1)} seconds.`),
-        make("p", "", "Real operational communication can take longer because people, computers, scheduling, and network routing add time."),
-        make("p", "communication-note", "This is an optional explanation. It does not spend a mission day, change supplies, or enter your decision history."));
-      panel.append(facts);
-    }
-    return panel;
-  }
-
-  function renderResources(mission) {
-    const dashboard = make("section", "resource-dashboard");
-    dashboard.setAttribute("aria-label", "Current mission supplies");
-    (mission.resourceDefinitions || []).forEach((definition) => {
-      const value = mission.resources?.[definition.key] ?? 0;
-      const card = make("article", "resource-card");
-      const top = make("div", "resource-card-top");
-      append(top, make("h2", "", definition.label));
-      const amount = make("div", "resource-value");
-      append(amount, document.createTextNode(String(value)), make("small", "", ` / ${definition.maximum}`));
-      top.append(amount);
-
-      const meter = make("div", "resource-meter");
-      meter.setAttribute("role", "meter");
-      meter.setAttribute("aria-label", `${definition.label}: ${value} of ${definition.maximum} ${definition.unit}`);
-      meter.setAttribute("aria-valuemin", String(definition.minimum));
-      meter.setAttribute("aria-valuemax", String(definition.maximum));
-      meter.setAttribute("aria-valuenow", String(value));
-      const fill = make("span");
-      fill.style.width = `${Math.max(0, Math.min(100, (value / definition.maximum) * 100))}%`;
-      meter.append(fill);
-      append(card, top, meter, make("div", "resource-purpose", definition.purpose),
-        make("span", "resource-unit", `Game value · ${definition.unit}`));
-      dashboard.append(card);
-    });
-    return dashboard;
-  }
-
   function renderGame() {
     const mission = ui.mission;
     const event = mission?.event;
@@ -1016,48 +923,37 @@
     const hud = renderStoryHud(mission, event);
     hud.className = "story-hud gameplay-hud";
     const telemetry = make("aside", "mission-telemetry");
-    const telemetryStatus = mission?.spaceWeather?.severity || event.hazardLevel || "NORMAL";
-    const telemetrySource = mission?.spaceWeather?.sourceTitle || "NASA science reference";
-    const sourceLink = mission?.spaceWeather?.sourceUrl ? make("a", "mission-telemetry-source", `Source: ${telemetrySource}`) : null;
-    if (sourceLink) {
-      sourceLink.href = mission.spaceWeather.sourceUrl;
-      sourceLink.target = "_blank";
-      sourceLink.rel = "noreferrer noopener";
-    }
     append(telemetry,
-      make("span", "mission-telemetry-kicker", "SPACE WEATHER // DATA CONTEXT"),
-      make("strong", `mission-telemetry-status is-${String(telemetryStatus).toLowerCase()}`, `${telemetryStatus} · ${event.hazardType || "Lunar operations"}`),
-      make("span", "mission-telemetry-copy", `${event.dataStatus || telemetrySource} · ${mission?.spaceWeather?.dataNote || "Game values are simplified for learning."}`),
-      sourceLink);
+      make("span", "mission-telemetry-kicker", "MISSION DATA // CONTEXT"),
+      make("strong", "mission-telemetry-status is-unavailable", "DATA UNAVAILABLE"),
+      make("span", "mission-telemetry-copy", "This Day 1 power-drop condition is a fictional educational simulation state. It is not live NASA telemetry."));
 
     const objective = make("section", "gameplay-objective");
     append(objective,
       append(make("div", "gameplay-objective-head"),
         make("span", "story-eyebrow", "MISSION OBJECTIVE"),
         make("span", "objective-diamond", "◆")),
-      make("h1", "gameplay-title", "Keep the base alive"),
-      make("p", "gameplay-objective-copy", "Balance Power, Life Support, Food and Shielding, then finish Day 4 with protection ready."),
+      make("h1", "gameplay-title", "Establish the Base"),
+      make("p", "gameplay-objective-copy", "Reach the highlighted solar array and choose how the crew should respond to the fictional power drop."),
       append(make("div", "gameplay-objective-status"),
         make("span", "objective-status-dot"),
         document.createTextNode(`Day ${event.day} of ${mission.totalDays || 4} · ${ui.interactionTarget ? `Near ${ui.interactionTarget.name}` : "Objective beacon active"}`)));
     objective.querySelector?.(".gameplay-title")?.setAttribute("id", "gameplay-title");
 
     const task = make("aside", `gameplay-task${ui.interactionOpen ? " is-briefing-task" : ""}`);
-    const atMissionGate = Boolean(ui.interactionTarget?.id?.endsWith("-entry") && !ui.interactionTarget.locked);
     append(task,
       make("div", "gameplay-task-kicker", "CURRENT TASK"),
       make("h2", "gameplay-task-title", event.title),
       make("p", "gameplay-task-copy", ui.gateOpening
         ? `${ui.interactionTarget?.name || "Mission gate"} is opening. Hold position for the cinematic transition.`
-        : atMissionGate
-          ? "Press E at this gate to begin its mission."
-          : "Explore the station and repair the highlighted system."),
-      append(make("div", "gameplay-task-status"), make("span", "task-status-icon", "!"), make("span", "", atMissionGate ? "Gate ready — press E" : "Station beacon active")));
+        : "Walk to the highlighted solar-array station and inspect it when the prompt appears."),
+      append(make("div", "gameplay-task-status"), make("span", "task-status-icon", "!"), make("span", "", "Solar-array beacon active")));
 
     const showInteractionHint = !ui.interactionOpen && (ui.gateOpening || ui.interactionTarget);
     const hint = showInteractionHint
       ? make("div", `gameplay-interaction-hint${ui.interactionTarget && !ui.interactionTarget.locked ? " is-ready" : ""}`)
       : null;
+    if (hint && ui.interactionTarget?.id === "solar-array") hint.setAttribute("aria-label", "E — Inspect Solar Array");
     if (hint && ui.gateOpening) {
       append(hint, make("span", "interaction-key", "…"), make("span", "interaction-copy", "MISSION GATE OPENING"),
         make("small", "interaction-description", "Mechanical locks are releasing. Mission Control will brief you when the door is ready."));
@@ -1065,7 +961,10 @@
       append(hint, make("span", "interaction-key", "LOCKED"), make("span", "interaction-copy", `${ui.interactionTarget.name} locked`),
         make("small", "interaction-description", ui.interactionTarget.description));
     } else if (hint && ui.interactionTarget) {
-      append(hint, make("span", "interaction-key", "E"), make("span", "interaction-copy", `Interact with ${ui.interactionTarget.name}`),
+      const interactionCopy = ui.interactionTarget.id === "solar-array"
+        ? "— Inspect Solar Array"
+        : `Interact with ${ui.interactionTarget.name}`;
+      append(hint, make("span", "interaction-key", "E"), make("span", "interaction-copy", interactionCopy),
         make("small", "interaction-description", ui.interactionTarget.description));
     }
 
@@ -1114,39 +1013,29 @@
     const shell = make("section", "story-shell day-one-complete-story");
     const dialogue = renderStoryDialogue({
       speaker: "MISSION CONTROL",
-      title: "Day 1 complete — gate unlocked",
-      text: feedback?.explanation || "The solar array is back online. The next mission gate is now unlocked.",
+      title: "DAY 1 COMPLETE — ESTABLISH THE BASE",
+      text: feedback?.explanation || "Your qualitative power plan was recorded by Mission Control.",
       note: feedback ? `${feedback.whyItMatters} ${feedback.futureEffect}` : "Your answer was accepted by Mission Control.",
       tone: "success"
     });
     dialogue.className = "story-dialogue day-one-complete-dialogue story-dialogue-success";
 
-    const gate = make("aside", "day-two-gate-card");
-    append(gate,
-      make("span", "story-eyebrow", "NEXT OBJECTIVE"),
-      make("h2", "", "Day 2 gate unlocked"),
-      make("p", "", "The water systems door is ready for the next chapter. You can move freely now and follow the illuminated arrow to MoonBase 2."),
-      make("span", "gate-lock-status", "ACCESS GRANTED"));
-
-    const changes = make("section", "story-change-rail day-one-change-rail");
-    changes.setAttribute("aria-label", "Day 1 resource changes");
-    (ui.mission?.resourceDefinitions || []).forEach((definition) => {
-      const detail = feedback?.resourceBreakdown?.[definition.key];
-      if (!detail) return;
-      const card = make("article", "story-change-card");
-      const net = formatSigned(detail.change);
-      append(card, make("span", "story-change-label", definition.label),
-        make("strong", "", `${detail.after} / ${definition.maximum}`),
-        make("span", `story-change-net${net.startsWith("-") ? " negative" : ""}`, `${net} this day`));
-      changes.append(card);
-    });
+    const outcome = make("section", "story-change-rail day-one-change-rail qualitative-outcome");
+    outcome.setAttribute("aria-label", "Day 1 qualitative outcome");
+    append(outcome,
+      append(make("article", "story-change-card"), make("span", "story-change-label", "PRESERVED"),
+        make("strong", "", feedback?.preserved || "DATA UNAVAILABLE")),
+      append(make("article", "story-change-card"), make("span", "story-change-label", "REDUCED OR DELAYED"),
+        make("strong", "", feedback?.reducedOrDelayed || "DATA UNAVAILABLE")),
+      append(make("article", "story-change-card"), make("span", "story-change-label", "RESERVE STATE"),
+        make("strong", "", feedback?.reserveState || "DATA UNAVAILABLE")));
 
     const actions = make("div", "day-one-complete-actions");
     append(actions,
       button("Replay Day 1", "story-primary-action", startMission, ui.loading),
-        make("span", "day-one-complete-note", "Use W A S D to lunar walk, Shift to lope, and Space to jump or thrust toward MoonBase 2."));
+        make("span", "day-one-complete-note", "Days 2–4 are not available in this mission slice. NASA-backed readings remain DATA UNAVAILABLE until the verified package is added."));
 
-    append(shell, renderStoryHud(ui.mission, null, 1), renderMissionRadar(), dialogue, gate, changes, actions);
+    append(shell, renderStoryHud(ui.mission, null, 1), renderMissionRadar(), dialogue, outcome, actions);
     root.append(shell);
   }
 
@@ -1157,38 +1046,6 @@
     } catch {
       return null;
     }
-  }
-
-  function renderSystems(mission) {
-    const panel = make("section", "panel side-panel system-status-panel");
-    panel.append(make("h2", "", "System status"));
-    const systems = mission?.systems;
-    if (!systems) {
-      panel.append(make("p", "empty-effects", "Mission Control did not return system status."));
-      return panel;
-    }
-
-    const statuses = [
-      ["CO₂ removal loop", systems.airLoopServiced ? "Serviced" : "Not serviced",
-        "Air cleaning removes carbon dioxide; it does not generate oxygen."],
-      ["Shielding preparation", systems.shieldingPrepared ? "Prepared" : "Not prepared",
-        "Preparation is separate from activating the shelter."],
-      ["Shelter activation", systems.shelterActivated ? "Activated" : "Not activated",
-        `Mode: ${systems.shelterMode || "Not selected"}.`],
-      ["Emergency protection", systems.emergencyProtectionActivated ? "Activated" : "Not used",
-        "Full shelter can use an emergency setup when preparation was skipped."],
-      ["Protection readiness", systems.protectionReady ? "Ready" : "Not ready",
-        "This is a qualitative game state, not a radiation dose or shielding percentage."]
-    ];
-    const list = make("ul", "system-status-list");
-    statuses.forEach(([label, value, explanation]) => {
-      const item = make("li");
-      append(item, make("div", "system-status-top", `${label}: ${value}`),
-        make("span", "system-status-explanation", explanation));
-      list.append(item);
-    });
-    panel.append(list);
-    return panel;
   }
 
   function renderFeedback() {
@@ -1210,33 +1067,22 @@
       tone: ended ? "result" : "success"
     });
     const changes = make("section", "story-change-rail");
-    changes.setAttribute("aria-label", "Server-calculated resource changes");
-    const definitions = ui.mission.resourceDefinitions || [];
-    definitions.forEach((definition) => {
-      const detail = feedback.resourceBreakdown?.[definition.key];
-      if (!detail) return;
-      const card = make("article", "story-change-card");
-      const net = formatSigned(detail.change);
-      append(card, make("span", "story-change-label", definition.label),
-        make("strong", "", `${detail.after} / ${definition.maximum}`),
-        make("span", `story-change-net${net.startsWith("-") ? " negative" : ""}`, `${net} this day`),
-        make("span", "story-change-detail", `Before ${detail.before} · daily ${formatSigned(detail.daily)} · delayed ${formatSigned(detail.delayed)} · event ${formatSigned(detail.event)} · choice ${formatSigned(detail.choice)}`));
-      changes.append(card);
-    });
-    const action = button(ended ? "See mission results" : `Continue to Day ${ui.mission.day}`, "story-primary-action", () => {
-      if (ended) setScreen("result");
-      else setScreen("game");
+    changes.setAttribute("aria-label", "Qualitative mission outcome");
+    append(changes,
+      append(make("article", "story-change-card"), make("span", "story-change-label", "PRESERVED"),
+        make("strong", "", feedback.preserved || "DATA UNAVAILABLE")),
+      append(make("article", "story-change-card"), make("span", "story-change-label", "REDUCED OR DELAYED"),
+        make("strong", "", feedback.reducedOrDelayed || "DATA UNAVAILABLE")),
+      append(make("article", "story-change-card"), make("span", "story-change-label", "RESERVE STATE"),
+        make("strong", "", feedback.reserveState || "DATA UNAVAILABLE")));
+    const action = button(ended ? "Return to Day 1 report" : "Continue to Day 1", "story-primary-action", () => {
+      setScreen(ended ? "day1Complete" : "game");
     }, ui.loading);
     const actionWrap = make("div", "story-feedback-action");
     actionWrap.append(action);
     append(shell, renderStoryHud(ui.mission, ui.mission?.event, feedback.day), dialogue,
       renderStoryEffects(ui.mission), changes, actionWrap);
     root.append(shell);
-  }
-
-  function formatSigned(value) {
-    if (value > 0) return `+${value}`;
-    return String(value);
   }
 
   function renderResult() {

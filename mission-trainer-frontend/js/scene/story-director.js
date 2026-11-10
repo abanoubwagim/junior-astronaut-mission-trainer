@@ -50,20 +50,18 @@ export function createStoryDirector(THREE, parent, environment, cameraController
     const location = objectiveLocation(state.mission);
     environment.setStoryState({ ...state, location });
     const presentationLocation = state.interactionOpen
-      ? missionGateLocation(state.mission)
+      ? (Number(state.mission?.event?.day || state.mission?.day || 0) === 1 ? "solar" : missionGateLocation(state.mission))
       : location;
 
-    // The player starts beside the first airlock when Day 1 becomes playable.
-    // The welcome composition remains farther back, but the gameplay spawn is
-    // intentionally within the door's interaction radius.
+    // The player starts in the base approach and walks to the solar array for
+    // the Day 1 interaction. The welcome composition remains farther back.
     if (active && !wasGame && previousScreen !== "feedback") {
       astronaut.root.position.set(-0.8, -1.03, 0.55);
       astronaut.root.rotation.y = 0;
     }
-    if ((state.screen === "day1Complete" && previousScreen !== "day1Complete")
-        || (state.dayOneComplete && !previousDayOneComplete)
+    if (state.screen !== "day1Complete" && ((state.dayOneComplete && !previousDayOneComplete)
         || (state.dayTwoComplete && !previousDayTwoComplete)
-        || (state.dayThreeComplete && !previousDayThreeComplete)) {
+        || (state.dayThreeComplete && !previousDayThreeComplete))) {
       const navigationTarget = environment.getNavigationTarget?.();
       if (navigationTarget) {
         const deltaX = navigationTarget.x - astronaut.root.position.x;

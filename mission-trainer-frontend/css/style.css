@@ -2477,8 +2477,8 @@ body[data-app-screen="welcome"] .lunar-scene {
   background-size: cover;
 }
 
-/* A Mars environment preview keeps the same cinematic HUD but reveals the
-   actual dusty 3D profile when the scene is opened with ?world=mars. */
+/* An explicit Mars world selection reveals the dusty 3D profile when the
+   scene is opened with ?world=mars. */
 body[data-app-world="mars"][data-app-screen="welcome"] .lunar-scene {
   background: #7a4737;
 }
@@ -5615,4 +5615,19 @@ body[data-app-screen="game"] .gameplay-interaction-hint { bottom: 5%; }
   body[data-app-screen="game"] .gameplay-dialogue-live { left: 10px; right: 10px; bottom: 10px; width: auto; }
   body[data-app-screen="game"] .gameplay-controls { right: 10px; bottom: 94px; width: 142px; }
   body[data-app-screen="game"] .gameplay-interaction-hint { bottom: 27px; }
+}
+/* Day 1 qualitative mission HUD: no fabricated quantities or meters. */
+.story-qualitative-status { display: grid; grid-template-columns: repeat(3, minmax(105px, 1fr)); gap: 7px; min-width: 0; }
+.story-qualitative-chip { display: grid; gap: 3px; min-width: 0; padding: 8px 9px; border: 1px solid rgb(107 215 255 / 24%); border-radius: 10px; background: rgb(7 20 45 / 76%); }
+.story-qualitative-label { color: #7ea8c7; font-family: var(--hud-tech, monospace); font-size: 8px; font-weight: 900; letter-spacing: .12em; }
+.story-qualitative-value { overflow: hidden; color: #c9f5ff; font-family: var(--hud-tech, monospace); font-size: 9px; letter-spacing: .04em; line-height: 1.2; text-overflow: ellipsis; white-space: nowrap; }
+.mission-telemetry-status.is-unavailable { color: #ffd98c; }
+.mission-feedback-qualitative { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
+.mission-feedback-qualitative .mission-feedback-change { margin: 0; }
+.qualitative-outcome { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+
+@media (max-width: 760px) {
+  .story-qualitative-status, .mission-feedback-qualitative, .qualitative-outcome { grid-template-columns: 1fr; }
+  .story-qualitative-chip { padding: 7px 8px; }
+  .story-qualitative-value { white-space: normal; }
 }

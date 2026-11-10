@@ -261,8 +261,13 @@ export function createPlayerController(THREE, {
     const gateId = environment?.getGateIdForDay?.(eventDay);
     const gateEntered = environment?.isGateEntered?.(eventDay) ?? false;
     const welcomeEntryActive = environment?.isWelcomeEntryActive?.() ?? eventDay === 0;
-    const objects = (environment?.getInteractiveObjects?.() || [])
+    const availableObjects = environment?.getInteractiveObjects?.() || [];
+    const hasDayOneSolarStation = availableObjects.some((object) => object.id === "solar-array");
+    const objects = availableObjects
       .filter((object) => {
+        // Day 1 is solved at the solar array itself. The MoonBase entry gate
+        // is only the welcome transition and must not replace the objective.
+        if (eventDay === 1 && hasDayOneSolarStation) return object.id === "solar-array";
         // MoonBase 1 owns the Day 1 mission only. It remains usable after the
         // welcome button starts Day 1, but must not reopen the next mission
         // when the player returns to the first gate on a later day.

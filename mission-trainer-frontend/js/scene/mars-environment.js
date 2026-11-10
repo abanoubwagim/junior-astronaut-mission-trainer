@@ -266,7 +266,7 @@ export function createMarsEnvironment(THREE, scene) {
   function setEntryDoorOpen(open = true) { const door = signal.doors.get("moonbase-entry"); if (door) door.target = open ? 1 : 0; }
   function setGateDoorOpen(id, open = true) { const door = signal.doors.get(id); if (door) door.target = open ? 1 : 0; }
   function isGateDoorOpen(id) { return Boolean(signal.doors.get(id)?.open >= 0.97); }
-  function setSignal({ power = 12, water = 12, storm = false, success = false } = {}) { if (signal.habitatGlow) signal.habitatGlow.intensity = success ? 2.6 : 0.86 + Math.max(0, Math.min(1, power / 12)) * 1.25; if (signal.dust) signal.dust.material.opacity = storm ? 0.3 : 0.14; if (signal.storm) signal.storm.material.opacity = storm ? 0.3 : 0; if (signal.sceneLight) signal.sceneLight.intensity = 0.42 + Math.max(0, Math.min(1, water / 12)) * 0.18; }
+  function setSignal({ storm = false, success = false } = {}) { if (signal.habitatGlow) signal.habitatGlow.intensity = success ? 2.6 : 1.55; if (signal.dust) signal.dust.material.opacity = storm ? 0.3 : 0.14; if (signal.storm) signal.storm.material.opacity = storm ? 0.3 : 0; if (signal.sceneLight) signal.sceneLight.intensity = 0.5; }
   function dispose() { root.traverse((object) => { if (object.geometry) object.geometry.dispose(); if (object.material) (Array.isArray(object.material) ? object.material : [object.material]).forEach((material) => material.dispose?.()); }); signal.lights.forEach((light) => light.removeFromParent?.()); scene.fog = null; root.removeFromParent?.(); }
 
   createTerrain(); createRocks(); createDistantGeology(); createDunePatches(); createSkyDetails(); createHabitat(); createMissionStations(); createSolarAndEquipment(); createStoryBeacons(); createParticles(); createLighting();

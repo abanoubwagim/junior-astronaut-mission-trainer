@@ -1,7 +1,6 @@
 package org.juniorastronaut.missiontrainer.api;
 
 import java.util.List;
-import java.util.Map;
 
 public final class MissionDtos {
     private MissionDtos() {
@@ -14,19 +13,6 @@ public final class MissionDtos {
     }
 
     public record DecisionInput(Integer day, String choiceId) {
-    }
-
-    public record ResourceValues(int power, int water, int food, int shelterReadiness) {
-    }
-
-    public record ResourceDefinition(
-            String key,
-            String label,
-            int minimum,
-            int maximum,
-            String unit,
-            String purpose
-    ) {
     }
 
     public record Choice(String id, String title, String description, String tradeoff) {
@@ -42,24 +28,22 @@ public final class MissionDtos {
             String scienceFact,
             List<ScienceSource> scienceSources,
             List<Choice> choices,
-            String hazardType,
-            String hazardLevel,
-            double oneWayCommunicationDelaySeconds,
             String dataStatus
     ) {
     }
 
-    public record SpaceWeatherStatus(
-            String signal,
-            String severity,
-            String sourceTitle,
-            String sourceUrl,
-            String dataNote,
-            double oneWayCommunicationDelaySeconds
+    /**
+     * Qualitative game state only. These labels are not measurements and are
+     * intentionally kept separate from the NASA data integration point.
+     */
+    public record QualitativeState(
+            String solarInput,
+            String powerAllocation,
+            String backupReserve,
+            String crewSupport,
+            String dataStatus,
+            String valueOrigin
     ) {
-    }
-
-    public record ResourceBreakdown(int before, int daily, int delayed, int event, int choice, int after, int change) {
     }
 
     public record DecisionFeedback(
@@ -70,7 +54,9 @@ public final class MissionDtos {
             String explanation,
             String whyItMatters,
             String futureEffect,
-            Map<String, ResourceBreakdown> resourceBreakdown
+            String preserved,
+            String reducedOrDelayed,
+            String reserveState
     ) {
     }
 
@@ -93,26 +79,12 @@ public final class MissionDtos {
             String status,
             int day,
             int totalDays,
-            ResourceValues resources,
-            List<ResourceDefinition> resourceDefinitions,
             Event event,
-            SpaceWeatherStatus spaceWeather,
+            QualitativeState qualitativeState,
             List<String> activeEffects,
             List<DecisionInput> decisionHistory,
-            SystemState systems,
             DecisionFeedback latestDecision,
             MissionResult result
     ) {
     }
-
-    public record SystemState(
-            boolean airLoopServiced,
-            boolean shieldingPrepared,
-            boolean shelterActivated,
-            String shelterMode,
-            boolean emergencyProtectionActivated,
-            boolean protectionReady
-    ) {
-    }
-
 }

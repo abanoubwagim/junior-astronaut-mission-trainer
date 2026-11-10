@@ -108,8 +108,8 @@
       scene = new THREE.Scene();
       const world = window.MOONBASE_SCENE_WORLD === "moon" ? "moon" : "mars";
       document.documentElement.dataset.sceneWorld = world;
-      // Each environment owns its atmospheric profile. Moon is retained as an
-      // explicit comparison world; Mars is the default playable world.
+      // Each environment owns its atmospheric profile. Moon is the default;
+      // Mars is available through explicit world selection.
       if (world === "moon") {
         scene.background = new THREE.Color(0x010204);
         scene.fog = null;
@@ -233,7 +233,7 @@
   }
 
   const requestedWorld = new URL(window.location.href).searchParams.get("world");
-  window.MOONBASE_SCENE_WORLD = window.MOONBASE_SCENE_WORLD || (requestedWorld === "moon" ? "moon" : "mars");
+  window.MOONBASE_SCENE_WORLD = window.MOONBASE_SCENE_WORLD || (requestedWorld === "mars" ? "mars" : "moon");
   window.MOONBASE_SCENE_MODE = window.MOONBASE_SCENE_MODE || "welcome";
   window.MOONBASE_SCENE_STORY = window.MOONBASE_SCENE_STORY || {
     screen: "welcome",

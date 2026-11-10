@@ -1235,7 +1235,7 @@ export function createLunarEnvironment(THREE, scene) {
     registerInteractive(array, {
       id: "solar-array",
       name: "Solar array",
-      description: "Dust is dimming the base's power panels.",
+      description: "A fictional equipment condition is reducing the array's available output.",
       day: 1,
       radius: 3.1,
       position: [array.position.x, array.position.z]
@@ -1280,7 +1280,7 @@ export function createLunarEnvironment(THREE, scene) {
     solarDustGeometry.setAttribute("position", new THREE.Float32BufferAttribute(solarDustPositions, 3));
     signal.solarDust = new THREE.Points(solarDustGeometry,
       new THREE.PointsMaterial({ color: colors.hazard, size: 0.07, transparent: true, opacity: 0.02 }));
-    signal.solarDust.name = "solar-array-dust-hazard";
+    signal.solarDust.name = "solar-array-output-condition";
     root.add(signal.solarDust);
 
     const recycler = new THREE.Group();
@@ -1675,10 +1675,7 @@ export function createLunarEnvironment(THREE, scene) {
     // objective arrow still points only to the gate unlocked for the current day.
     if (signal.dayThreeGate) signal.dayThreeGate.visible = true;
     if (signal.dayFourGate) signal.dayFourGate.visible = true;
-    if (selected === "clean_solar_array") signal.solarDust.material.opacity = 0.04;
-    if (["service_water_recycler", "use_backup_water_pack"].includes(selected)) signal.waterLeak.material.opacity = 0.05;
-    if (["start_grow_light_tray", "open_meal_crate"].includes(selected)) signal.growLights.forEach((material) => { material.emissiveIntensity = 1.8; });
-    if (["full_storm_shelter", "passive_storm_shelter"].includes(selected)) signal.stormRings.forEach((ring) => { ring.material.opacity = 0.8; });
+    if (selected === "reduce_non_essential_loads") signal.solarDust.material.opacity = 0.04;
   }
 
   function setInteractionFocus(id = "") {
@@ -1690,6 +1687,10 @@ export function createLunarEnvironment(THREE, scene) {
 
   function getNavigationTarget() {
     const currentDay = Number(signal.story.day || 0);
+    if (signal.story.screen === "game" && currentDay === 1) {
+      const solar = signal.interactiveObjects.find((object) => object.id === "solar-array");
+      if (solar) return { x: solar.position[0], z: solar.position[1], id: solar.id };
+    }
     if (signal.story.screen === "game") {
       const currentGateId = getGateIdForDay(currentDay);
       const currentGate = signal.interactiveObjects.find((object) => object.id === currentGateId);
@@ -1700,6 +1701,7 @@ export function createLunarEnvironment(THREE, scene) {
         return { x: currentGate.position[0], z: currentGate.position[1], id: currentGate.id };
       }
     }
+    if (signal.story.screen === "day1Complete") return null;
     const targetId = signal.navigationGate === "moonbase-four"
       ? "moonbase-four-entry"
       : signal.navigationGate === "moonbase-three"
@@ -1744,20 +1746,20 @@ export function createLunarEnvironment(THREE, scene) {
     return Boolean(door && door.open >= 0.97);
   }
 
-  function setSignal({ power = 12, water = 12, food = 12, shelterReadiness = 12, storm = false, success = false } = {}) {
-    const powerRatio = Math.max(0.22, Math.min(1, power / 12));
-    const waterRatio = Math.max(0.18, Math.min(1, water / 12));
-    signal.foodRatio = Math.max(0.18, Math.min(1, food / 12));
-    signal.shelterRatio = Math.max(0.18, Math.min(1, shelterReadiness / 12));
-    signal.growBaseIntensity = 0.25 + signal.foodRatio * 0.95;
-    if (signal.baseGlow) signal.baseGlow.intensity = 1.25 + powerRatio * 3.2;
-    signal.baseLights.forEach((material) => { material.emissiveIntensity = 0.55 + powerRatio * 1.8; });
-    signal.waterLights.forEach((material) => { material.emissiveIntensity = 0.45 + waterRatio * 1.8; });
+  function setSignal({ storm = false, success = false } = {}) {
+    // These are presentation lights only; they are deliberately not derived
+    // from fictional resource quantities.
+    signal.foodRatio = 0.72;
+    signal.shelterRatio = 0.72;
+    signal.growBaseIntensity = 0.82;
+    if (signal.baseGlow) signal.baseGlow.intensity = success ? 3.8 : 2.55;
+    signal.baseLights.forEach((material) => { material.emissiveIntensity = success ? 1.85 : 1.35; });
+    signal.waterLights.forEach((material) => { material.emissiveIntensity = 1.2; });
     signal.growLights.forEach((material) => { material.emissiveIntensity = signal.growBaseIntensity; });
     if (signal.shelterDome) signal.shelterDome.material.emissiveIntensity = 0.22 + signal.shelterRatio * 0.75;
     if (signal.storm) signal.storm.material.opacity = storm ? 0.55 : 0;
     if (signal.dust) signal.dust.material.opacity = storm ? 0.56 : 0.25;
-    if (signal.sceneLight) signal.sceneLight.intensity = success ? 0.26 : 0.14 + powerRatio * 0.12;
+    if (signal.sceneLight) signal.sceneLight.intensity = success ? 0.26 : 0.2;
   }
 
   function dispose() {
