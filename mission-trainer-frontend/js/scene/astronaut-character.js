@@ -305,9 +305,28 @@ export function createAstronautCharacter(THREE, parent, options = {}) {
 
   function setBoneRotation(bone, x, y, z, weight = 1) {
     if (!bone) return;
-    bone.rotation.x = x * weight;
-    bone.rotation.y = y * weight;
-    bone.rotation.z = z * weight;
+    const base = bone.userData.baseQuaternion || bone.quaternion.clone();
+    const offsetEuler = bone.userData.poseOffsetEuler ||= new THREE.Euler();
+    const offsetQuaternion = bone.userData.poseOffsetQuaternion ||= new THREE.Quaternion();
+    // The values passed to this helper are local pose offsets. Multiplying a
+    // small local quaternion onto the GLB bind/rest quaternion preserves the
+    // source skeleton's axes and avoids treating the rest pose as XYZ=0.
+    offsetEuler.set(x * weight, y * weight, z * weight, "XYZ");
+    offsetQuaternion.setFromEuler(offsetEuler);
+    bone.quaternion.copy(base).multiply(offsetQuaternion);
+  }
+
+  function cacheLoadedRigBaseRotations() {
+    if (!loadedRig) return;
+    Object.values(loadedRig).forEach((bone) => {
+      if (!bone) return;
+      bone.userData.baseRotation ||= {
+        x: bone.rotation.x,
+        y: bone.rotation.y,
+        z: bone.rotation.z
+      };
+      bone.userData.baseQuaternion ||= bone.quaternion.clone();
+    });
   }
 
   function updateLoadedRigPose(time) {
@@ -330,16 +349,17 @@ export function createAstronautCharacter(THREE, parent, options = {}) {
       rightFoot: loadedRig.rightFoot,
       spine: loadedRig.spine
     };
-    Object.values(presentation).forEach((bone) => {
-      if (!bone) return;
-      bone.userData.baseRotation ||= { x: bone.rotation.x, y: bone.rotation.y, z: bone.rotation.z };
-    });
+    cacheLoadedRigBaseRotations();
     // Let the source walk/run clips own the skeleton. Rig-bone poses below
     // are only for states that the downloaded asset does not provide.
     if (["walk", "lunar-walk", "loping"].includes(action)) return;
     const base = (bone) => bone?.userData.baseRotation || { x: 0, y: 0, z: 0 };
     const restore = (bone) => {
       if (!bone) return;
+      if (bone.userData.baseQuaternion) {
+        bone.quaternion.copy(bone.userData.baseQuaternion);
+        return;
+      }
       const rotation = base(bone);
       bone.rotation.set(rotation.x, rotation.y, rotation.z);
     };
@@ -348,27 +368,27 @@ export function createAstronautCharacter(THREE, parent, options = {}) {
       setBoneRotation(loadedRig.spine, breathing, 0, 0, poseWeight);
       setBoneRotation(loadedRig.head, 0, Math.sin(time * 1.2) * 0.025, 0, poseWeight);
     } else if (action === "jumping" || action === "airborne" || action === "thruster") {
-      setBoneRotation(loadedRig.leftArm, 0.28, 0, -0.28, poseWeight);
-      setBoneRotation(loadedRig.rightArm, 0.28, 0, 0.28, poseWeight);
-      // Keep the complete lower body in a stable floating pose. The GLB has
-      // separate upper-leg, lower-leg and foot bones; leaving the latter two
-      // to the previous walk clip can make the boots collapse or disappear
-      // for one-frame jump transitions.
-      setBoneRotation(loadedRig.leftLeg, -0.24, 0, -0.08, poseWeight);
-      setBoneRotation(loadedRig.rightLeg, -0.24, 0, 0.08, poseWeight);
-      setBoneRotation(loadedRig.leftLowerLeg, 0.42, 0, -0.04, poseWeight);
-      setBoneRotation(loadedRig.rightLowerLeg, 0.42, 0, 0.04, poseWeight);
-      setBoneRotation(loadedRig.leftFoot, -0.18, 0, 0, poseWeight);
-      setBoneRotation(loadedRig.rightFoot, -0.18, 0, 0, poseWeight);
-      setBoneRotation(loadedRig.spine, -0.12, 0, 0, poseWeight);
+      // The GLB chain is Hips -> UpperLeg -> Leg -> Foot. Keep the thighs
+      // hanging below the pelvis, add only a small knee bend, and keep the
+      // boots aligned with the shins. These are local offsets from the
+      // verified bind pose, not replacement rotations.
+      setBoneRotation(loadedRig.leftArm, 0.16, 0, -0.14, poseWeight);
+      setBoneRotation(loadedRig.rightArm, 0.16, 0, 0.14, poseWeight);
+      setBoneRotation(loadedRig.leftLeg, 0.035, 0, -0.035, poseWeight);
+      setBoneRotation(loadedRig.rightLeg, 0.035, 0, 0.035, poseWeight);
+      setBoneRotation(loadedRig.leftLowerLeg, 0.12, 0, -0.02, poseWeight);
+      setBoneRotation(loadedRig.rightLowerLeg, 0.12, 0, 0.02, poseWeight);
+      setBoneRotation(loadedRig.leftFoot, 0.035, 0, 0, poseWeight);
+      setBoneRotation(loadedRig.rightFoot, 0.035, 0, 0, poseWeight);
+      setBoneRotation(loadedRig.spine, -0.045, 0, 0, poseWeight);
     } else if (action === "landing") {
-      setBoneRotation(loadedRig.leftLeg, 0.3, 0, -0.04, poseWeight);
-      setBoneRotation(loadedRig.rightLeg, 0.3, 0, 0.04, poseWeight);
-      setBoneRotation(loadedRig.leftLowerLeg, -0.22, 0, -0.03, poseWeight);
-      setBoneRotation(loadedRig.rightLowerLeg, -0.22, 0, 0.03, poseWeight);
-      setBoneRotation(loadedRig.leftFoot, 0.12, 0, 0, poseWeight);
-      setBoneRotation(loadedRig.rightFoot, 0.12, 0, 0, poseWeight);
-      setBoneRotation(loadedRig.spine, -0.16, 0, 0, poseWeight);
+      setBoneRotation(loadedRig.leftLeg, 0.08, 0, -0.025, poseWeight);
+      setBoneRotation(loadedRig.rightLeg, 0.08, 0, 0.025, poseWeight);
+      setBoneRotation(loadedRig.leftLowerLeg, -0.12, 0, -0.015, poseWeight);
+      setBoneRotation(loadedRig.rightLowerLeg, -0.12, 0, 0.015, poseWeight);
+      setBoneRotation(loadedRig.leftFoot, 0.06, 0, 0, poseWeight);
+      setBoneRotation(loadedRig.rightFoot, 0.06, 0, 0, poseWeight);
+      setBoneRotation(loadedRig.spine, -0.055, 0, 0, poseWeight);
     } else if (action === "talk" || action === "react") {
       setBoneRotation(loadedRig.head, Math.sin(time * 2.5) * 0.05, Math.sin(time * 2.1) * 0.08, 0, poseWeight);
       setBoneRotation(loadedRig.rightForeArm, -0.24, 0, 0.12, poseWeight);
@@ -435,22 +455,22 @@ export function createAstronautCharacter(THREE, parent, options = {}) {
     // Loping adds the longer stride and visible bounding motion.
     leftLeg.rotation.x = walk * 0.16 * walkWeight
       + lope * 0.48 * lopingWeight
-      + jumpingWeight * 0.22
-      + airborneWeight * 0.3
-      + thrusterWeight * 0.38
+      + jumpingWeight * 0.06
+      + airborneWeight * 0.08
+      + thrusterWeight * 0.1
       + landingWeight * (-0.14 - animation.landingImpact * 0.08)
       + floatWeight * 0.18;
     rightLeg.rotation.x = -walk * 0.16 * walkWeight
       - lope * 0.48 * lopingWeight
-      + jumpingWeight * 0.18
-      + airborneWeight * 0.26
-      + thrusterWeight * 0.34
+      + jumpingWeight * 0.05
+      + airborneWeight * 0.07
+      + thrusterWeight * 0.09
       + landingWeight * (-0.12 - animation.landingImpact * 0.08)
       - floatWeight * 0.14;
-    leftLeg.rotation.z = lopingWeight * -0.08 + airborneWeight * -0.13 + thrusterWeight * -0.16 + floatWeight * -0.07;
-    rightLeg.rotation.z = lopingWeight * 0.08 + airborneWeight * 0.13 + thrusterWeight * 0.16 + floatWeight * 0.07;
-    leftBoot.rotation.x = lopingWeight * 0.12 + airborneWeight * -0.2 + thrusterWeight * -0.25 + landingWeight * (0.12 + animation.landingImpact * 0.08);
-    rightBoot.rotation.x = lopingWeight * 0.12 + airborneWeight * -0.2 + thrusterWeight * -0.25 + landingWeight * (0.12 + animation.landingImpact * 0.08);
+    leftLeg.rotation.z = lopingWeight * -0.08 + airborneWeight * -0.055 + thrusterWeight * -0.06 + floatWeight * -0.07;
+    rightLeg.rotation.z = lopingWeight * 0.08 + airborneWeight * 0.055 + thrusterWeight * 0.06 + floatWeight * 0.07;
+    leftBoot.rotation.x = lopingWeight * 0.12 + airborneWeight * -0.045 + thrusterWeight * -0.05 + landingWeight * (0.12 + animation.landingImpact * 0.08);
+    rightBoot.rotation.x = lopingWeight * 0.12 + airborneWeight * -0.045 + thrusterWeight * -0.05 + landingWeight * (0.12 + animation.landingImpact * 0.08);
     leftArm.rotation.x = -walk * 0.08 * walkWeight - lope * 0.27 * lopingWeight;
     rightArm.rotation.x = walk * 0.08 * walkWeight + lope * 0.27 * lopingWeight;
     leftArm.rotation.x += (floatWeight + airborneWeight) * Math.sin(animation.elapsed * 2.2) * 0.06;
@@ -465,7 +485,7 @@ export function createAstronautCharacter(THREE, parent, options = {}) {
     head.rotation.y = talkWeight * Math.sin(animation.elapsed * 2.1) * 0.1 + pointWeight * -0.14;
     hips.rotation.z = walkWeight * Math.sin(animation.elapsed * 5.8) * 0.018
       + lopingWeight * lope * 0.045;
-    hips.rotation.x = lopingWeight * 0.08 + jumpingWeight * -0.06 + airborneWeight * -0.08 + thrusterWeight * -0.12 + landingWeight * 0.12;
+    hips.rotation.x = lopingWeight * 0.08 + jumpingWeight * -0.025 + airborneWeight * -0.035 + thrusterWeight * -0.045 + landingWeight * 0.12;
     hips.position.y = 0.48
       + walkWeight * Math.abs(walk) * 0.018
       + lopingWeight * Math.abs(lope) * 0.11
@@ -574,6 +594,9 @@ export function createAstronautCharacter(THREE, parent, options = {}) {
           rightFoot: findBone(/^rightfoot$/i),
           spine: findBone(/^spine02$/i)
         };
+        // Capture the bind pose before the first walk/idle clip can modify
+        // any bone rotations.
+        cacheLoadedRigBaseRotations();
         root.userData.characterType = "rigged-glb-astronaut";
         root.userData.animationClips = loadedClips.map((clip) => clip.name || "(unnamed)");
         updateLoadedAction(animation.action);
