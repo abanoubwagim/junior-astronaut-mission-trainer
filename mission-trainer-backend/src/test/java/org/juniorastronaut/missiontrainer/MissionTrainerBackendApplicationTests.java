@@ -95,17 +95,22 @@ class MissionTrainerBackendApplicationTests {
     }
 
     @Test
-    void unverifiedRecoveredWaterIsNeverAcceptedForSupplementaryShielding() {
+    void unverifiedRecoveredWaterIsExcludedButApprovedPotableReserveRemainsEligible() {
         MissionResponse response = replay(
                 new DecisionInput(1, "reduce_non_essential_loads"),
                 new DecisionInput(2, "inspect_reprocess_water"),
                 new DecisionInput(3, "PRESERVE_STORED_FOOD"),
                 new DecisionInput(4, "REPOSITION_WATER_SUPPLIES"));
 
-        assertEquals("UNVERIFIED_RECOVERED_WATER_UNAVAILABLE",
-                response.qualitativeState().approvedWaterForShielding());
-        assertEquals("WATER_SUPPLIES_UNAVAILABLE",
+        assertEquals("POTABLE_SUPPLY_AVAILABLE", response.qualitativeState().potableWaterSupply());
+        assertEquals("RECOVERED_WATER_ISOLATED", response.qualitativeState().recoveredWaterDisposition());
+        assertTrue(response.qualitativeState().approvedWaterForShielding()
+                .contains("APPROVED_POTABLE_RESERVE_AVAILABLE"));
+        assertEquals("WATER_SUPPLIES_POSITIONED_FOR_SHIELDING",
                 response.qualitativeState().supplementaryShielding());
+        assertTrue(response.latestDecision().reducedOrDelayed().contains("RECOVERED_WATER_REMAINS_ISOLATED")
+                || response.qualitativeState().dayFourOperationalConstraint()
+                        .contains("RECOVERED_WATER_REMAINS_ISOLATED"));
     }
 
     @Test
