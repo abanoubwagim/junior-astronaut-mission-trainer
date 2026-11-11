@@ -10,6 +10,7 @@ export function createPlayerController(THREE, {
   onPlayerUpdate
 } = {}) {
   const keys = new Set();
+  const touchKeys = new Set();
   const velocity = new THREE.Vector3();
   const desiredVelocity = new THREE.Vector3();
   const direction = new THREE.Vector3();
@@ -81,6 +82,7 @@ export function createPlayerController(THREE, {
 
   function clearInput() {
     keys.clear();
+    touchKeys.clear();
   }
 
   function isEditableElement(element) {
@@ -107,6 +109,14 @@ export function createPlayerController(THREE, {
     if (rawCode.startsWith("key") && rawCode.length === 4) return rawCode.slice(3);
     const rawKey = String(event?.key || "").toLowerCase();
     return rawKey.startsWith("key") && rawKey.length === 4 ? rawKey.slice(3) : rawKey;
+  }
+
+  function setTouchMovement(directionName, activeState) {
+    const directionKeys = { up: "w", down: "s", left: "a", right: "d" };
+    const key = directionKeys[String(directionName || "").toLowerCase()];
+    if (!key) return;
+    if (activeState) touchKeys.add(key);
+    else touchKeys.delete(key);
   }
 
   function setMovementState(nextState) {
@@ -396,10 +406,10 @@ export function createPlayerController(THREE, {
   }
 
   function updateMovement(delta) {
-    const inputX = (keys.has("d") || keys.has("arrowright") ? 1 : 0)
-      - (keys.has("a") || keys.has("arrowleft") ? 1 : 0);
-    const inputZ = (keys.has("s") || keys.has("arrowdown") ? 1 : 0)
-      - (keys.has("w") || keys.has("arrowup") ? 1 : 0);
+    const inputX = (keys.has("d") || keys.has("arrowright") || touchKeys.has("d") ? 1 : 0)
+      - (keys.has("a") || keys.has("arrowleft") || touchKeys.has("a") ? 1 : 0);
+    const inputZ = (keys.has("s") || keys.has("arrowdown") || touchKeys.has("s") ? 1 : 0)
+      - (keys.has("w") || keys.has("arrowup") || touchKeys.has("w") ? 1 : 0);
 
     direction.set(0, 0, 0);
     if (inputX || inputZ) {
@@ -587,6 +597,8 @@ export function createPlayerController(THREE, {
     setActive,
     setPaused,
     setMissionState,
+    setTouchMovement,
+    jump: beginJump,
     focus: () => canvas?.focus?.({ preventScroll: true }),
     update,
     dispose,

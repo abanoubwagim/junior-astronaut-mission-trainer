@@ -204,6 +204,18 @@
           playerController?.setActive(explorable);
           playerController?.setPaused(!explorable || Boolean(story?.interactionOpen) || Boolean(story?.loading) || Boolean(story?.paused));
         },
+        setTouchMovement(direction, active) {
+          if (currentMode !== "game") return;
+          playerController?.setTouchMovement?.(direction, active);
+        },
+        jump() {
+          if (currentMode !== "game") return;
+          playerController?.jump?.();
+        },
+        lookBy(deltaX, deltaY) {
+          if (currentMode !== "game") return;
+          cameraController?.lookBy?.(deltaX, deltaY);
+        },
         dispose() {
           disposed = true;
           teardownScene();

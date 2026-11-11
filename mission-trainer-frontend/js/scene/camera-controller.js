@@ -208,6 +208,14 @@ export function createCameraController(THREE, camera, options = {}) {
     if (Number.isFinite(value)) yaw = value;
   }
 
+  function lookBy(deltaX = 0, deltaY = 0) {
+    if (!gameplayActive || presentationActive) return;
+    const horizontal = Number(deltaX);
+    const vertical = Number(deltaY);
+    if (Number.isFinite(horizontal)) yaw -= horizontal * 0.012;
+    if (Number.isFinite(vertical)) pitch = Math.max(-0.18, Math.min(0.9, pitch - vertical * 0.009));
+  }
+
   function update(delta) {
     if (gameplayActive && player && !presentationActive) updateGameplay(delta);
     else updateStory(delta);
@@ -235,6 +243,7 @@ export function createCameraController(THREE, camera, options = {}) {
     setPresentationActive,
     setDistance,
     setHeading,
+    lookBy,
     getCamera: () => camera,
     getMovementBasis: () => ({ yaw }),
     update,

@@ -145,7 +145,7 @@
     }
     append(controls, controlsHeader,
       controlRow("W A S D", "Move"),
-      controlRow("SHIFT", "Loping"),
+      controlRow("SHIFT", "Movement boost"),
       controlRow("SPACE", "Jump"),
       controlRow("E", "Interact"),
       controlRow("MOUSE", "Look around"));
@@ -155,6 +155,74 @@
         render();
       }, ui.loading || ui.interactionOpen));
     }
+    return controls;
+  }
+
+  function renderTouchControls() {
+    const controls = make("aside", "gameplay-touch-controls");
+    controls.setAttribute("aria-label", "Touch movement controls");
+    const header = make("div", "touch-controls-header");
+    append(header,
+      make("span", "touch-controls-title", "TOUCH FLIGHT DECK"),
+      make("span", "touch-controls-note", "Hold to move · drag to look"));
+
+    const pad = make("div", "touch-control-pad");
+    const movementButtons = [
+      ["▲", "up", "Move forward"],
+      ["◀", "left", "Move left"],
+      ["▼", "down", "Move backward"],
+      ["▶", "right", "Move right"]
+    ];
+    movementButtons.forEach(([label, direction, ariaLabel]) => {
+      const control = button(label, `touch-control-button touch-move-${direction}`, () => {}, false);
+      control.setAttribute("aria-label", ariaLabel);
+      const start = (event) => {
+        event.preventDefault();
+        control.setPointerCapture?.(event.pointerId);
+        window.MoonBaseScene?.setTouchMovement?.(direction, true);
+      };
+      const stop = (event) => {
+        event.preventDefault();
+        window.MoonBaseScene?.setTouchMovement?.(direction, false);
+      };
+      control.addEventListener("pointerdown", start);
+      control.addEventListener("pointerup", stop);
+      control.addEventListener("pointercancel", stop);
+      control.addEventListener("pointerleave", stop);
+      pad.append(control);
+    });
+    const jump = button("JUMP", "touch-control-button touch-jump", () => {
+      window.MoonBaseScene?.jump?.();
+    });
+    jump.setAttribute("aria-label", "Jump");
+    pad.append(jump);
+
+    const lookPad = make("div", "touch-look-pad", "DRAG HERE TO LOOK AROUND");
+    let looking = false;
+    let lastPoint = null;
+    lookPad.addEventListener("pointerdown", (event) => {
+      event.preventDefault();
+      lookPad.setPointerCapture?.(event.pointerId);
+      looking = true;
+      lastPoint = { x: event.clientX, y: event.clientY };
+    });
+    lookPad.addEventListener("pointermove", (event) => {
+      if (!looking || !lastPoint) return;
+      event.preventDefault();
+      const dx = event.clientX - lastPoint.x;
+      const dy = event.clientY - lastPoint.y;
+      lastPoint = { x: event.clientX, y: event.clientY };
+      window.MoonBaseScene?.lookBy?.(dx, dy);
+    });
+    const stopLooking = () => {
+      looking = false;
+      lastPoint = null;
+    };
+    lookPad.addEventListener("pointerup", stopLooking);
+    lookPad.addEventListener("pointercancel", stopLooking);
+    lookPad.addEventListener("pointerleave", stopLooking);
+
+    append(controls, header, pad, lookPad);
     return controls;
   }
 
@@ -270,7 +338,12 @@
 
   window.addEventListener?.("keydown", handleWelcomeKeydown, { passive: false });
 
+  function resetViewport() {
+    window.scrollTo?.({ top: 0, left: 0, behavior: "auto" });
+  }
+
   function setScreen(screen) {
+    resetViewport();
     ui.screen = screen;
     ui.error = "";
     ui.interactionOpen = false;
@@ -363,6 +436,7 @@
 
   function startMission() {
     if (ui.loading) return;
+    resetViewport();
     ui.mission = null;
     ui.decisionHistory = [];
     ui.selectedChoiceId = null;
@@ -390,6 +464,7 @@
 
   async function startMoonMission() {
     if (ui.loading) return;
+    resetViewport();
     ui.world = "moon";
     ui.mission = null;
     ui.decisionHistory = [];
@@ -469,6 +544,7 @@
       ui.dayThreeComplete = event.day === 3;
       ui.dayFourComplete = event.day === 4;
       ui.screen = event.day === 1 ? "day1Complete" : event.day === 2 ? "day2Complete" : event.day === 3 ? "day3Complete" : event.day === 4 ? "day4Complete" : "result";
+      resetViewport();
       announce(`Day ${event.day} complete. ${updatedMission.latestDecision.explanation}`);
     } catch (error) {
       ui.error = displayError(error);
@@ -483,6 +559,7 @@
 
   function beginDayTwo() {
     if (ui.loading || !ui.mission?.event || ui.mission.event.day !== 2) return;
+    resetViewport();
     ui.screen = "game";
     ui.error = "";
     ui.selectedChoiceId = null;
@@ -507,6 +584,7 @@
 
   function beginDayThree() {
     if (ui.loading || !ui.mission?.event || ui.mission.event.day !== 3) return;
+    resetViewport();
     ui.screen = "game";
     ui.error = "";
     ui.selectedChoiceId = null;
@@ -531,6 +609,7 @@
 
   async function beginDayFour() {
     if (ui.loading || !ui.mission) return;
+    resetViewport();
 
     // A browser can still be holding the pre-Day-4 response where Day 3 was
     // terminal. Replay the complete in-memory history once so the current
@@ -593,6 +672,7 @@
   }
 
   function render() {
+    const previousScreen = document.body?.dataset?.appScreen || "";
     syncScene();
     root.replaceChildren();
     if (ui.error) root.append(make("div", "alert-box", ui.error));
@@ -614,6 +694,7 @@
       brandName.dataset.missionDay = String(ui.mission?.event?.day || ui.mission?.day || 1);
       brandName.dataset.totalDays = String(ui.mission?.totalDays || 4);
     }
+    if (!previousScreen || previousScreen !== ui.screen) resetViewport();
   }
 
   function renderWelcome() {
@@ -1364,6 +1445,7 @@
       }, ui.loading || ui.inspectionComplete));
 
     const controls = renderGameControls({ showPause: true });
+    const touchControls = renderTouchControls();
 
     const dialogue = renderGameDialogue(event);
     dialogue.id = "event-title";
@@ -1392,7 +1474,7 @@
       button("Resume exploration", "story-primary-action", () => { ui.paused = false; render(); }, ui.loading),
       make("small", "", "Press Escape any time to release the mouse pointer."));
 
-    append(section, hud, objective, task, renderMissionRadar({ gameplay: true }), hint, controls, renderStorySystems(mission),
+    append(section, hud, objective, task, renderMissionRadar({ gameplay: true }), hint, controls, touchControls, renderStorySystems(mission),
       fallbackNotice, dialogue, renderDecisionFeedback(mission), pauseMenu);
     root.append(section);
   }
@@ -1679,5 +1761,6 @@
     root.append(shell);
   }
 
+  resetViewport();
   render();
 })();
