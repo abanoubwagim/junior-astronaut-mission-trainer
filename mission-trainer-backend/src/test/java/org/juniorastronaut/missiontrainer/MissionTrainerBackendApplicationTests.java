@@ -205,7 +205,7 @@ class MissionTrainerBackendApplicationTests {
         assertTrue(dayFour.body().contains("RECOVERED_WATER_REMAINS_ISOLATED"));
 
         HttpResponse<String> invalid = post("/api/v1/missions/decisions",
-                "{\\"decisions\\":[{\\"day\\":2,\\"choiceId\\":\\"conserve_water\\"}]}");
+                "{\"decisions\":[{\"day\":2,\"choiceId\":\"conserve_water\"}]}" );
         assertEquals(400, invalid.statusCode());
     }
 
