@@ -1,3 +1,13 @@
+const GATE_OPEN_THRESHOLD = 0.97;
+
+export function getGateDoorForId(signal, id) {
+  return id === "moonbase-entry" ? signal?.entryDoor
+    : id === "moonbase-two-entry" ? signal?.dayGateDoor
+      : id === "moonbase-three-entry" ? signal?.dayThreeGateDoor
+        : id === "moonbase-four-entry" ? signal?.dayFourGateDoor
+          : null;
+}
+
 export function createLunarEnvironment(THREE, scene) {
   const root = new THREE.Group();
   root.name = "moonbase-environment";
@@ -526,7 +536,7 @@ export function createLunarEnvironment(THREE, scene) {
       collider.center[1] = (door.origin?.[1] || 0) + door.group.position.z - localX * sin + localZ * cos;
       collider.halfExtents[0] = 0.4 * Math.abs(cos) + 0.12 * Math.abs(sin);
       collider.halfExtents[1] = 0.4 * Math.abs(sin) + 0.12 * Math.abs(cos);
-      collider.enabled = door.open < 0.97;
+      collider.enabled = door.open < GATE_OPEN_THRESHOLD;
     });
   }
 
@@ -1741,22 +1751,18 @@ export function createLunarEnvironment(THREE, scene) {
   }
 
   function setEntryDoorOpen(open = true) {
-    if (!signal.entryDoor) return;
-    signal.entryDoor.target = open ? 1 : 0;
+    const door = getGateDoorForId(signal, "moonbase-entry");
+    if (door) door.target = open ? 1 : 0;
   }
 
   function setGateDoorOpen(id, open = true) {
-    const door = id === "moonbase-four-entry"
-      ? signal.dayFourGateDoor
-      : id === "moonbase-three-entry" ? signal.dayThreeGateDoor : signal.dayGateDoor;
+    const door = getGateDoorForId(signal, id);
     if (door) door.target = open ? 1 : 0;
   }
 
   function isGateDoorOpen(id) {
-    const door = id === "moonbase-four-entry"
-      ? signal.dayFourGateDoor
-      : id === "moonbase-three-entry" ? signal.dayThreeGateDoor : signal.dayGateDoor;
-    return Boolean(door && door.open >= 0.97);
+    const door = getGateDoorForId(signal, id);
+    return Boolean(door && door.open >= GATE_OPEN_THRESHOLD);
   }
 
   function setSignal({ storm = false, success = false } = {}) {
