@@ -25,13 +25,18 @@ export function createPlayerController(THREE, {
   const playerGroundOffset = 0.05;
   const playerRadius = 0.34;
   const playerHeight = 1.95;
+  // This scene uses one world unit as one metre for the player/terrain
+  // collision layer. Lunar gravity is therefore applied directly in m/s².
   const lunarGravity = 1.62;
-  const lunarWalkSpeed = 1.55;
-  const lopingSpeed = 3.15;
-  const jumpVelocity = 2.85;
-  const maxVerticalSpeed = 4.4;
-  const thrusterAcceleration = 3.6;
-  const maxFlightHeight = 6.2;
+  const lunarWalkSpeed = 1.35;
+  const lopingSpeed = 2.2;
+  const jumpVelocity = 1.85;
+  const lopingJumpVelocity = 2.05;
+  const maxVerticalSpeed = 3.2;
+  const groundAcceleration = 4.8;
+  const groundDeceleration = 5.8;
+  const airAcceleration = 1.55;
+  const airDeceleration = 1.35;
   const groundEpsilon = 0.035;
   const maxTerrainStep = 0.46;
   const landingDuration = 0.24;
@@ -41,7 +46,6 @@ export function createPlayerController(THREE, {
     LOPING: "LOPING",
     JUMPING: "JUMPING",
     AIRBORNE: "AIRBORNE",
-    THRUSTER_ASSISTED: "THRUSTER_ASSISTED",
     LANDING: "LANDING"
   });
   const movementActions = {
@@ -49,7 +53,6 @@ export function createPlayerController(THREE, {
     [MOVEMENT_STATES.LOPING]: "loping",
     [MOVEMENT_STATES.JUMPING]: "jumping",
     [MOVEMENT_STATES.AIRBORNE]: "airborne",
-    [MOVEMENT_STATES.THRUSTER_ASSISTED]: "thruster",
     [MOVEMENT_STATES.LANDING]: "landing"
   };
   // The moon surface remains a large explorable play area while the player
@@ -66,8 +69,7 @@ export function createPlayerController(THREE, {
   let movementState = MOVEMENT_STATES.LUNAR_WALK;
   let landingElapsed = 0;
   let jumpElapsed = 0;
-  let spaceJumpConsumed = false;
-  let thrusterActive = false;
+  let landingSpeed = 0;
   let gateOpeningTarget = null;
   let gateOpeningElapsed = 0;
 
@@ -79,11 +81,6 @@ export function createPlayerController(THREE, {
 
   function clearInput() {
     keys.clear();
-    spaceJumpConsumed = false;
-    if (thrusterActive) {
-      thrusterActive = false;
-      astronaut.setThrusterActive?.(false);
-    }
   }
 
   function isEditableElement(element) {
@@ -115,21 +112,16 @@ export function createPlayerController(THREE, {
     astronaut.setAction?.(movementActions[movementState]);
   }
 
-  function setThrusterActive(nextActive) {
-    const next = Boolean(nextActive);
-    if (thrusterActive === next) return;
-    thrusterActive = next;
-    astronaut.setThrusterActive?.(next);
-  }
-
   function beginJump() {
     if (!active || paused || !grounded || movementState === MOVEMENT_STATES.LANDING) return false;
     grounded = false;
-    verticalVelocity = jumpVelocity;
+    const lopingLaunch = keys.has("shift")
+      && (keys.has("w") || keys.has("a") || keys.has("s") || keys.has("d")
+        || keys.has("arrowup") || keys.has("arrowdown") || keys.has("arrowleft") || keys.has("arrowright"));
+    verticalVelocity = lopingLaunch ? lopingJumpVelocity : jumpVelocity;
     jumpElapsed = 0;
     landingElapsed = 0;
-    spaceJumpConsumed = true;
-    setThrusterActive(false);
+    landingSpeed = 0;
     setMovementState(MOVEMENT_STATES.JUMPING);
     return true;
   }
@@ -145,7 +137,7 @@ export function createPlayerController(THREE, {
         keys.add("space");
         if (active && !paused) {
           event.preventDefault();
-          if (!beginJump() && !grounded) spaceJumpConsumed = false;
+          beginJump();
         }
       }
       return;
@@ -173,7 +165,6 @@ export function createPlayerController(THREE, {
     const key = normalizeKey(event);
     if (isSpaceKey(key)) {
       keys.delete("space");
-      spaceJumpConsumed = false;
       return;
     }
     keys.delete(key);
@@ -406,27 +397,34 @@ export function createPlayerController(THREE, {
       direction.addScaledVector(forward, -inputZ).addScaledVector(right, inputX).normalize();
     }
 
+    const wasGrounded = grounded;
     const hasHorizontalIntent = direction.lengthSq() > 0;
     const loping = grounded && hasHorizontalIntent && keys.has("shift") && movementState !== MOVEMENT_STATES.LANDING;
     const speed = loping ? lopingSpeed : lunarWalkSpeed;
     desiredVelocity.copy(direction).multiplyScalar(speed);
-    const acceleration = hasHorizontalIntent ? (loping ? 7.2 : 6.2) : 5.4;
-    velocity.lerp(desiredVelocity, 1 - Math.exp(-acceleration * delta));
+    if (grounded) {
+      const acceleration = hasHorizontalIntent
+        ? (loping ? groundAcceleration * 1.08 : groundAcceleration)
+        : groundDeceleration;
+      velocity.lerp(desiredVelocity, 1 - Math.exp(-acceleration * delta));
+    } else {
+      // The suit's mass and limited boot traction make airborne steering much
+      // softer than surface walking. Releasing WASD bleeds momentum rather
+      // than stopping the astronaut in place.
+      if (hasHorizontalIntent) {
+        velocity.lerp(desiredVelocity, 1 - Math.exp(-airAcceleration * delta));
+      } else {
+        velocity.multiplyScalar(Math.exp(-airDeceleration * delta));
+      }
+    }
 
-    const wasGrounded = grounded;
-    const spaceHeldForThrust = keys.has("space") && !spaceJumpConsumed;
-    const nextThrusterActive = !grounded && spaceHeldForThrust;
-    setThrusterActive(nextThrusterActive);
     if (!grounded) {
       jumpElapsed += delta;
+      // No atmosphere and no thruster assistance: this is purely ballistic
+      // motion under the Moon's 1.62 m/s² surface gravity.
       verticalVelocity -= lunarGravity * delta;
-      if (nextThrusterActive) verticalVelocity += thrusterAcceleration * delta;
       verticalVelocity = Math.max(-maxVerticalSpeed, Math.min(maxVerticalSpeed, verticalVelocity));
-      if (nextThrusterActive) {
-        setMovementState(MOVEMENT_STATES.THRUSTER_ASSISTED);
-      } else if (movementState === MOVEMENT_STATES.JUMPING && jumpElapsed >= 0.22) {
-        setMovementState(MOVEMENT_STATES.AIRBORNE);
-      } else if (movementState === MOVEMENT_STATES.THRUSTER_ASSISTED) {
+      if (movementState === MOVEMENT_STATES.JUMPING && jumpElapsed >= 0.28) {
         setMovementState(MOVEMENT_STATES.AIRBORNE);
       }
     } else {
@@ -454,17 +452,15 @@ export function createPlayerController(THREE, {
         velocity.z = 0;
         surfaceY = previousSurfaceY;
       }
-      if (nextPosition.y > surfaceY + maxFlightHeight) {
-        nextPosition.y = surfaceY + maxFlightHeight;
-        if (verticalVelocity > 0) verticalVelocity = 0;
-      }
       if (nextPosition.y <= surfaceY + groundEpsilon && (!wasGrounded || verticalVelocity <= 0)) {
         nextPosition.y = surfaceY;
         if (!wasGrounded && verticalVelocity <= 0) {
+          landingSpeed = Math.abs(verticalVelocity);
           grounded = true;
           verticalVelocity = 0;
           landingElapsed = 0;
-          setThrusterActive(false);
+          astronaut.root.userData.landingSpeed = landingSpeed;
+          astronaut.setLandingImpact?.(Math.min(1, landingSpeed / maxVerticalSpeed));
           setMovementState(MOVEMENT_STATES.LANDING);
         }
       }
@@ -562,7 +558,8 @@ export function createPlayerController(THREE, {
           heading: cameraController.getMovementBasis?.().yaw ?? astronaut.root.rotation.y
         },
         movementState,
-        thrusterActive,
+        airborne: !grounded,
+        landingSpeed,
         objective: objectiveCoordinates
       });
     }
@@ -585,7 +582,7 @@ export function createPlayerController(THREE, {
       grounded,
       verticalVelocity,
       movementState,
-      thrusterActive,
+      landingSpeed,
       gateOpening: Boolean(gateOpeningTarget)
     }),
     getFocusedTarget: () => focusedTarget,

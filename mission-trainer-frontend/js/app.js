@@ -28,8 +28,8 @@
     sceneAvailable: document.documentElement?.dataset?.sceneStatus !== "fallback",
     sceneError: "",
     sceneAssetStatus: "loading",
-    // The Moon is the default playable environment. Mars remains available
-    // through an explicit world query/selection.
+    // The Moon is the default and only playable mission environment. Mars is
+    // kept available as a visual preview until its mission is implemented.
     world: window.MOONBASE_SCENE_WORLD === "mars" ? "mars" : "moon",
     gateProgress: {},
     feedbackDismissed: true,
@@ -144,7 +144,7 @@
     append(controls, controlsHeader,
       controlRow("W A S D", "Move"),
       controlRow("SHIFT", "Loping"),
-      controlRow("SPACE", "Jump / thruster"),
+      controlRow("SPACE", "Jump"),
       controlRow("E", "Interact"),
       controlRow("MOUSE", "Look around"),
       controlRow("SCROLL", "Camera distance"),
@@ -213,7 +213,7 @@
     },
     onInteract(target) {
       if (ui.screen === "welcome" && target?.id === "moonbase-entry" && !ui.loading) {
-        startMission();
+        root.querySelector?.(".welcome-start-button")?.click?.();
         return;
       }
       if (ui.screen !== "game" || ui.loading || !target) return;
@@ -236,7 +236,7 @@
       ui.error = "";
       render();
       root.focus({ preventScroll: true });
-      announce(`You reached ${target.name}. Read Captain Nova's mission briefing.`);
+      announce(`You reached ${target.name}. Read Commander Vega's mission briefing.`);
     }
   };
 
@@ -256,7 +256,7 @@
     if (event.code !== "Space" || ui.screen !== "welcome") return;
     event.preventDefault();
     root.querySelector?.(".welcome-start-button")?.focus?.({ preventScroll: true });
-    startMission();
+    root.querySelector?.(".welcome-start-button")?.click?.();
   }
 
   window.addEventListener?.("keydown", handleWelcomeKeydown, { passive: false });
@@ -352,6 +352,12 @@
 
   async function startMission() {
     if (ui.loading) return;
+    if (ui.world !== "moon") {
+      ui.error = "Mars is preview only. Select the Moon to start the Day 1 mission.";
+      announce(ui.error);
+      render();
+      return;
+    }
     ui.mission = null;
     ui.decisionHistory = [];
     ui.selectedChoiceId = null;
@@ -469,10 +475,10 @@
     const isMars = ui.world === "mars";
     const worldName = isMars ? "MARS" : "MOON";
     const protocolLabel = isMars ? "MARTIAN EXPEDITION PROTOCOL // SECTOR MARS-04" : "LUNAR EXPEDITION PROTOCOL // SECTOR MOON-04";
-    const briefingLabel = isMars ? "MARS SURFACE EXPEDITION BRIEFING" : "NASA ARTEMIS EXPEDITION BRIEFING";
+    const briefingLabel = isMars ? "MARS SURFACE // PREVIEW ONLY" : "NASA ARTEMIS EXPEDITION BRIEFING";
     const targetLabel = isMars ? "MARS RESEARCH REGION" : "LUNAR SOUTH POLE";
     const assuranceLabel = isMars
-      ? "Explore the Martian base, make four mission decisions, and learn how a crew keeps a habitat running."
+      ? "Mars is a visual preview only. Select the Moon to launch the playable Day 1 mission."
       : "Explore the lunar base, make four mission decisions, and learn how a crew keeps a habitat running.";
     const section = make("section", "moonbase-welcome");
     section.setAttribute("aria-labelledby", "welcome-title");
@@ -500,8 +506,18 @@
     append(subtitle, make("span", "welcome-rule welcome-rule-left"), make("span", "welcome-mono", "4 DAYS TO SURVIVE"), make("span", "welcome-rule welcome-rule-right"));
     const lede = make("p", "welcome-lede", "A NASA-Powered Interactive 3D Planetary Survival Expedition for Ages 7–12.");
     const startWrap = make("div", "welcome-start-wrap");
-    const startButton = button(ui.loading ? "Connecting to Mission Control…" : "Start mission", "welcome-start-button", startMission, ui.loading);
-    startButton.setAttribute("aria-label", ui.loading ? "Connecting to Mission Control" : "Start mission");
+    const selectMoonMission = () => {
+      ui.world = "moon";
+      const url = new URL(window.location.href);
+      url.searchParams.set("world", "moon");
+      window.history.replaceState({}, "", url);
+      window.MoonBaseScene?.setWorld?.("moon");
+      render();
+    };
+    const startAction = isMars ? selectMoonMission : startMission;
+    const startLabel = isMars ? "Choose Moon mission" : "Start mission";
+    const startButton = button(ui.loading ? "Connecting to Mission Control…" : startLabel, "welcome-start-button", startAction, ui.loading);
+    startButton.setAttribute("aria-label", ui.loading ? "Connecting to Mission Control" : startLabel);
     if (ui.loading) {
       startButton.replaceChildren(make("span", "loading-label", "Connecting to Mission Control…"));
       startButton.querySelector(".loading-label").prepend(make("span", "spinner"));
@@ -510,7 +526,7 @@
       startButton.append(make("span", "welcome-launch-arrow", "→"));
     }
     const hotkey = make("span", "welcome-hotkey");
-    append(hotkey, make("span", "", "PRESS "), make("kbd", "welcome-hotkey-key", "SPACEBAR"), make("span", "", " OR CLICK TO INITIATE SEQUENCE"));
+    append(hotkey, make("span", "", "PRESS "), make("kbd", "welcome-hotkey-key", "SPACEBAR"), make("span", "", isMars ? " TO SELECT THE MOON" : " OR CLICK TO INITIATE SEQUENCE"));
     append(startWrap, startButton, hotkey);
     const assurance = make("p", "welcome-assurance", assuranceLabel);
     if (ui.error) {
@@ -851,7 +867,10 @@
     destinationGrid.setAttribute("aria-label", "Available destinations");
 
     const selectWorld = (world) => {
-      ui.world = world === "moon" ? "moon" : "mars";
+      // The current backend contract starts the Moon Day 1 mission only. Do
+      // not let a Mars environment receive the Moon's POWER DROP event.
+      if (world !== "moon") return;
+      ui.world = "moon";
       const url = new URL(window.location.href);
       url.searchParams.set("world", ui.world);
       window.history.replaceState({}, "", url);
@@ -877,8 +896,10 @@
         make("p", "", "Explore the lunar surface and discover the challenges of working on our nearest celestial neighbor."),
         append(make("span", "destination-card-action destination-card-action-moon"), make("span", "", "Explore the Moon"), make("span", "", "↗"))));
 
-    const marsCard = button("", "destination-card destination-card-mars", () => selectWorld("mars"));
-    marsCard.setAttribute("aria-label", "Select destination: Mars");
+    const marsCard = button("", "destination-card destination-card-mars", () => {}, true);
+    marsCard.setAttribute("aria-label", "Mars preview only. The Mars mission is not available yet.");
+    marsCard.setAttribute("aria-disabled", "true");
+    marsCard.title = "Mars preview only — mission not implemented yet";
     append(marsCard,
       append(make("div", "destination-card-image"), (() => {
         const image = make("img", "", "");
@@ -890,17 +911,17 @@
         append(make("span", "destination-card-tag"), make("span", "destination-card-dot destination-card-dot-mars"), make("span", "", "DESTINATION 02 // THE RED PLANET")),
         make("span", "destination-card-symbol destination-card-symbol-mars", "✦")),
       append(make("div", "destination-card-content"),
-        append(make("div", "destination-card-heading"), make("span", "destination-card-kicker destination-card-kicker-mars", "PLANETARY BODY"), make("h2", "", "MARS")),
+        append(make("div", "destination-card-heading"), make("span", "destination-card-kicker destination-card-kicker-mars", "PREVIEW ONLY"), make("h2", "", "MARS")),
         append(make("div", "destination-card-pills"), make("span", "", "DUSTY TERRAIN"), make("span", "", "ANCIENT RIVERBEDS"), make("span", "", "THIN ATMOSPHERE")),
-        make("p", "", "Explore the Red Planet and discover the challenges of exploring a world far beyond Earth."),
-        append(make("span", "destination-card-action destination-card-action-mars"), make("span", "", "EXPLORE MARS"), make("span", "", "↗"))));
+        make("p", "", "The Mars environment is available as a visual preview. Its mission will be added in a later update."),
+        append(make("span", "destination-card-action destination-card-action-mars"), make("span", "", "PREVIEW ONLY"), make("span", "", "◌"))));
 
     append(destinationGrid, moonCard, marsCard);
 
     const footer = make("footer", "world-selection-footer");
     const footerBack = button("Back to challenge briefing", "world-selection-footer-back", returnToBriefing);
     const footerHint = make("div", "world-selection-footer-hint");
-    append(footerHint, make("span", "world-selection-footer-dot"), make("span", "", "SELECT A DESTINATION TO LAUNCH MISSION BRIEFING"));
+    append(footerHint, make("span", "world-selection-footer-dot"), make("span", "", "SELECT THE MOON TO LAUNCH DAY 1 // MARS PREVIEW ONLY"));
     append(footer, footerBack, footerHint);
 
     append(main, intro, destinationGrid, footer);
@@ -1060,7 +1081,7 @@
     const shell = make("section", "story-shell feedback-story");
     const ended = ui.mission.status !== "ACTIVE";
     const dialogue = renderStoryDialogue({
-      speaker: ended ? "MISSION CONTROL" : "CAPTAIN NOVA",
+      speaker: ended ? "MISSION CONTROL" : "COMMANDER VEGA",
       title: feedback.choiceTitle,
       text: feedback.explanation,
       note: `${feedback.whyItMatters} ${feedback.futureEffect}`,

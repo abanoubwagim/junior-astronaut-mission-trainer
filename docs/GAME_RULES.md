@@ -55,4 +55,4 @@ NASA-backed science values are represented as `DATA_UNAVAILABLE` until the verif
 
 ## World separation
 
-Moon and Mars remain separate scene environments and remain selectable. This rules document does not add or claim a Mars mission; selecting Mars only exercises the existing world-selection and environment-loading architecture.
+Moon and Mars remain separate scene environments. Moon is the only playable destination for this slice. Mars remains visible as `PREVIEW ONLY` and cannot launch the Moon event or send a world selection to the Day 1 backend contract.

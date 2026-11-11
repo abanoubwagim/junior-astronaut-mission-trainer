@@ -1,4 +1,4 @@
-import { createAstronautCharacter } from "./astronaut-character.js?v=20261110-v51";
+import { createAstronautCharacter } from "./astronaut-character.js?v=20261111-v60";
 
 export function createStoryDirector(THREE, parent, environment, cameraController) {
   const astronaut = createAstronautCharacter(THREE, parent, {

@@ -5,7 +5,7 @@
   const sceneRoot = document.querySelector("#lunar-scene");
   const scriptUrl = document.currentScript?.src || new URL("../js/scene/scene-manager.js", window.location.href).href;
   const THREE_URL = "https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js";
-  const SCENE_VERSION = "20261110-v59";
+  const SCENE_VERSION = "20261111-v60";
 
   if (!canvas || !sceneRoot) return;
 
@@ -108,8 +108,8 @@
       scene = new THREE.Scene();
       const world = window.MOONBASE_SCENE_WORLD === "moon" ? "moon" : "mars";
       document.documentElement.dataset.sceneWorld = world;
-      // Each environment owns its atmospheric profile. Moon is the default;
-      // Mars is available through explicit world selection.
+      // Each environment owns its atmospheric profile. Moon is the default and
+      // only playable Day 1 environment; Mars remains a visual preview.
       if (world === "moon") {
         scene.background = new THREE.Color(0x010204);
         scene.fog = null;

@@ -10,7 +10,7 @@ MoonBase currently implements one authoritative playable mission slice:
 - Event: `POWER DROP`
 - Objective: reach and inspect the solar-array station
 
-Days 2–4 are intentionally not exposed by this implementation. The Mars scene and world-selection architecture remain available, but this mission contract does not claim to implement a Mars mission.
+Days 2–4 are intentionally not exposed by this implementation. The Mars scene remains visible as `PREVIEW ONLY`; it cannot launch a mission or receive the Moon `POWER DROP` event. This mission contract does not claim to implement a Mars mission.
 
 ## Architecture
 
