@@ -69,6 +69,25 @@ body[data-app-screen="welcome"] .page-footer { display: none; }
 html[data-scene-status="fallback"] .scene-fallback-art { display: block; }
 html[data-scene-status="fallback"] #lunar-canvas { display: none; }
 html[data-scene-status="fallback"] .scene-vignette { background: linear-gradient(90deg, rgb(3 7 20 / 86%), rgb(3 7 20 / 32%)); }
+
+body[data-app-screen="welcome"] .lunar-scene,
+body[data-app-screen="briefing"] .lunar-scene {
+  background-color: #080e1a;
+  background-image: url("../assets/backgrounds/moonbase-welcome-key-art.png?v=20261111-bg1");
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+body[data-app-screen="welcome"] #lunar-canvas,
+body[data-app-screen="welcome"] .scene-fallback-art,
+body[data-app-screen="briefing"] #lunar-canvas,
+body[data-app-screen="briefing"] .scene-fallback-art { display: none; }
+body[data-app-screen="welcome"] .scene-vignette {
+  background: linear-gradient(90deg, rgb(3 7 20 / 36%), rgb(3 7 20 / 10%) 46%, rgb(3 7 20 / 44%)), linear-gradient(0deg, rgb(3 7 20 / 56%), transparent 42%, rgb(3 7 20 / 18%));
+}
+body[data-app-screen="briefing"] .scene-vignette {
+  background: linear-gradient(180deg, rgb(8 14 26 / 62%), rgb(8 14 26 / 26%) 38%, rgb(8 14 26 / 68%) 100%), radial-gradient(circle at 50% 40%, transparent 28%, rgb(8 14 26 / 52%) 100%);
+}
 .skip-link { position: fixed; z-index: 40; top: 10px; left: 14px; padding: 10px 14px; border-radius: 10px; color: #061125; background: var(--amber); transform: translateY(-150%); transition: transform var(--ease); }
 .skip-link:focus { transform: translateY(0); }
 
