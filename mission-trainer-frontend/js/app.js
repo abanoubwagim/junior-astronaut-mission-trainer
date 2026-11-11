@@ -1305,11 +1305,10 @@
     const intro = make("header", "world-selection-intro");
     const destinationTag = make("div", "world-selection-tag");
     append(destinationTag, make("span", "world-selection-ping"), make("span", "world-selection-tag-icon", "◉"), make("span", "", "DESTINATION SELECT"));
-    const title = make("h1", "", "CHOOSE YOUR WORLD");
+    const title = make("h1", "", "CHOOSE YOUR DESTINATION");
     title.id = "world-selection-title";
     append(intro, destinationTag, title,
-      make("p", "", "One destination. One lunar mission. Prepare to explore."),
-      append(make("div", "world-selection-crosshair"), make("span", "", "╱"), make("span", "world-selection-crosshair-icon", "⌖"), make("span", "", "╲")));
+      make("p", "", "Select the Lunar South Pole expedition and prepare to explore the Moon."));
 
     const destinationGrid = make("section", "destination-grid");
     destinationGrid.setAttribute("aria-label", "Available destinations");
@@ -1319,7 +1318,7 @@
     append(moonCard,
       append(make("div", "destination-card-image"), (() => {
         const image = make("img", "", "");
-        image.src = "../assets/backgrounds/moon-world-selection.png";
+        image.src = "../assets/backgrounds/moon-world-selection.png?v=20261111-world1";
         image.alt = "The Moon surface landscape with Earth in the background";
         return image;
       })(), make("span", "destination-card-tint")),

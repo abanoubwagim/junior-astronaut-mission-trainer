@@ -71,22 +71,29 @@ html[data-scene-status="fallback"] #lunar-canvas { display: none; }
 html[data-scene-status="fallback"] .scene-vignette { background: linear-gradient(90deg, rgb(3 7 20 / 86%), rgb(3 7 20 / 32%)); }
 
 body[data-app-screen="welcome"] .lunar-scene,
-body[data-app-screen="briefing"] .lunar-scene {
+body[data-app-screen="briefing"] .lunar-scene,
+body[data-app-screen="worldSelection"] .lunar-scene {
   background-color: #080e1a;
   background-image: url("../assets/backgrounds/moonbase-welcome-key-art.png?v=20261111-bg1");
-  background-position: center;
+  background-position: center center;
   background-repeat: no-repeat;
   background-size: cover;
 }
 body[data-app-screen="welcome"] #lunar-canvas,
 body[data-app-screen="welcome"] .scene-fallback-art,
 body[data-app-screen="briefing"] #lunar-canvas,
-body[data-app-screen="briefing"] .scene-fallback-art { display: none; }
+body[data-app-screen="briefing"] .scene-fallback-art,
+body[data-app-screen="worldSelection"] #lunar-canvas,
+body[data-app-screen="worldSelection"] .scene-fallback-art { display: none; }
 body[data-app-screen="welcome"] .scene-vignette {
   background: linear-gradient(90deg, rgb(3 7 20 / 36%), rgb(3 7 20 / 10%) 46%, rgb(3 7 20 / 44%)), linear-gradient(0deg, rgb(3 7 20 / 56%), transparent 42%, rgb(3 7 20 / 18%));
 }
 body[data-app-screen="briefing"] .scene-vignette {
   background: linear-gradient(180deg, rgb(8 14 26 / 62%), rgb(8 14 26 / 26%) 38%, rgb(8 14 26 / 68%) 100%), radial-gradient(circle at 50% 40%, transparent 28%, rgb(8 14 26 / 52%) 100%);
+}
+body[data-app-screen="worldSelection"] .scene-vignette {
+  background: linear-gradient(180deg, rgb(8 14 26 / 48%), rgb(8 14 26 / 18%) 42%, rgb(8 14 26 / 64%) 100%), radial-gradient(circle at 50% 42%, transparent 28%, rgb(8 14 26 / 44%) 100%);
+  pointer-events: none;
 }
 .skip-link { position: fixed; z-index: 40; top: 10px; left: 14px; padding: 10px 14px; border-radius: 10px; color: #061125; background: var(--amber); transform: translateY(-150%); transition: transform var(--ease); }
 .skip-link:focus { transform: translateY(0); }
@@ -199,15 +206,16 @@ body[data-app-screen="briefing"] .scene-vignette {
 .briefing-action-hint strong { color: var(--green); font-family: var(--mono); font-size: 9px; letter-spacing: .09em; }
 .briefing-action-hint span { color: var(--subtle); font-family: var(--mono); font-size: 8px; letter-spacing: .08em; }
 .briefing-continue-button { min-width: 185px; }
-.world-selection-intro { position: relative; padding: 18px 0 28px; }
+.world-selection-main { display: grid; gap: 0; }
+.world-selection-intro { position: relative; padding: 18px 0 28px; text-align: center; }
 .world-selection-tag { display: inline-flex; align-items: center; gap: 8px; color: var(--cyan); font-family: var(--mono); font-size: 10px; letter-spacing: .13em; text-transform: uppercase; }
 .world-selection-ping { width: 7px; height: 7px; border-radius: 50%; background: var(--green); box-shadow: 0 0 12px var(--green); }
 .world-selection-tag-icon { color: var(--sky); }
-.world-selection-intro h1 { max-width: 680px; margin: 15px 0 8px; font-family: var(--display); font-size: clamp(2.8rem, 7vw, 6rem); letter-spacing: -.065em; line-height: .9; }
-.world-selection-intro p { margin: 0; color: var(--muted); font-size: 16px; }
+.world-selection-intro h1 { max-width: 780px; margin: 15px auto 8px; font-family: var(--display); font-size: clamp(2.8rem, 7vw, 6rem); letter-spacing: -.065em; line-height: .9; }
+.world-selection-intro p { max-width: 560px; margin: 0 auto; color: var(--muted); font-size: 16px; line-height: 1.55; }
 .world-selection-crosshair { position: absolute; right: 10%; bottom: 20px; display: flex; align-items: center; gap: 12px; color: var(--subtle); font-family: var(--mono); font-size: 22px; }
 .world-selection-crosshair-icon { color: var(--cyan); font-size: 33px; }
-.destination-grid { display: grid; grid-template-columns: minmax(0, 1fr); max-width: 700px; }
+.destination-grid { display: grid; grid-template-columns: minmax(0, 1fr); width: min(100%, 820px); margin: 0 auto; }
 .destination-card { position: relative; min-height: 420px; overflow: hidden; padding: 0; border: 1px solid var(--line); border-radius: var(--radius-lg); color: var(--ink); background: var(--panel-strong); box-shadow: var(--shadow-float); cursor: pointer; text-align: left; transition: transform var(--ease), border-color var(--ease), box-shadow var(--ease); }
 .destination-card:hover { transform: translateY(-4px); border-color: var(--line-strong); box-shadow: 0 30px 76px rgb(0 5 22 / 50%); }
 .destination-card-image, .destination-card-tint { position: absolute; inset: 0; }
@@ -226,7 +234,7 @@ body[data-app-screen="briefing"] .scene-vignette {
 .destination-card-pills span { padding: 5px 7px; border: 1px solid rgb(165 204 241 / 28%); border-radius: 999px; color: var(--muted); background: rgb(4 13 29 / 44%); font-family: var(--mono); font-size: 8px; letter-spacing: .06em; }
 .destination-card-content p { max-width: 520px; margin: 15px 0 0; color: #d8e4f7; font-size: 14px; line-height: 1.6; }
 .destination-card-action { display: flex; align-items: center; justify-content: space-between; width: min(100%, 270px); margin-top: 20px; padding: 12px 14px; border: 1px solid rgb(101 228 242 / 42%); border-radius: 10px; color: #06152a; background: linear-gradient(135deg, var(--cyan), var(--sky)); font-family: var(--mono); font-size: 10px; font-weight: 700; letter-spacing: .07em; text-transform: uppercase; }
-.world-selection-footer { display: flex; align-items: center; justify-content: space-between; gap: 16px; max-width: 700px; margin-top: 20px; }
+.world-selection-footer { display: flex; align-items: center; justify-content: space-between; gap: 16px; width: min(100%, 820px); margin: 20px auto 0; }
 .world-selection-footer-back { color: var(--muted); background: transparent; box-shadow: none; }
 .world-selection-footer-hint { display: inline-flex; align-items: center; gap: 8px; color: var(--subtle); font-family: var(--mono); font-size: 9px; letter-spacing: .08em; }
 .world-selection-footer-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--green); }
