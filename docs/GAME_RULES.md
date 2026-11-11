@@ -158,7 +158,7 @@ The three strategic choices are:
 
 | Choice ID | Persistent/result state | Rule |
 |---|---|---|
-| `REPOSITION_WATER_SUPPLIES` | `WATER_SUPPLIES_POSITIONED_FOR_SHIELDING` or `WATER_SUPPLIES_UNAVAILABLE` | Uses only approved water represented by the current Day 2 state. Isolated recovered water pending verification is never used. Reduced potable reserve and active conservation are reported as constraints, while crew water needs remain the priority. |
+| `REPOSITION_WATER_SUPPLIES` | `WATER_SUPPLIES_POSITIONED_FOR_SHIELDING` or `WATER_SUPPLIES_UNAVAILABLE` | Uses only the already-approved potable supply. If recovered water is pending verification, that recovered batch remains isolated and is never repositioned; this does not make the separate potable reserve unavailable. A reduced potable reserve or active conservation is a qualitative constraint, not proof that the reserve is empty. Crew water needs remain the priority. |
 | `REPOSITION_FOOD_SUPPLIES` | `FOOD_SUPPLIES_POSITIONED_FOR_SHIELDING` or `FOOD_SUPPLIES_LIMITED` | Uses available packaged food without treating immature crops as food. The Day 3 crop states remain `NOT_HARVEST_READY`. |
 | `MAINTAIN_EXISTING_SHIELDING` | `PRIMARY_SHIELDING_MAINTAINED` | Keeps the fixed primary shielding and preserves water and food access. This is a valid strategic choice, not mission failure. |
 

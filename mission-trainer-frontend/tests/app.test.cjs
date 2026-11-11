@@ -465,3 +465,27 @@ test("a page reload starts on the welcome screen and the app uses no browser per
   assert.equal(reloaded.root.querySelector('[data-choice-id="clean_solar_array"]'), null);
   assert.doesNotMatch(appSource, /localStorage|sessionStorage|indexedDB|document\.cookie|URLSearchParams|location\.search|innerHTML/i);
 });
+
+test("Day 4 choice submission is gated by the completed emergency procedure", () => {
+  assert.match(appSource,
+    /if \(Number\(event\.day\) === 4 && !ui\.emergencyProcedureComplete\)\s*\{/,
+    "the submit handler must reject a Day 4 decision before the shelter procedure");
+  assert.match(appSource,
+    /const emergencyProcedurePending = Number\(event\?\.day\) === 4 && !ui\.emergencyProcedureComplete;/,
+    "the UI must derive the pending emergency procedure from the Day 4 event state");
+  assert.match(appSource,
+    /ui\.loading \|\| emergencyProcedurePending/,
+    "Day 4 choices must remain disabled until the procedure is complete");
+  assert.match(appSource,
+    /!ui\.selectedChoiceId \|\| emergencyProcedurePending/,
+    "the confirm action must remain disabled until the procedure is complete");
+});
+
+test("Day 4 emergency procedure is completed only by inspecting the Storm Shelter", () => {
+  assert.match(appSource,
+    /expectedTargetId[\s\S]*day === 4 \? "storm-shelter"/,
+    "the required Day 4 inspection target must be the Storm Shelter");
+  assert.match(appSource,
+    /ui\.emergencyProcedureComplete = day === 4;/,
+    "the emergency procedure flag must be set by the scene inspection handler");
+});
