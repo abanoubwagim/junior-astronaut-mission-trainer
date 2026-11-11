@@ -1,5 +1,11 @@
 # MoonBase — Judges' Technical and Science Briefing
 
+> Historical prototype notice (November 11, 2026): this briefing describes a
+> superseded numeric resource model and older Day 4 shelter rules. It is not
+> the current implementation contract. Use `GAME_RULES.md`,
+> `SCIENCE_REFERENCES.md`, and `API_AND_ARCHITECTURE.md` for the current
+> qualitative Day 1–Day 4 mission.
+
 - **Project:** MoonBase: 4 Days to Survive
 - **Audience:** Young explorers, approximately ages 7–12
 - **Challenge context:** NASA Space Apps Challenge 2026, Junior Astronaut Mission Trainer

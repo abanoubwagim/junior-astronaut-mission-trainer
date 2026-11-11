@@ -54,8 +54,12 @@ export function createStoryDirector(THREE, parent, environment, cameraController
       : location;
 
     // The player starts in the base approach and walks to the solar array for
-    // the Day 1 interaction. The welcome composition remains farther back.
-    if (active && !wasGame && previousScreen !== "feedback") {
+    // the Day 1 interaction. Once a mission chapter is complete, keep the
+    // astronaut at the position where the player left them when the next
+    // chapter is opened; resetting here sent Day 2/3 players back to Gate 1.
+    const preserveMissionPosition = ["feedback", "day1Complete", "day2Complete", "day3Complete"]
+      .includes(previousScreen);
+    if (active && !wasGame && !preserveMissionPosition) {
       astronaut.root.position.set(-0.8, -1.03, 0.55);
       astronaut.root.rotation.y = 0;
     }
@@ -95,6 +99,11 @@ export function createStoryDirector(THREE, parent, environment, cameraController
       astronaut.setAction("celebrate");
       operator.setAction("talk");
       cameraController.setStoryTarget("base");
+      cameraController.setPresentationActive?.(false);
+    } else if (state.screen === "day4Complete") {
+      astronaut.setAction("react");
+      operator.setAction("talk");
+      cameraController.setStoryTarget("storm");
       cameraController.setPresentationActive?.(false);
     } else if (state.screen === "result") {
       const success = state.mission?.result?.status === "SUCCEEDED";

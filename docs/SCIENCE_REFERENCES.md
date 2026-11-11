@@ -1,21 +1,119 @@
 # NASA Science References
 
-All pages below were checked on **27 October 2026**. These are science inspirations for an independent educational game. NASA has not endorsed or validated the project. Game resource values and event outcomes are not NASA measurements.
+MoonBase is an independent educational project inspired by NASA science. NASA
+has not endorsed or validated the game. The fictional base, array condition,
+qualitative power states, choice effects, and persistent effects are game
+mechanics, not NASA measurements or operational procedures.
 
-## Verified claims used in the interface
+## Sources used by the Day 1 mission
 
-| Claim ID | Exact claim used in the game                                                                                                                                                                        | Source title / organization                                                                                                                                                             | URL and date                                                                                                                                                                                  | Supporting evidence                                                                                                                                                                                                                                                                   | Game application and simplification                                                                                                                                                                                               |
-|----------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| SCI-01   | “Lunar dust can cling to exposed surfaces and make solar-array power harder to maintain.”                                                                                                           | *Lunar Dust Considerations for Vertical Solar Arrays Volume 1: Lunar Environment and Dust Interactions* — NASA Technical Reports Server; NASA Glenn Research Center acquisition source. | [NASA NTRS record 20240003496](https://ntrs.nasa.gov/citations/20240003496). Published 1 October 2024; report NASA/TM-20240003496.                                                            | The report abstract explains that lunar dust's jagged surfaces, electrostatic charge, and interactions can adversely affect exposed surfaces, and identifies dust-related challenges to vertical solar-array operating efficiency (abstract, lines 16–18 of the NTRS record).         | Day 1 dust/array event. The game does not model real dust transport, array output, or a validated cleaning technique. The `+1 Power` delayed boost is a game value.                                                               |
-| SCI-02   | NASA is studying dust mitigation because dust can reduce solar-array power generation.                                                                                                              | *Dust Mitigation for Flexible Solar Arrays (DMFlex-ACO)* — NASA TechPort project; NASA Glenn Research Center and Maxar Technologies.                                                    | [NASA TechPort project 116295](https://techport.nasa.gov/projects/116295). Page update listed as 13 February 2026.                                                                            | The project description states that charged lunar dust readily sticks to surfaces and that dust covering array cells can reduce power generation by decreasing light reaching the cells.                                                                                              | Day 1 reinforces why array maintenance is a reasonable planning choice. The game treats one rover sweep as a simple choice and does not claim it recreates the DMFlex hardware or effectiveness.                                  |
-| SCI-03   | NASA's International Space Station water system filters and treats recovered water; it demonstrated a 98% water-recovery goal.                                                                      | *NASA Achieves Water Recovery Milestone on International Space Station* — NASA / International Space Station Research Communications Team.                                              | [NASA article](https://www.nasa.gov/missions/station/nasa-achieves-water-recovery-milestone-on-international-space-station/). Published 20 June 2023.                                         | The article describes the ECLSS Water Recovery System, Water Processor Assembly, Urine Processor Assembly, and Brine Processor Assembly. It says adding the Brine Processor Assembly helped the ISS system reach the 98% water-recovery goal; before that, total recovery was 93–94%. | Day 2 explains servicing the fictional recycler. The game does **not** apply 98% to its Water units and does not represent an actual lunar ECLSS design. `+1` returned Water and reduced later use are game values.               |
-| SCI-04   | NASA's Advanced Plant Habitat uses LED lights and controlled delivery of water and nutrients to study plant growth in space.                                                                        | *Advanced Plant Habitat* — NASA Science.                                                                                                                                                | [NASA Science mission page](https://science.nasa.gov/mission/advanced-plant-habitat/). Publication date not listed on the page checked; the facility's launch date is given as 18 April 2017. | The page's introductory description states that the APH uses LED lights and a porous clay substrate with controlled-release fertilizer to deliver water, nutrients, and oxygen to plant roots (introductory description).                                                             | Day 3 presents a powered grow tray that costs Power and Water before a delayed Food benefit. A real crop does not produce a harvest in one game turn; the game's +2/+4 Food values and Water threshold compress the dependency for playability.                         |
-| SCI-05   | NASA describes an Orion plan to use onboard stowage bags and supplies to make a denser shelter during a solar-particle event; the article separately discusses possible lunar shielding approaches. | *How NASA Will Protect Astronauts From Space Radiation at the Moon* — NASA Science Editorial Team, drawing on NASA Goddard and Johnson Center experts.                                  | [NASA Science article](https://science.nasa.gov/science-research/heliophysics/how-nasa-will-protect-astronauts-from-space-radiation-at-the-moon/). Published 7 August 2019.                   | The “Space lifeguards” section describes the planned Orion stowage-bag shelter. “Destination: Moon, then Mars” separately discusses the possibility of covering lunar shelters with regolith. These are plans and ideas, not a deployed lunar habitat system.                         | Days 1 and 4 borrow the planning theme for a fictional lunar base. The game's `Shelter readiness` is a 0–12 game meter, not radiation dose, shielding thickness, or medical risk. The thresholds and Power costs are game values. |
+| Reference | How it is used |
+|---|---|
+| [NASA — The Lunar South Pole Region](https://www.nasa.gov/reference/moonbase-environment/) | Context for the unusual lighting conditions near the lunar South Pole. |
+| [NASA Science — Shadows near the Moon's South Pole](https://science.nasa.gov/resource/shadows-near-the-moons-south-pole/) | Supports the explanation that rugged terrain can create long shadows and change illumination. |
+| [NASA — Moon Base Systems](https://www.nasa.gov/moonbase-systems/) | Background for discussing lunar-base power systems. |
+| [NASA — Lunar Surface Technology](https://www.nasa.gov/lunar-surface-technology/) | Background for lunar surface infrastructure and technology concepts. |
+| [NASA TechPort — Vertical Solar Array Technology](https://techport.nasa.gov/projects/116305) | Inspires the VSAT preparation choice. The game does not claim a VSAT system is deployed or operational on the Moon. |
+| [NASA — Moon Base awards and miniCAST announcement](https://www.nasa.gov/news-release/nasa-awards-moon-base-transportation-technology-science-projects/) | Context only. The announcement describes purchasing and assembling components; MoonBase does not represent miniCAST as existing lunar equipment. |
 
-## Science boundaries
+## Sources used by the Day 2 mission
 
-- The NASA sources establish the real phenomena and engineering themes. They do not prescribe the game's initial values, daily rates, choice effects, failure threshold, or four-turn timeline.
-- The game intentionally compresses time. One game day is a planning round, not a lunar day or an Earth day. In particular, a Day 3 grow-light action cannot create a real crop harvest by the next real day.
-- NASA's water-recovery milestone concerns the International Space Station. It is used to teach recycling as a design idea, not as a claim that a lunar base has the same system or recovery performance.
-- NASA's radiation article discusses the Orion plan and possible lunar sheltering strategies. The game does not calculate radiation exposure or claim that its shelter choices provide a real level of protection.
-- NASA has not endorsed this game. The project is an independent educational entry associated with the NASA Space Apps Challenge.
+| Reference | How it is used |
+|---|---|
+| [NASA — Environmental Control and Life Support Systems (ECLSS)](https://www.nasa.gov/reference/environmental-control-and-life-support-systems-eclss/) | Supports the distinction between the Water Recovery System, Air Revitalization System, and Oxygen Generation System. NASA states that recovered water must meet purity standards and that unacceptable water is reprocessed while clean water goes to storage. |
+| [NASA — Life Support Subsystems](https://www.nasa.gov/reference/jsc-life-support-subsystems/) | Supports the educational explanation that water recovery, monitoring, distribution, and storage are distinct life-support engineering concerns. |
+| [NASA — Water Recovery Milestone on the International Space Station](https://www.nasa.gov/missions/station/iss-research/nasa-achieves-water-recovery-milestone-on-international-space-station/) | Context for real ISS water-recovery technology and NASA's 2023 98% recovery milestone. This is specific to the ISS system and is not used as a lunar-base rate or game value. |
+| [NASA — Moon Base Systems](https://www.nasa.gov/moonbase-systems/) | Background for fictional lunar habitat and power-system context. It does not provide telemetry or a numerical water value for this game. |
+
+## Scientific explanation shown in the game
+
+“Near the Moon's South Pole, the Sun stays close to the horizon. Hills and
+mountains can cast long shadows across the surface. These shadows can reduce
+the sunlight reaching solar equipment.”
+
+The fictional scenario applies that relationship to a made-up solar-array
+station. It does not report a NASA power measurement, exact coordinate,
+percentage, watt value, shadow duration, or engineering performance figure.
+
+## Boundaries
+
+- The array is intentionally shown as intact; the event is terrain shadow.
+- NASA-documented VSAT prototype work is not the same as a deployed lunar
+  system. The player choice records preparation only.
+- `backupReserve`, `powerDemand`, `powerAllocation`, and `verticalArrayStatus`
+  are qualitative game state.
+- The game does not model dust, battery capacity, solar storms, or live NASA
+  telemetry in Day 1.
+
+## Day 2 scientific boundaries
+
+- The Day 2 water-quality reading is a fictional educational mission event, not
+  a real NASA incident, lunar-base event, or live NASA telemetry.
+- “Unacceptable” means the recovered water is not approved for potable use yet;
+  it does not mean contamination has been confirmed.
+- The recovered water is kept isolated until quality verification passes. The
+  game never automatically marks reprocessing as successful.
+- The water-recovery alert does not mean the complete ECLSS has failed. Air
+  revitalization and oxygen generation are separate subsystems, and crew life
+  support remains operational in the scenario.
+- The 98% recovery milestone is an ISS result and is not a predicted or
+  required performance value for a future lunar base.
+- Day 2 choices and persistent state identifiers are fictional game mechanics,
+  not NASA operational procedures, measurements, capacities, durations, or
+  performance guarantees.
+
+## Sources used by the Day 3 mission
+
+| Reference | How it is used |
+|---|---|
+| [NASA Science — Veggie](https://science.nasa.gov/mission/veggie/) | Supports the educational context that NASA has researched growing plants in space. Veggie is an ISS research system, not an operational lunar farm. |
+| [NASA — Growing Plants in Space](https://www.nasa.gov/exploration-research-and-technology/growing-plants-in-space/) | Supports the explanation that controlled plant growth can contribute to crew food research while requiring suitable conditions and time. |
+| [NASA Science — Advanced Plant Habitat](https://science.nasa.gov/mission/advanced-plant-habitat/) | Supports the controlled-environment context for light, water, nutrients, and monitoring. The APH is an ISS research facility and does not provide a lunar crop yield or game rate. |
+| [NASA Science — Space Crop Production](https://science.nasa.gov/biological-physical/space-crops/) | Provides NASA background for space-crop research and the challenges of producing food beyond Earth. |
+| [NASA Science — International Partners Advance Work on Space Crops](https://science.nasa.gov/science-research/biological-physical-sciences/nasa-international-partners-advance-work-on-space-crops/) | Supports the distinction between ongoing research and future lunar agriculture. |
+
+## Day 3 scientific boundaries
+
+- `FOOD SUPPLY WARNING` is a fictional educational mission event, not live
+  NASA telemetry, a NASA incident, crop disease, or a crop-unit failure.
+- The system report uses qualitative game states only: stored food is `LOW`,
+  the crop unit is `AVAILABLE`, and crop growth is `NOT_HARVEST_READY`.
+- Plants need suitable light, water, nutrients, and monitoring. The game does
+  not use NASA sources to derive food quantities, crop yields, growth rates,
+  power consumption, water consumption, or harvest durations.
+- Veggie and Advanced Plant Habitat are ISS research systems, not operational
+  lunar farms. Their existence supports the science explanation, not a claim
+  that a MoonBase crop system is already validated.
+- The backend accepts a risky crop-production decision even when qualitative
+  power or approved-water constraints are present. It reports the constraint
+  deterministically and never silently changes the player's choice.
+- Recovered water pending verification remains isolated. It is never used for
+  crop production, even when the player chooses expansion.
+- No Day 3 choice provides an immediate meal. The returned `CROP_GROWTH`
+  state remains `NOT_HARVEST_READY`, and the Day 3 state is preserved for a
+  Day 4 emergency response.
+
+## Day 4 — simulated emergency boundaries
+
+Day 4 displays `SOLAR RADIATION ALERT` and the exact notice: “This is a
+simulated mission event, not live NASA telemetry.” The alert is not a NASA
+warning, a telemetry feed, or evidence that a real lunar base has received a
+solar-particle-event alert.
+
+The Storm Shelter and its fixed primary shielding are fictional game elements.
+Supplementary water or packaged-food positioning is a qualitative gameplay
+choice. The implementation does not calculate radiation dose, exposure,
+shielding effectiveness, shielding percentage, shielding thickness, material
+quantity, event duration, power consumption, or a scientifically validated
+safety threshold. It also does not classify the mission as success or failure.
+
+Day 4 inherits the actual ordered Day 1–Day 3 decisions. Water that is
+`REPROCESSING_PENDING_VERIFICATION` remains isolated and cannot be used for
+shielding. Approved-water availability is kept separate from isolated recovered
+water, and reduced potable reserve or active conservation is shown as a
+qualitative constraint. Day 3 crops remain immature and are never treated as
+ready-to-eat emergency food.
+
+The project owner expects additional NASA data on November 13, 2026. That data
+has not been reviewed here. No Day 4 scientific threshold or mission outcome
+rule is finalized before that review.

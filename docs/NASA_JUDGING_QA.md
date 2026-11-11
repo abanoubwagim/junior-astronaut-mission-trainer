@@ -1,5 +1,10 @@
 # MoonBase NASA Judging Q&A
 
+> Historical prototype notice (November 11, 2026): this Q&A includes answers
+> for a superseded numeric resource model and older Day 4 thresholds. Treat it
+> as archival material only. The current implementation is documented in
+> `GAME_RULES.md`, `SCIENCE_REFERENCES.md`, and `API_AND_ARCHITECTURE.md`.
+
 This question bank is written for a judging panel. The short answer is intended to fit roughly 20–45 seconds when spoken. The technical answer is for a follow-up. “Verified” means supported by the repository or an identified primary source. “Team confirmation required” means the final intended audience, challenge interpretation, or submission claim must be confirmed by the team before speaking.
 
 The safest overall description is: **MoonBase is a stateless, deterministic educational lunar resource-planning game inspired by NASA references. It is not a live NASA-data application and not a validated lunar-habitat simulator.**

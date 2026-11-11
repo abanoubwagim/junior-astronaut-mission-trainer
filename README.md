@@ -10,7 +10,7 @@
   <em>Team MoonBase, NASA Space Apps Challenge 2026</em>
 </p>
 
-An English-language educational lunar survival game for young explorers ages 7–12. Across four mission-planning rounds, players balance Power, Water, Food, and Shelter readiness through choices inspired by real spaceflight research.
+An English-language educational lunar survival game for young explorers ages 7–12. Across four mission-planning rounds, players inspect habitat systems and make qualitative power, water, food, and shelter decisions inspired by real spaceflight research.
 
 This is an independent educational project created for the NASA Space Apps Challenge 2026 **Junior Astronaut Mission Trainer** challenge. It is not an official NASA product and is not endorsed or validated by NASA.
 
@@ -34,9 +34,10 @@ Open [http://localhost:5500/html/](http://localhost:5500/html/). The frontend ca
 
 - Exactly four in-game days; each is a planning round, not one real Earth or lunar day.
 - The backend is the sole authority for rules, resource calculations, choice validation, delayed effects, day transitions, and outcomes.
-- The browser submits the complete ordered decision history. The server replays it from the initial state and returns the authoritative state and calculation breakdown.
+- The browser submits the complete ordered decision history. The server replays it from the initial state and returns the authoritative qualitative state, effects, constraints, and player-readable explanation.
 - No account, database, saved progress, browser storage, URL state, session, or gameplay token. Refresh returns to the welcome screen; starting again requests a fresh Day 1 state.
-- The resource scale, costs, rates, harvest timing, and outcome thresholds are simplified **game values**, not engineering measurements.
+- The active Day 1–Day 4 state model is qualitative. It does not invent food quantities, water volumes, power measurements, crop yields, growth rates, harvest timing, radiation doses, shielding percentages, or emergency durations.
+- Day 4 is the `SOLAR RADIATION ALERT` chapter: stopping EVA and entering the existing Storm Shelter are mandatory, then the player chooses a supplementary-shielding strategy. The result is descriptive only; no final success/failure classification is calculated while scientific review remains pending after November 13, 2026.
 
 ## Project layout
 
@@ -79,7 +80,7 @@ Run the backend unit and HTTP integration suite from the repository root:
 Run the frontend interaction checks with Node.js 20 or newer:
 
 ```powershell
-node --test mission-trainer-frontend\tests\app.test.cjs
+node --test mission-trainer-frontend\tests
 ```
 
 Both suites use dependencies or runtimes already available; no testing framework or frontend dependency was added. Automated and live-browser verification results, along with any remaining limitations, are recorded in the [judges' briefing](docs/JUDGES_BRIEFING.md).

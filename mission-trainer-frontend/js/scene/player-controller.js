@@ -100,7 +100,12 @@ export function createPlayerController(THREE, {
   }
 
   function normalizeKey(event) {
-    const rawKey = String(event?.key || event?.code || "").toLowerCase();
+    // Prefer the physical key code so movement and interaction still work when
+    // the active keyboard layout changes the value of event.key (for example,
+    // Arabic layouts report an Arabic character for the physical E key).
+    const rawCode = String(event?.code || "").toLowerCase();
+    if (rawCode.startsWith("key") && rawCode.length === 4) return rawCode.slice(3);
+    const rawKey = String(event?.key || "").toLowerCase();
     return rawKey.startsWith("key") && rawKey.length === 4 ? rawKey.slice(3) : rawKey;
   }
 
@@ -149,8 +154,15 @@ export function createPlayerController(THREE, {
     }
     if (key === "e" && !event.repeat && active && !paused) {
       event.preventDefault();
-      const target = focusedTarget || findInteractionTarget();
+      // Recalculate proximity at the moment of interaction. A cached target
+      // can belong to the previous mission station while the player has just
+      // reached the next airlock, especially during a Day 1 -> Day 2 transition.
+      const target = findInteractionTarget();
       if (target && !target.locked) {
+        if (isMissionGate(target)) {
+          startGateOpening(target);
+          return;
+        }
         paused = true;
         const dx = target.position[0] - astronaut.root.position.x;
         const dz = target.position[1] - astronaut.root.position.z;

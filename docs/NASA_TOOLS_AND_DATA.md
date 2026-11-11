@@ -1,5 +1,10 @@
 # NASA Tools, Datasets, and Integration Status
 
+> Historical prototype notice (November 11, 2026): portions of this document
+> describe a superseded numeric gameplay model and older Day 4 references. It
+> is not the current implementation contract; see `SCIENCE_REFERENCES.md` for
+> the current simulated-event boundaries.
+
 ## Bottom line
 
 MoonBase does not currently integrate a NASA API or NASA dataset at runtime. The application has no NASA HTTP client, no scheduled data retrieval, no API key, no NASA JSON parsing, and no NASA data-to-game transformation. The only browser network calls are to the local MoonBase backend in [`mission-trainer-frontend/js/app.js`](../mission-trainer-frontend/js/app.js#L47-L75). The backend embeds source titles and URLs as constants in [`MissionRulesService.java`](../mission-trainer-backend/src/main/java/org/juniorastronaut/missiontrainer/game/MissionRulesService.java#L43-L61) and returns them as part of event data.

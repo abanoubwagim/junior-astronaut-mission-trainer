@@ -5,7 +5,7 @@
   const sceneRoot = document.querySelector("#lunar-scene");
   const scriptUrl = document.currentScript?.src || new URL("../js/scene/scene-manager.js", window.location.href).href;
   const THREE_URL = "https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js";
-  const SCENE_VERSION = "20261111-v60";
+  const SCENE_VERSION = "20261111-v63";
 
   if (!canvas || !sceneRoot) return;
 
@@ -88,10 +88,9 @@
     setStatus("loading");
     try {
       const moduleUrl = (relativePath) => `${new URL(relativePath, scriptUrl).href}?v=${SCENE_VERSION}`;
-      const [threeModule, lunarEnvironmentModule, marsEnvironmentModule, cameraModule, effectsModule, storyModule, playerModule] = await Promise.all([
+      const [threeModule, lunarEnvironmentModule, cameraModule, effectsModule, storyModule, playerModule] = await Promise.all([
         import(THREE_URL),
         import(moduleUrl("./lunar-environment.js")),
-        import(moduleUrl("./mars-environment.js")),
         import(moduleUrl("./camera-controller.js")),
         import(moduleUrl("./scene-effects.js")),
         import(moduleUrl("./story-director.js")),
@@ -106,18 +105,11 @@
       renderer.toneMapping = THREE.ACESFilmicToneMapping;
       renderer.toneMappingExposure = 1.08;
       scene = new THREE.Scene();
-      const world = window.MOONBASE_SCENE_WORLD === "moon" ? "moon" : "mars";
-      document.documentElement.dataset.sceneWorld = world;
-      // Each environment owns its atmospheric profile. Moon is the default and
-      // only playable Day 1 environment; Mars remains a visual preview.
-      if (world === "moon") {
-        scene.background = new THREE.Color(0x010204);
-        scene.fog = null;
-      }
+      document.documentElement.dataset.sceneWorld = "moon";
+      scene.background = new THREE.Color(0x010204);
+      scene.fog = null;
       const camera = new THREE.PerspectiveCamera(37, window.innerWidth / Math.max(window.innerHeight, 1), 0.1, 100);
-      environment = world === "mars"
-        ? marsEnvironmentModule.createMarsEnvironment(THREE, scene)
-        : lunarEnvironmentModule.createLunarEnvironment(THREE, scene);
+      environment = lunarEnvironmentModule.createLunarEnvironment(THREE, scene);
       document.documentElement.dataset.environmentName = environment.root?.name || world;
       cameraController = cameraModule.createCameraController(THREE, camera, {
         canvas,
@@ -212,15 +204,6 @@
           playerController?.setActive(explorable);
           playerController?.setPaused(!explorable || Boolean(story?.interactionOpen) || Boolean(story?.loading) || Boolean(story?.paused));
         },
-        setWorld(nextWorld = "mars") {
-          const world = nextWorld === "moon" ? "moon" : "mars";
-          if (world === document.documentElement.dataset.sceneWorld && environment) return;
-          window.MOONBASE_SCENE_WORLD = world;
-          document.documentElement.dataset.sceneWorld = world;
-          setStatus("loading");
-          teardownScene();
-          initialize();
-        },
         dispose() {
           disposed = true;
           teardownScene();
@@ -232,8 +215,7 @@
     }
   }
 
-  const requestedWorld = new URL(window.location.href).searchParams.get("world");
-  window.MOONBASE_SCENE_WORLD = window.MOONBASE_SCENE_WORLD || (requestedWorld === "mars" ? "mars" : "moon");
+  window.MOONBASE_SCENE_WORLD = "moon";
   window.MOONBASE_SCENE_MODE = window.MOONBASE_SCENE_MODE || "welcome";
   window.MOONBASE_SCENE_STORY = window.MOONBASE_SCENE_STORY || {
     screen: "welcome",

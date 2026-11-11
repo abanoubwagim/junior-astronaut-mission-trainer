@@ -1,30 +1,22 @@
 {
   "openapi": "3.0.3",
   "info": {
-    "title": "MoonBase Day 1 Mission API",
-    "version": "2026.11.10",
-    "description": "Stateless qualitative API for MoonBase Day 1: Establish the Base. NASA-backed readings are DATA_UNAVAILABLE until the verified package is integrated."
+    "title": "MoonBase Mission API",
+    "version": "2026.11.11",
+    "description": "Stateless qualitative API for the four-day MoonBase educational simulation. The backend replays the ordered Day 1–Day 4 decision history and does not store mission progress. Day 4 is a simulated alert, not live NASA telemetry, and has no final success/failure classification."
   },
   "servers": [{"url": "http://localhost:8080/api/v1"}],
   "paths": {
-    "/health": {
-      "get": {
-        "responses": {"200": {"description": "Backend is available", "content": {"application/json": {"schema": {"$ref": "#/components/schemas/HealthResponse"}}}}}
-      }
-    },
-    "/missions/start": {
-      "post": {
-        "summary": "Start Day 1 on the Moon",
-        "responses": {"200": {"description": "Day 1 Power Drop event", "content": {"application/json": {"schema": {"$ref": "#/components/schemas/MissionResponse"}}}}}
-      }
-    },
+    "/health": {"get": {"responses": {"200": {"description": "Backend is available", "content": {"application/json": {"schema": {"$ref": "#/components/schemas/HealthResponse"}}}}}}},
+    "/missions/start": {"post": {"summary": "Start Day 1 on the Moon", "responses": {"200": {"description": "Day 1 Power Drop event", "content": {"application/json": {"schema": {"$ref": "#/components/schemas/MissionResponse"}}}}}}},
     "/missions/decisions": {
       "post": {
-        "summary": "Confirm the single Day 1 choice",
+        "summary": "Replay the ordered mission decision history",
+        "description": "Send the complete ordered history. The client does not send resource values or final consequences. A three-decision history opens Day 4; a four-decision history returns the descriptive Day 4 report.",
         "requestBody": {"required": true, "content": {"application/json": {"schema": {"$ref": "#/components/schemas/DecisionHistoryRequest"}}}},
         "responses": {
-          "200": {"description": "Day 1 complete", "content": {"application/json": {"schema": {"$ref": "#/components/schemas/MissionResponse"}}}},
-          "400": {"description": "Invalid or later-day history", "content": {"application/json": {"schema": {"$ref": "#/components/schemas/ApiError"}}}}
+          "200": {"description": "Authoritative mission state", "content": {"application/json": {"schema": {"$ref": "#/components/schemas/MissionResponse"}}}},
+          "400": {"description": "Invalid or out-of-order history", "content": {"application/json": {"schema": {"$ref": "#/components/schemas/ApiError"}}}}
         }
       }
     }
@@ -32,15 +24,19 @@
   "components": {
     "schemas": {
       "HealthResponse": {"type": "object", "required": ["status"], "properties": {"status": {"type": "string", "example": "UP"}}},
-      "DecisionInput": {"type": "object", "required": ["day", "choiceId"], "properties": {"day": {"type": "integer", "example": 1}, "choiceId": {"type": "string", "enum": ["reduce_non_essential_loads", "switch_to_backup_batteries", "prioritize_life_support"]}}},
-      "DecisionHistoryRequest": {"type": "object", "required": ["decisions"], "properties": {"decisions": {"type": "array", "minItems": 1, "maxItems": 1, "items": {"$ref": "#/components/schemas/DecisionInput"}}}},
-      "Choice": {"type": "object", "required": ["id", "title", "description", "tradeoff"], "properties": {"id": {"type": "string"}, "title": {"type": "string"}, "description": {"type": "string"}, "tradeoff": {"type": "string"}}},
-      "Event": {"type": "object", "required": ["day", "title", "situation", "scienceFact", "scienceSources", "choices", "dataStatus"], "properties": {"day": {"type": "integer", "example": 1}, "title": {"type": "string", "example": "POWER DROP"}, "situation": {"type": "string"}, "scienceFact": {"type": "string"}, "scienceSources": {"type": "array", "items": {"type": "object", "properties": {"title": {"type": "string"}, "url": {"type": "string", "format": "uri"}}}}, "choices": {"type": "array", "minItems": 3, "maxItems": 3, "items": {"$ref": "#/components/schemas/Choice"}}, "dataStatus": {"type": "string", "example": "DATA_UNAVAILABLE"}}},
-      "QualitativeState": {"type": "object", "required": ["solarInput", "powerAllocation", "backupReserve", "crewSupport", "dataStatus", "valueOrigin"], "properties": {"solarInput": {"type": "string"}, "powerAllocation": {"type": "string"}, "backupReserve": {"type": "string"}, "crewSupport": {"type": "string"}, "dataStatus": {"type": "string", "example": "DATA_UNAVAILABLE"}, "valueOrigin": {"type": "string", "example": "GAME_SIMULATION"}}},
-      "DecisionFeedback": {"type": "object", "required": ["day", "choiceId", "choiceTitle", "headline", "explanation", "whyItMatters", "futureEffect", "preserved", "reducedOrDelayed", "reserveState"], "properties": {"day": {"type": "integer"}, "choiceId": {"type": "string"}, "choiceTitle": {"type": "string"}, "headline": {"type": "string"}, "explanation": {"type": "string"}, "whyItMatters": {"type": "string"}, "futureEffect": {"type": "string"}, "preserved": {"type": "string"}, "reducedOrDelayed": {"type": "string"}, "reserveState": {"type": "string"}}},
-      "ResolvedChoice": {"type": "object", "properties": {"day": {"type": "integer"}, "title": {"type": "string"}, "lesson": {"type": "string"}}},
-      "MissionResult": {"type": "object", "properties": {"status": {"type": "string", "example": "DAY_1_COMPLETE"}, "title": {"type": "string"}, "summary": {"type": "string"}, "limitingResource": {"type": "string", "nullable": true}, "primaryFailureReason": {"type": "string", "nullable": true}, "secondaryFailureReasons": {"type": "array", "items": {"type": "string"}}, "takeaways": {"type": "array", "items": {"type": "string"}}, "decisions": {"type": "array", "items": {"$ref": "#/components/schemas/ResolvedChoice"}}}},
-      "MissionResponse": {"type": "object", "required": ["status", "day", "totalDays", "event", "qualitativeState", "activeEffects", "decisionHistory", "latestDecision", "result"], "properties": {"status": {"type": "string", "enum": ["ACTIVE", "DAY_1_COMPLETE"]}, "day": {"type": "integer", "example": 1}, "totalDays": {"type": "integer", "example": 4}, "event": {"allOf": [{"$ref": "#/components/schemas/Event"}], "nullable": true}, "qualitativeState": {"$ref": "#/components/schemas/QualitativeState"}, "activeEffects": {"type": "array", "items": {"type": "string"}}, "decisionHistory": {"type": "array", "items": {"$ref": "#/components/schemas/DecisionInput"}}, "latestDecision": {"allOf": [{"$ref": "#/components/schemas/DecisionFeedback"}], "nullable": true}, "result": {"allOf": [{"$ref": "#/components/schemas/MissionResult"}], "nullable": true}}},
+      "DecisionInput": {"type": "object", "required": ["day", "choiceId"], "properties": {"day": {"type": "integer", "minimum": 1, "maximum": 4}, "choiceId": {"type": "string", "enum": ["use_stored_energy", "begin_vsat_deployment", "reduce_non_essential_loads", "inspect_reprocess_water", "use_stored_potable_water", "conserve_water", "START_LIMITED_CROP_TRIAL", "PRESERVE_STORED_FOOD", "EXPAND_CROP_PRODUCTION", "REPOSITION_WATER_SUPPLIES", "REPOSITION_FOOD_SUPPLIES", "MAINTAIN_EXISTING_SHIELDING"]}}},
+      "DecisionHistoryRequest": {"type": "object", "required": ["decisions"], "properties": {"decisions": {"type": "array", "minItems": 1, "maxItems": 4, "items": {"$ref": "#/components/schemas/DecisionInput"}}}},
+      "Choice": {"type": "object", "required": ["id", "title", "description", "immediateBenefit", "tradeoff"], "properties": {"id": {"type": "string"}, "title": {"type": "string"}, "description": {"type": "string"}, "immediateBenefit": {"type": "string"}, "tradeoff": {"type": "string"}}},
+      "ScienceSource": {"type": "object", "required": ["title", "url"], "properties": {"title": {"type": "string"}, "url": {"type": "string", "format": "uri"}}},
+      "SystemStatus": {"type": "object", "required": ["system", "status"], "properties": {"system": {"type": "string"}, "status": {"type": "string"}}},
+      "InspectionReport": {"type": "object", "properties": {"arrayCondition": {"type": "string"}, "sunlightExposure": {"type": "string"}, "powerGeneration": {"type": "string"}, "eventCause": {"type": "string"}}},
+      "Event": {"type": "object", "required": ["day", "title", "description", "scientificExplanation", "eventCause", "choices", "dataStatus", "valueOrigin", "systemReport", "contextNote"], "properties": {"day": {"type": "integer"}, "title": {"type": "string"}, "description": {"type": "string"}, "scientificExplanation": {"type": "string"}, "eventCause": {"type": "string"}, "inspectionReport": {"allOf": [{"$ref": "#/components/schemas/InspectionReport"}], "nullable": true}, "scienceSources": {"type": "array", "items": {"$ref": "#/components/schemas/ScienceSource"}}, "choices": {"type": "array", "minItems": 3, "maxItems": 3, "items": {"$ref": "#/components/schemas/Choice"}}, "dataStatus": {"type": "string"}, "valueOrigin": {"type": "string"}, "systemReport": {"type": "array", "items": {"$ref": "#/components/schemas/SystemStatus"}}, "contextNote": {"type": "string"}}},
+      "QualitativeState": {"type": "object", "description": "Qualitative game labels only; no physical units or invented measurements.", "properties": {"solarInput": {"type": "string"}, "arrayCondition": {"type": "string"}, "sunlightExposure": {"type": "string"}, "eventCause": {"type": "string"}, "backupReserve": {"type": "string"}, "powerDemand": {"type": "string"}, "powerAllocation": {"type": "string"}, "verticalArrayStatus": {"type": "string"}, "dataStatus": {"type": "string"}, "valueOrigin": {"type": "string"}, "waterRecoveryStatus": {"type": "string"}, "potableWaterSupply": {"type": "string"}, "waterQualityVerification": {"type": "string"}, "crewLifeSupport": {"type": "string"}, "recoveredWaterDisposition": {"type": "string"}, "dayTwoPersistentState": {"type": "string"}, "storedFoodSupply": {"type": "string"}, "cropProductionUnit": {"type": "string"}, "cropGrowth": {"type": "string"}, "approvedWaterForCrops": {"type": "string"}, "powerAvailability": {"type": "string"}, "dayThreePersistentState": {"type": "string"}, "cropOperationStatus": {"type": "string"}, "cropOperationalConstraint": {"type": "string"}, "approvedWaterForShielding": {"type": "string"}, "packagedFoodForShielding": {"type": "string"}, "evaStatus": {"type": "string"}, "crewLocation": {"type": "string"}, "primaryShielding": {"type": "string"}, "supplementaryShielding": {"type": "string"}, "dayFourPersistentState": {"type": "string"}, "dayFourOperationalConstraint": {"type": "string"}}},
+      "ActiveEffect": {"type": "object", "properties": {"id": {"type": "string"}, "label": {"type": "string"}, "state": {"type": "string"}, "description": {"type": "string"}}},
+      "DecisionFeedback": {"type": "object", "properties": {"day": {"type": "integer"}, "choiceId": {"type": "string"}, "choiceTitle": {"type": "string"}, "resultMessage": {"type": "string"}, "explanation": {"type": "string"}, "preserved": {"type": "string"}, "reducedOrDelayed": {"type": "string"}, "backupReserve": {"type": "string"}, "persistentEffect": {"type": "string"}, "scientificTakeaway": {"type": "string"}}},
+      "ResolvedChoice": {"type": "object", "properties": {"day": {"type": "integer"}, "choiceId": {"type": "string"}, "title": {"type": "string"}}},
+      "MissionResult": {"type": "object", "properties": {"status": {"type": "string"}, "title": {"type": "string"}, "summary": {"type": "string"}, "selectedDecision": {"$ref": "#/components/schemas/ResolvedChoice"}, "preserved": {"type": "string"}, "reducedOrDelayed": {"type": "string"}, "powerStatus": {"type": "string"}, "backupReserve": {"type": "string"}, "persistentEffects": {"type": "array", "items": {"$ref": "#/components/schemas/ActiveEffect"}}, "scientificTakeaway": {"type": "string"}, "nextChapterAvailable": {"type": "boolean"}, "nextChapterMessage": {"type": "string"}}},
+      "MissionResponse": {"type": "object", "required": ["status", "day", "totalDays", "qualitativeState", "activeEffects", "decisionHistory"], "properties": {"status": {"type": "string", "enum": ["ACTIVE", "DAY_1_COMPLETE", "DAY_2_COMPLETE", "DAY_3_COMPLETE", "DAY_4_COMPLETE"]}, "day": {"type": "integer", "minimum": 1, "maximum": 4}, "totalDays": {"type": "integer", "example": 4}, "event": {"allOf": [{"$ref": "#/components/schemas/Event"}], "nullable": true}, "qualitativeState": {"$ref": "#/components/schemas/QualitativeState"}, "activeEffects": {"type": "array", "items": {"$ref": "#/components/schemas/ActiveEffect"}}, "decisionHistory": {"type": "array", "items": {"$ref": "#/components/schemas/DecisionInput"}}, "latestDecision": {"allOf": [{"$ref": "#/components/schemas/DecisionFeedback"}], "nullable": true}, "result": {"allOf": [{"$ref": "#/components/schemas/MissionResult"}], "nullable": true}}},
       "ApiError": {"type": "object", "properties": {"error": {"type": "object", "properties": {"code": {"type": "string"}, "message": {"type": "string"}}}}}
     }
   }

@@ -1,5 +1,10 @@
 # MoonBase Scientific Assumptions and Equations
 
+> Historical prototype notice (November 11, 2026): this document audits a
+> superseded numeric prototype. The current rules use qualitative states and
+> do not apply these equations, thresholds, quantities, or final outcomes. See
+> `GAME_RULES.md` and `SCIENCE_REFERENCES.md` for the active mission.
+
 ## Purpose
 
 This document labels every important number in the implemented game. It prevents a fictional balance value from being mistaken for a NASA measurement and gives judges a reproducible way to understand the deterministic replay.

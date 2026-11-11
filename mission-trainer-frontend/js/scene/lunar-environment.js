@@ -1192,7 +1192,14 @@ export function createLunarEnvironment(THREE, scene) {
     const array = new THREE.Group();
     // Put the solar farm in the open foreground to the right of the habitat,
     // matching the readable silhouette of the reference scene.
-    array.position.set(missionLocations.solar.x, -1.02, missionLocations.solar.z);
+    // Keep the station's feet seated on the procedural regolith. The small
+    // offset is intentional: it keeps the support pads visible without making
+    // the station float above the terrain.
+    array.position.set(
+      missionLocations.solar.x,
+      -1.08 + groundHeight(missionLocations.solar.x, missionLocations.solar.z) + 0.06,
+      missionLocations.solar.z
+    );
     array.rotation.y = -0.08;
     signal.solarArray = array;
 
@@ -1230,12 +1237,13 @@ export function createLunarEnvironment(THREE, scene) {
     }
     addMesh(array, new THREE.BoxGeometry(0.62, 0.45, 0.5), materials.baseLight, [0, 0.15, 0.48]);
     addMesh(array, new THREE.BoxGeometry(0.16, 0.06, 0.05), materials.cyan, [0, 0.27, 0.74]);
+    addMissionLabel(array, "SOLAR ARRAY", [0, 2.22, 0.08], 1.45, 0.34);
 
     root.add(array);
     registerInteractive(array, {
       id: "solar-array",
       name: "Solar array",
-      description: "A fictional equipment condition is reducing the array's available output.",
+      description: "Inspect the intact solar array to investigate the power drop.",
       day: 1,
       radius: 3.1,
       position: [array.position.x, array.position.z]
@@ -1315,11 +1323,12 @@ export function createLunarEnvironment(THREE, scene) {
       new THREE.PointsMaterial({ color: colors.earth, size: 0.06, transparent: true, opacity: 0.02 }));
     signal.waterLeak.name = "water-recycler-leak-hazard";
     recycler.add(signal.waterLeak);
+    addMissionLabel(recycler, "WATER RECOVERY", [0, 1.56, 0], 1.62, 0.34);
     root.add(recycler);
     registerInteractive(recycler, {
       id: "water-recycler",
-      name: "Water recycler",
-      description: "The water and air systems need a careful inspection.",
+      name: "Water Recovery Station",
+      description: "Inspect the water recovery system. Unverified water must remain isolated.",
       day: 2,
       radius: 2.25,
       position: [recycler.position.x, recycler.position.z]
@@ -1637,7 +1646,6 @@ export function createLunarEnvironment(THREE, scene) {
       beacon.rotation.y += delta * 0.16;
     });
     if (signal.waterLeak) signal.waterLeak.position.y = Math.sin(time * 0.004) * 0.06;
-    if (signal.solarDust) signal.solarDust.rotation.y += delta * 0.18;
     if (signal.communicationDish) signal.communicationDish.rotation.y = Math.sin(time * 0.0008) * 0.15;
     signal.growLights.forEach((material, index) => { material.emissiveIntensity = signal.growBaseIntensity + (Math.sin(time * 0.003 + index) + 1) * 0.18; });
     signal.stormRings.forEach((ring, index) => { ring.rotation.y += delta * (0.18 + index * 0.06); });
@@ -1665,7 +1673,9 @@ export function createLunarEnvironment(THREE, scene) {
     signal.navigationGate = showFourthGate
       ? "moonbase-four"
       : showThirdGate ? "moonbase-three" : showSecondGate ? "moonbase-two" : "moonbase-one";
-    signal.solarDust.material.opacity = active && location === "solar" ? 0.7 : 0.02;
+    // The Day 1 scenario is terrain shadow, not dust or visible equipment
+    // damage. Keep the station visually intact when the inspection opens.
+    signal.solarDust.material.opacity = 0;
     signal.waterLeak.material.opacity = active && location === "water" ? 0.72 : 0.02;
     signal.shelterDome.material.opacity = active && location === "storm" ? 0.24 : 0.12;
     signal.stormRings.forEach((ring) => { ring.material.opacity = active && location === "storm" ? 0.42 : 0.05; });
@@ -1675,7 +1685,6 @@ export function createLunarEnvironment(THREE, scene) {
     // objective arrow still points only to the gate unlocked for the current day.
     if (signal.dayThreeGate) signal.dayThreeGate.visible = true;
     if (signal.dayFourGate) signal.dayFourGate.visible = true;
-    if (selected === "reduce_non_essential_loads") signal.solarDust.material.opacity = 0.04;
   }
 
   function setInteractionFocus(id = "") {
@@ -1695,9 +1704,13 @@ export function createLunarEnvironment(THREE, scene) {
       const currentGateId = getGateIdForDay(currentDay);
       const currentGate = signal.interactiveObjects.find((object) => object.id === currentGateId);
       if (currentGate) {
+        if (isGateEntered(currentDay)) {
+          const station = signal.interactiveObjects.find((object) => object.day === currentDay && !object.id.endsWith("-entry"));
+          if (station) return { x: station.position[0], z: station.position[1], id: station.id };
+        }
         // Missions are solved at their own gate. Keep the radar and camera on
-        // that gate instead of sending the player back to MoonBase 1 or on to
-        // a separate station.
+        // that gate until the player has entered it, then point to the station
+        // inside the active habitat bay.
         return { x: currentGate.position[0], z: currentGate.position[1], id: currentGate.id };
       }
     }

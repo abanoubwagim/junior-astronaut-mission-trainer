@@ -5339,10 +5339,10 @@ body[data-app-screen="game"] .gameplay-hud {
   top: 14px !important;
   left: auto !important;
   right: 16px !important;
-  width: min(500px, 52vw) !important;
-  min-height: 46px !important;
-  grid-template-columns: minmax(0, 1fr) 82px !important;
-  gap: 6px !important;
+  width: min(760px, calc(100vw - 380px)) !important;
+  min-height: 58px !important;
+  grid-template-columns: minmax(145px, .6fr) minmax(330px, 1.4fr) 78px !important;
+  gap: 8px !important;
   padding: 0 !important;
   border: 0 !important;
   background: transparent !important;
@@ -5350,7 +5350,38 @@ body[data-app-screen="game"] .gameplay-hud {
   backdrop-filter: none !important;
   transform: none !important;
 }
-body[data-app-screen="game"] .gameplay-hud .story-hud-marker { display: none !important; }
+body[data-app-screen="game"] .gameplay-hud .story-hud-marker {
+  display: grid !important;
+  align-content: center !important;
+  gap: 3px !important;
+  min-width: 0 !important;
+  padding: 10px 12px !important;
+  border: 1px solid rgb(107 205 255 / 27%) !important;
+  border-radius: 10px !important;
+  background: linear-gradient(145deg, rgb(7 26 60 / 91%), rgb(5 14 38 / 84%)) !important;
+  box-shadow: 0 12px 26px rgb(0 3 20 / 22%), inset 0 1px 0 rgb(255 255 255 / 11%) !important;
+}
+body[data-app-screen="game"] .gameplay-hud .story-hud-marker .story-hud-kicker,
+body[data-app-screen="game"] .gameplay-hud .story-hud-marker .story-hud-subtitle { display: block !important; }
+body[data-app-screen="game"] .gameplay-hud .story-hud-marker .story-hud-kicker { color: #ffd323 !important; font-size: 8px !important; }
+body[data-app-screen="game"] .gameplay-hud .story-hud-marker .story-hud-subtitle { color: #eef8ff !important; font-size: 11px !important; line-height: 1.15 !important; }
+body[data-app-screen="game"] .gameplay-hud .story-qualitative-status {
+  display: grid !important;
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  gap: 6px !important;
+  min-width: 0 !important;
+}
+body[data-app-screen="game"] .gameplay-hud .story-qualitative-chip {
+  min-width: 0 !important;
+  min-height: 58px !important;
+  padding: 8px 10px !important;
+  border: 1px solid rgb(107 205 255 / 27%) !important;
+  border-radius: 10px !important;
+  background: linear-gradient(145deg, rgb(7 26 60 / 91%), rgb(5 14 38 / 84%)) !important;
+  box-shadow: 0 12px 26px rgb(0 3 20 / 22%), inset 0 1px 0 rgb(255 255 255 / 11%) !important;
+}
+body[data-app-screen="game"] .gameplay-hud .story-qualitative-label { font-size: 8px !important; }
+body[data-app-screen="game"] .gameplay-hud .story-qualitative-value { display: block !important; margin-top: 6px !important; font-size: 10px !important; line-height: 1.15 !important; }
 body[data-app-screen="game"] .gameplay-hud .story-resources {
   display: grid !important;
   grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
@@ -5383,45 +5414,71 @@ body[data-app-screen="game"] .gameplay-hud .story-day-progress {
   background: rgb(7 18 45 / 82%) !important;
 }
 body[data-app-screen="game"] .gameplay-objective {
-  top: 88px !important;
+  top: 108px !important;
   left: 16px !important;
   right: auto !important;
-  width: min(225px, 20vw) !important;
-  padding: 10px 12px 9px !important;
-  border-radius: 0 12px 12px 0 !important;
+  width: min(290px, 22vw) !important;
+  padding: 14px 16px 13px !important;
+  border-radius: 0 14px 14px 0 !important;
   background: linear-gradient(145deg, rgb(7 29 64 / 86%), rgb(5 15 39 / 78%)) !important;
   backdrop-filter: blur(14px) !important;
 }
-body[data-app-screen="game"] .gameplay-title { margin: 7px 0 6px !important; font-size: clamp(17px, 1.45vw, 21px) !important; }
-body[data-app-screen="game"] .gameplay-objective-copy { max-width: 205px !important; font-size: 9px !important; line-height: 1.3 !important; }
-body[data-app-screen="game"] .gameplay-objective-status { margin-top: 8px !important; padding-top: 7px !important; font-size: 8px !important; }
+body[data-app-screen="game"] .gameplay-title { margin: 8px 0 7px !important; font-size: clamp(19px, 1.7vw, 25px) !important; }
+body[data-app-screen="game"] .gameplay-objective-copy { max-width: 258px !important; font-size: 11px !important; line-height: 1.4 !important; }
+body[data-app-screen="game"] .gameplay-objective-status { margin-top: 10px !important; padding-top: 8px !important; font-size: 9px !important; }
 body[data-app-screen="game"] .gameplay-task {
-  top: 88px !important;
+  top: 108px !important;
   right: 16px !important;
   left: auto !important;
-  width: min(220px, 20vw) !important;
-  padding: 10px 12px !important;
-  border-radius: 11px !important;
+  width: min(270px, 22vw) !important;
+  padding: 14px 16px !important;
+  border-radius: 14px !important;
   background: linear-gradient(145deg, rgb(7 24 57 / 82%), rgb(5 13 36 / 73%)) !important;
   backdrop-filter: blur(13px) !important;
 }
+body[data-app-screen="game"] .gameplay-task-title { margin: 7px 0 6px !important; font-size: 15px !important; }
+body[data-app-screen="game"] .gameplay-task-copy { font-size: 11px !important; line-height: 1.4 !important; }
+body[data-app-screen="game"] .gameplay-task-status { margin-top: 10px !important; padding-top: 8px !important; font-size: 9px !important; }
 body[data-app-screen="game"] .gameplay-controls {
   top: auto !important;
   right: 16px !important;
-  bottom: 16px !important;
-  width: 160px !important;
-  padding: 9px 10px !important;
+  bottom: 18px !important;
+  width: 174px !important;
+  padding: 10px 11px !important;
   border-radius: 11px !important;
   background: linear-gradient(145deg, rgb(7 23 55 / 91%), rgb(5 12 34 / 84%)) !important;
   backdrop-filter: blur(15px) !important;
 }
-body[data-app-screen="game"] .mission-radar {
+body[data-app-screen="game"] .mission-radar-gameplay {
   left: 16px !important;
-  bottom: 16px !important;
-  width: 100px !important;
-  height: 100px !important;
-  opacity: .72 !important;
+  bottom: 110px !important;
+  width: 168px !important;
+  height: 168px !important;
+  z-index: 48 !important;
+  opacity: 1 !important;
+  overflow: visible !important;
 }
+body[data-app-screen="game"] .mission-radar-gameplay .radar-surface-grid {
+  position: absolute;
+  inset: 12px;
+  z-index: 0;
+  border: 1px solid rgb(112 220 255 / 22%);
+  border-radius: 50%;
+  background:
+    linear-gradient(90deg, transparent 49.5%, rgb(122 224 255 / 14%) 50%, transparent 50.5%),
+    linear-gradient(0deg, transparent 49.5%, rgb(122 224 255 / 14%) 50%, transparent 50.5%),
+    repeating-radial-gradient(circle at center, transparent 0 22px, rgb(122 224 255 / 11%) 23px 24px),
+    linear-gradient(135deg, rgb(37 116 150 / 24%), rgb(6 24 55 / 18%));
+  opacity: .9;
+}
+body[data-app-screen="game"] .mission-radar-gameplay .radar-sweep { z-index: 1; }
+body[data-app-screen="game"] .mission-radar-gameplay .radar-player,
+body[data-app-screen="game"] .mission-radar-gameplay .radar-objective { z-index: 2; }
+body[data-app-screen="game"] .mission-radar-gameplay .radar-surface-grid ~ .radar-caption { position: absolute; z-index: 3; bottom: 8px; font-family: var(--hud-tech); font-size: 7px; font-weight: 800; letter-spacing: .12em; }
+body[data-app-screen="game"] .mission-radar-gameplay .radar-caption-player { left: 13px; color: #68e8ff; }
+body[data-app-screen="game"] .mission-radar-gameplay .radar-caption-objective { right: 12px; color: #ffd323; }
+body[data-app-screen="game"] .mission-radar-gameplay:not(.has-objective) .radar-objective { opacity: 0 !important; }
+body[data-app-screen="game"] .mission-radar-gameplay.has-objective .radar-objective { opacity: 1 !important; }
 body[data-app-screen="game"] .gameplay-controls .controls-header { grid-template-columns: auto 1fr auto !important; }
 body[data-app-screen="game"] .gameplay-controls .controls-line { grid-template-columns: 54px minmax(0, 1fr) !important; min-height: 24px !important; }
 body[data-app-screen="game"] .gameplay-controls .control-label { font-size: 10px !important; }
@@ -5431,21 +5488,31 @@ body[data-app-screen="game"] .gameplay-dialogue-live {
   right: auto !important;
   bottom: 14px !important;
   left: 50% !important;
-  width: min(270px, 24vw) !important;
-  min-height: 0 !important;
-  max-height: 76px !important;
-  grid-template-columns: 1fr !important;
-  gap: 3px !important;
-  padding: 7px 9px !important;
-  border-radius: 12px !important;
+  width: min(460px, 38vw) !important;
+  min-height: 116px !important;
+  max-height: min(34vh, 280px) !important;
+  grid-template-columns: 58px 1fr !important;
+  gap: 12px !important;
+  padding: 14px 16px !important;
+  border-radius: 14px !important;
   transform: translateX(-50%) translateY(10px) !important;
 }
 body[data-app-screen="game"] .gameplay-dialogue-live.is-open { transform: translateX(-50%) translateY(0) !important; }
-body[data-app-screen="game"] .gameplay-dialogue-live .crew-portrait { display: none !important; }
-body[data-app-screen="game"] .gameplay-dialogue-live .story-speaker-line { font-size: 7px !important; }
-body[data-app-screen="game"] .gameplay-dialogue-title { display: none !important; }
-body[data-app-screen="game"] .gameplay-dialogue-live .story-subtitle { display: -webkit-box !important; overflow: hidden !important; -webkit-box-orient: vertical !important; -webkit-line-clamp: 2 !important; font-size: 9px !important; line-height: 1.25 !important; }
+body[data-app-screen="game"] .gameplay-dialogue-live .crew-portrait { display: block !important; min-height: 78px !important; }
+body[data-app-screen="game"] .gameplay-dialogue-live .story-speaker-line { font-size: 9px !important; }
+body[data-app-screen="game"] .gameplay-dialogue-live .story-subtitle { display: block !important; font-size: 12px !important; line-height: 1.4 !important; }
 body[data-app-screen="game"] .gameplay-dialogue-live .story-hazard-signal { display: none !important; }
+body[data-app-screen="game"] .gameplay-commander-card:not(.is-open) {
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+  transform: translateX(-50%) translateY(10px) !important;
+}
+body[data-app-screen="game"] .gameplay-commander-card.is-open {
+  opacity: 1 !important;
+  visibility: visible !important;
+  pointer-events: auto !important;
+}
 body[data-app-screen="game"] .gameplay-dialogue-live.is-briefing {
   top: 154px !important;
   bottom: auto !important;
@@ -5473,7 +5540,7 @@ body[data-app-screen="game"] .gameplay-dialogue-title { font-size: 18px !importa
 body[data-app-screen="game"] .gameplay-interaction-hint {
   top: auto !important;
   right: auto !important;
-  bottom: 318px !important;
+  bottom: 112px !important;
   left: 50% !important;
   width: min(310px, 27vw) !important;
   min-width: 0 !important;
@@ -5490,24 +5557,31 @@ body[data-app-screen="game"] .gameplay-decision-panel {
 }
 
 @media (max-width: 900px) and (min-width: 651px) {
-  body[data-app-screen="game"] .gameplay-hud { right: 16px !important; width: min(560px, calc(100vw - 370px)) !important; }
-  body[data-app-screen="game"] .gameplay-task { top: 88px !important; left: auto !important; right: 16px !important; width: 210px !important; }
+  body[data-app-screen="game"] .gameplay-hud { right: 16px !important; width: min(650px, calc(100vw - 350px)) !important; grid-template-columns: minmax(130px, .6fr) minmax(240px, 1.4fr) 70px !important; }
+  body[data-app-screen="game"] .gameplay-task { top: 108px !important; left: auto !important; right: 16px !important; width: 224px !important; }
   body[data-app-screen="game"] .gameplay-controls { right: 16px !important; }
-  body[data-app-screen="game"] .gameplay-dialogue-live { width: 250px !important; }
+  body[data-app-screen="game"] .gameplay-dialogue-live { width: min(390px, 42vw) !important; }
 }
 
 @media (max-width: 650px) {
   body[data-app-screen="game"] .topbar { top: 8px !important; left: 10px !important; right: 10px !important; width: auto !important; height: 50px !important; min-height: 50px !important; }
-  body[data-app-screen="game"] .gameplay-hud { top: 66px !important; left: 10px !important; right: 10px !important; width: auto !important; grid-template-columns: 1fr !important; }
-  body[data-app-screen="game"] .gameplay-hud .story-resources { grid-template-columns: repeat(4, minmax(0, 1fr)) !important; }
-  body[data-app-screen="game"] .gameplay-objective { top: 146px !important; left: 10px !important; right: 10px !important; width: auto !important; }
-  body[data-app-screen="game"] .gameplay-task { top: 270px !important; left: 10px !important; right: 10px !important; width: auto !important; }
-  body[data-app-screen="game"] .gameplay-task.is-briefing-task { top: 270px !important; left: 10px !important; right: 10px !important; width: auto !important; transform: none !important; }
-  body[data-app-screen="game"] .gameplay-controls { top: auto !important; right: 10px !important; bottom: 156px !important; width: 160px !important; }
+  body[data-app-screen="game"] .gameplay-hud { top: 66px !important; left: 10px !important; right: 10px !important; width: auto !important; grid-template-columns: 1fr !important; gap: 5px !important; }
+  body[data-app-screen="game"] .gameplay-hud .story-hud-marker { min-height: 42px !important; padding: 7px 9px !important; }
+  body[data-app-screen="game"] .gameplay-hud .story-qualitative-status { gap: 4px !important; }
+  body[data-app-screen="game"] .gameplay-hud .story-qualitative-chip { min-height: 44px !important; padding: 6px 7px !important; }
+  body[data-app-screen="game"] .gameplay-hud .story-qualitative-label { font-size: 7px !important; }
+  body[data-app-screen="game"] .gameplay-hud .story-qualitative-value { margin-top: 4px !important; font-size: 8px !important; }
+  body[data-app-screen="game"] .gameplay-hud .story-day-progress { min-height: 38px !important; grid-template-columns: auto repeat(4, 1fr) !important; }
+  body[data-app-screen="game"] .gameplay-objective { top: 212px !important; left: 10px !important; right: 10px !important; width: auto !important; }
+  body[data-app-screen="game"] .gameplay-task { top: 356px !important; left: 10px !important; right: 10px !important; width: auto !important; }
+  body[data-app-screen="game"] .gameplay-task.is-briefing-task { top: 356px !important; left: 10px !important; right: 10px !important; width: auto !important; transform: none !important; }
+  body[data-app-screen="game"] .mission-radar-gameplay { left: 12px !important; bottom: 96px !important; width: 128px !important; height: 128px !important; }
+  body[data-app-screen="game"] .radar-north { left: 60px !important; }
+  body[data-app-screen="game"] .gameplay-controls { top: auto !important; right: 12px !important; bottom: 14px !important; width: 150px !important; }
   body[data-app-screen="game"] .gameplay-dialogue-live { right: 10px !important; bottom: 10px !important; left: 10px !important; width: auto !important; max-height: 34vh !important; overflow: auto !important; transform: translateY(10px) !important; }
   body[data-app-screen="game"] .gameplay-dialogue-live.is-open { transform: translateY(0) !important; }
   body[data-app-screen="game"] .gameplay-dialogue-live.is-briefing { top: 142px !important; right: 10px !important; bottom: auto !important; left: 10px !important; width: auto !important; min-height: 128px !important; max-height: 190px !important; transform: translateY(0) !important; }
-  body[data-app-screen="game"] .gameplay-interaction-hint { right: 10px !important; bottom: 124px !important; left: 10px !important; width: auto !important; transform: none !important; }
+  body[data-app-screen="game"] .gameplay-interaction-hint { right: 10px !important; bottom: 150px !important; left: 10px !important; width: auto !important; transform: none !important; }
   body[data-app-screen="game"] .gameplay-decision-panel { right: 10px !important; bottom: 10px !important; left: 10px !important; width: auto !important; transform: none !important; }
 }
 body[data-app-screen="game"] .gameplay-hud {
@@ -5632,4 +5706,156 @@ body[data-app-screen="game"] .gameplay-interaction-hint { bottom: 5%; }
   .story-qualitative-status, .mission-feedback-qualitative, .qualitative-outcome { grid-template-columns: 1fr; }
   .story-qualitative-chip { padding: 7px 8px; }
   .story-qualitative-value { white-space: normal; }
+}
+
+/* Day 1 terrain-shadow mission additions. Keep the existing visual system,
+   but make the single destination and inspection report intentional. */
+.destination-grid { grid-template-columns: minmax(0, 760px); justify-content: center; }
+.destination-card-moon { min-height: 490px; border-color: rgb(142 213 255 / 46%); box-shadow: 0 28px 76px rgb(0 0 0 / 44%), 0 0 42px rgb(56 189 248 / 12%); }
+.destination-card-moon .destination-card-image img { filter: saturate(.9) contrast(1.08) brightness(.78); }
+
+.story-choice-benefit { color: #b9f2dc; font-size: 10px; line-height: 1.35; }
+.inspection-report { margin-top: 14px; padding: 13px; border: 1px solid rgb(255 211 107 / 30%); border-radius: 13px; background: rgb(38 31 65 / 52%); }
+.inspection-report-title { margin: 0 0 9px; color: var(--sun); font-size: 10px; letter-spacing: .12em; }
+.inspection-report-grid { display: grid; grid-template-columns: minmax(125px, .8fr) minmax(0, 1.2fr); gap: 6px 12px; margin: 0; }
+.inspection-report-label { color: #aebdd8; font-size: 9px; font-weight: 800; letter-spacing: .08em; }
+.inspection-report-value { margin: 0; color: #f4f7ff; font-size: 11px; line-height: 1.3; }
+.science-explanation { margin: 13px 0 0; color: #d5e3f1; font-size: 12px; line-height: 1.55; }
+.learn-science-link { display: inline-block; margin-top: 10px; color: #a9ddff; font-size: 11px; font-weight: 800; text-underline-offset: 3px; }
+.story-source-line { overflow-wrap: anywhere; }
+
+.interaction-touch-button { grid-column: 1 / -1; min-height: 38px; margin-top: 8px; padding: 0 13px; border: 1px solid rgb(96 228 237 / 52%); border-radius: 10px; color: #07172d; background: linear-gradient(100deg, #75f0ef, #73bcff); font-size: 11px; font-weight: 900; cursor: pointer; }
+.interaction-touch-button:disabled { opacity: .55; cursor: wait; }
+.terminal-inspect-button { margin-top: 11px; }
+.mission-loading { display: grid; place-items: center; min-height: 48vh; padding: 34px; text-align: center; }
+.mission-loading h1 { margin: 10px 0; font-size: clamp(28px, 5vw, 48px); }
+.mission-loading p { max-width: 560px; color: var(--muted); line-height: 1.6; }
+.loading-line { color: var(--cyan); font-size: 12px; font-weight: 900; letter-spacing: .12em; text-transform: uppercase; }
+
+.day-one-report { width: min(920px, calc(100% - 28px)); margin: 18px auto 0; padding: 21px; border: 1px solid rgb(142 213 255 / 22%); border-radius: 18px; background: rgb(11 22 51 / 78%); }
+.day-one-selected { margin: 8px 0 15px; color: #f4f7ff; font-size: clamp(17px, 2.5vw, 25px); }
+.day-one-report-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 9px; }
+.day-one-report-card { min-width: 0; padding: 12px; border-radius: 12px; background: rgb(4 12 35 / 60%); }
+.day-one-report-card strong { display: block; margin-top: 6px; color: #d9e8ff; font-size: 12px; line-height: 1.4; }
+.day-one-persistent-effect, .day-one-takeaway { margin-top: 15px; padding-top: 13px; border-top: 1px solid rgb(151 217 255 / 16%); }
+.day-one-persistent-effect strong { display: block; margin-top: 5px; color: var(--cyan); font-size: 12px; }
+.day-one-persistent-effect p, .day-one-takeaway p { margin: 5px 0 0; color: #c7d8ee; font-size: 12px; line-height: 1.5; }
+
+@media (max-width: 720px) { .day-one-report-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 520px) {
+  .inspection-report-grid, .day-one-report-grid { grid-template-columns: 1fr; }
+  .destination-card-moon { min-height: 430px; }
+  .day-one-report { width: min(100% - 20px, 920px); padding: 15px; }
+}
+
+/* Day 2 — Life Support Crisis. Keep the report qualitative and separate from
+   the existing Day 1 power presentation. */
+.water-alert-title { color: #ffe08b !important; }
+.mission-context-note { margin: 11px 0 0; padding: 9px 10px; border-left: 2px solid var(--cyan); color: #cde8f2; background: rgb(6 32 56 / 42%); font-size: 10px; line-height: 1.45; }
+.water-system-report { border-color: rgb(255 211 107 / 46%); background: rgb(45 35 60 / 62%); }
+.water-status-table { display: grid; gap: 5px; }
+.water-status-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 28px; padding: 6px 8px; border-radius: 8px; background: rgb(4 12 35 / 54%); }
+.water-status-system { color: #d7e4f2; font-size: 10px; line-height: 1.25; }
+.water-status-value { color: #ffe39c; font-family: var(--hud-tech, monospace); font-size: 9px; letter-spacing: .07em; text-align: right; }
+.day-two-briefing-card { width: min(920px, calc(100% - 28px)); margin: 17px auto 92px; padding: 19px 21px; border: 1px solid rgb(255 211 107 / 36%); border-radius: 18px; background: linear-gradient(145deg, rgb(43 34 72 / 86%), rgb(8 18 44 / 84%)); box-shadow: 0 20px 44px rgb(0 3 24 / 28%), inset 0 1px 0 rgb(255 255 255 / 10%); }
+.day-two-briefing-title { margin: 7px 0 8px; color: #f5f8ff; font-family: var(--hud-display); font-size: clamp(20px, 3vw, 31px); line-height: 1; }
+.day-two-briefing-card p { margin: 0; color: #d1deef; font-size: 12px; line-height: 1.5; }
+.day-two-briefing-copy { margin-top: 9px !important; color: #ffe39c !important; }
+.day-two-complete-story { min-height: calc(100vh - 110px); padding-top: 0; }
+.day-two-complete-dialogue { position: fixed; z-index: 7; left: max(42px, calc((100vw - 1320px) / 2 + 18px)); bottom: 17%; width: min(500px, 42vw); transform: translateZ(78px); }
+.day-two-report { width: min(920px, calc(100% - 28px)); margin: 18px auto 92px; padding: 21px; border: 1px solid rgb(132 241 208 / 32%); border-radius: 18px; background: rgb(11 22 51 / 82%); }
+.day-two-selected { margin: 8px 0 15px; color: #f4f7ff; font-size: clamp(17px, 2.5vw, 25px); }
+.day-two-status-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 9px; }
+.day-two-status-card { min-width: 0; padding: 12px; border-radius: 12px; background: rgb(4 12 35 / 60%); }
+.day-two-status-card strong { display: block; margin-top: 6px; color: #b9f2dc; font-family: var(--hud-tech, monospace); font-size: 10px; line-height: 1.35; overflow-wrap: anywhere; }
+.day-two-science-note, .day-two-persistence-note { margin: 15px 0 0; padding-top: 13px; border-top: 1px solid rgb(151 217 255 / 16%); color: #c7d8ee; font-size: 12px; line-height: 1.5; }
+.day-two-persistence-note { color: #ffe39c; }
+.day-two-complete-actions { position: fixed; z-index: 8; left: 50%; bottom: 5%; display: flex; align-items: center; gap: 16px; transform: translateX(-50%); }
+.day-two-complete-note { color: #b8c9df; font-size: 11px; white-space: nowrap; }
+
+/* Day 3 — Food Production. Crops are a delayed, qualitative strategy; the
+   report never turns them into a quantity, rate, or immediate meal. */
+.food-warning-title { color: #b9f2dc !important; }
+.food-system-report { border-color: rgb(122 238 179 / 44%); background: rgb(27 52 55 / 58%); }
+.day-three-complete-story { min-height: calc(100vh - 110px); padding-top: 0; }
+.day-three-complete-dialogue { position: fixed; z-index: 7; left: max(42px, calc((100vw - 1320px) / 2 + 18px)); bottom: 17%; width: min(500px, 42vw); transform: translateZ(78px); }
+.day-three-report { width: min(980px, calc(100% - 28px)); margin: 18px auto 92px; padding: 21px; border: 1px solid rgb(122 238 179 / 32%); border-radius: 18px; background: rgb(11 22 51 / 82%); }
+.day-three-selected { margin: 8px 0 15px; color: #f4f7ff; font-size: clamp(17px, 2.5vw, 25px); }
+.day-three-status-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 9px; }
+.day-three-status-card { min-width: 0; padding: 12px; border-radius: 12px; background: rgb(4 12 35 / 60%); }
+.day-three-status-card strong { display: block; margin-top: 6px; color: #b9f2dc; font-family: var(--hud-tech, monospace); font-size: 10px; line-height: 1.35; overflow-wrap: anywhere; }
+.day-three-science-note, .day-three-persistence-note { margin: 15px 0 0; padding-top: 13px; border-top: 1px solid rgb(151 217 255 / 16%); color: #c7d8ee; font-size: 12px; line-height: 1.5; }
+.day-three-persistence-note { color: #ffe39c; }
+.day-three-complete-actions { position: fixed; z-index: 8; left: 50%; bottom: 5%; display: flex; align-items: center; gap: 16px; transform: translateX(-50%); }
+.day-three-complete-note { color: #b8c9df; font-size: 11px; white-space: nowrap; }
+
+@media (max-width: 900px) {
+  .day-three-complete-dialogue { left: 24px; width: min(430px, 46vw); }
+  .day-three-status-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (max-width: 650px) {
+  body[data-app-screen="day3Complete"] .topbar { left: 12px; right: 12px; transform: translateZ(25px) scale(.92); }
+  body[data-app-screen="day3Complete"] .app-shell { padding-top: 72px; }
+  .day-three-complete-dialogue, .day-three-complete-actions { position: relative; inset: auto; left: auto; right: auto; bottom: auto; width: 100%; margin: 14px 0 0; transform: none; }
+  .day-three-complete-story { min-height: 0; padding-top: 13px; }
+  .day-three-complete-actions { display: grid; gap: 8px; }
+  .day-three-complete-actions .button { width: 100%; }
+  .day-three-complete-note { white-space: normal; text-align: center; }
+  .day-three-report { width: min(100% - 20px, 980px); padding: 15px; }
+  .day-three-status-grid { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 900px) {
+  .day-two-complete-dialogue { left: 24px; width: min(430px, 46vw); }
+}
+
+@media (max-width: 720px) {
+  .day-two-status-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (max-width: 650px) {
+  body[data-app-screen="day2Complete"] .topbar { left: 12px; right: 12px; transform: translateZ(25px) scale(.92); }
+  body[data-app-screen="day2Complete"] .app-shell { padding-top: 72px; }
+  .day-two-complete-dialogue, .day-two-complete-actions { position: relative; inset: auto; left: auto; right: auto; bottom: auto; width: 100%; margin: 14px 0 0; transform: none; }
+  .day-two-complete-story { min-height: 0; padding-top: 13px; }
+  .day-two-complete-actions { display: grid; gap: 8px; }
+  .day-two-complete-actions .button { width: 100%; }
+  .day-two-complete-note { white-space: normal; text-align: center; }
+  .day-two-briefing-card, .day-two-report { width: min(100% - 20px, 920px); padding: 15px; }
+  .day-two-status-grid { grid-template-columns: 1fr; }
+}
+
+/* Day 4 — Emergency Protocol. The alert is descriptive and simulated; the
+   report deliberately avoids dose, percentage, duration, and pass/fail UI. */
+.solar-alert-title { color: #ffd879 !important; }
+.storm-shelter-report { border-color: rgb(255 216 121 / 44%); background: rgb(55 43 25 / 54%); }
+.day-four-complete-story { min-height: calc(100vh - 110px); padding-top: 0; }
+.day-four-complete-dialogue { position: fixed; z-index: 7; left: max(42px, calc((100vw - 1320px) / 2 + 18px)); bottom: 17%; width: min(510px, 43vw); transform: translateZ(78px); }
+.day-four-report { width: min(1000px, calc(100% - 28px)); margin: 18px auto 92px; padding: 21px; border: 1px solid rgb(255 216 121 / 34%); border-radius: 18px; background: rgb(11 22 51 / 84%); }
+.day-four-selected { margin: 8px 0 15px; color: #f4f7ff; font-size: clamp(17px, 2.5vw, 25px); }
+.day-four-status-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 9px; }
+.day-four-status-card { min-width: 0; padding: 12px; border-radius: 12px; background: rgb(4 12 35 / 60%); }
+.day-four-status-card strong { display: block; margin-top: 6px; color: #ffe7a6; font-family: var(--hud-tech, monospace); font-size: 10px; line-height: 1.35; overflow-wrap: anywhere; }
+.day-four-result-note, .day-four-persistence-note, .day-four-pending-note { margin: 15px 0 0; padding-top: 13px; border-top: 1px solid rgb(151 217 255 / 16%); color: #c7d8ee; font-size: 12px; line-height: 1.5; }
+.day-four-persistence-note { color: #b9f2dc; }
+.day-four-pending-note { color: #ffe39c; }
+.day-four-complete-actions { position: fixed; z-index: 8; left: 50%; bottom: 5%; display: flex; align-items: center; gap: 16px; transform: translateX(-50%); }
+.day-four-complete-note { color: #b8c9df; font-size: 11px; white-space: nowrap; }
+
+@media (max-width: 900px) {
+  .day-four-complete-dialogue { left: 24px; width: min(440px, 48vw); }
+  .day-four-status-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (max-width: 650px) {
+  body[data-app-screen="day4Complete"] .topbar { left: 12px; right: 12px; transform: translateZ(25px) scale(.92); }
+  body[data-app-screen="day4Complete"] .app-shell { padding-top: 72px; }
+  .day-four-complete-dialogue, .day-four-complete-actions { position: relative; inset: auto; left: auto; right: auto; bottom: auto; width: 100%; margin: 14px 0 0; transform: none; }
+  .day-four-complete-story { min-height: 0; padding-top: 13px; }
+  .day-four-complete-actions { display: grid; gap: 8px; }
+  .day-four-complete-actions .button { width: 100%; }
+  .day-four-complete-note { white-space: normal; text-align: center; }
+  .day-four-report { width: min(100% - 20px, 1000px); padding: 15px; }
+  .day-four-status-grid { grid-template-columns: 1fr; }
 }

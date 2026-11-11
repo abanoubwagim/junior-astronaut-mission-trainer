@@ -1,5 +1,10 @@
 # MoonBase Scientific Foundation
 
+> Historical prototype notice (November 11, 2026): some entries below refer
+> to a superseded numeric model and older Day 4 assumptions. They are retained
+> for audit history only. The active implementation uses qualitative states,
+> avoids radiation calculations, and is defined by `SCIENCE_REFERENCES.md`.
+
 ## Audit purpose and scope
 
 This document is the scientific evidence record for **MoonBase: 4 Days to Survive**. It was prepared from the implementation, the repository documentation and presentation notes, and primary NASA sources checked on 31 October 2026.
