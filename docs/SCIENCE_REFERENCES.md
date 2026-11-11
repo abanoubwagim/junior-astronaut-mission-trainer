@@ -108,10 +108,10 @@ quantity, event duration, power consumption, or a scientifically validated
 safety threshold. It also does not classify the mission as success or failure.
 
 Day 4 inherits the actual ordered Day 1–Day 3 decisions. Water that is
-`REPROCESSING_PENDING_VERIFICATION` remains isolated and cannot be used for
-shielding. Approved-water availability is kept separate from isolated recovered
-water, and reduced potable reserve or active conservation is shown as a
-qualitative constraint. Day 3 crops remain immature and are never treated as
+`REPROCESSING_PENDING_VERIFICATION` remains isolated and cannot itself be used
+for shielding. The separate, already-approved potable supply remains a distinct
+state and is not automatically treated as unavailable; reduced potable reserve
+or active conservation is shown as a qualitative constraint. Day 3 crops remain immature and are never treated as
 ready-to-eat emergency food.
 
 The project owner expects additional NASA data on November 13, 2026. That data

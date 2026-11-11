@@ -207,6 +207,12 @@ public class MissionRulesService {
             new SystemStatus("Crew life support", "OPERATIONAL")
     );
 
+    private static final List<ScienceSource> DAY_FOUR_SCIENCE_SOURCES = List.of(
+            new ScienceSource("NASA — Space Radiation", "https://www.nasa.gov/hrp/hazard-space-radiation/"),
+            new ScienceSource("NASA Science — Protecting Astronauts from Space Radiation at the Moon", "https://science.nasa.gov/science-research/heliophysics/how-nasa-will-protect-astronauts-from-space-radiation-at-the-moon/"),
+            new ScienceSource("NASA Space Radiation Analysis Group — How Space Radiation Works", "https://srag.jsc.nasa.gov/spaceradiation/how/how.cfm")
+    );
+
     private static final List<SystemStatus> DAY_FOUR_SYSTEM_REPORT = List.of(
             new SystemStatus("EVA status", EVA_STOPPED),
             new SystemStatus("Crew location", CREW_LOCATION_STORM_SHELTER),
@@ -483,7 +489,7 @@ public class MissionRulesService {
                 "This is a simulated mission event, not live NASA telemetry. The existing Storm Shelter has fixed primary shielding. The game does not calculate radiation dose, shielding effectiveness, exposure duration, or a scientific safety threshold.",
                 "SOLAR_RADIATION_ALERT",
                 null,
-                List.of(),
+                DAY_FOUR_SCIENCE_SOURCES,
                 DAY_FOUR_CHOICES,
                 "EDUCATIONAL_SCENARIO_PENDING_SCIENCE_REVIEW",
                 VALUE_ORIGIN,
@@ -636,7 +642,8 @@ public class MissionRulesService {
 
     private String approvedWaterForShielding(QualitativeState state) {
         return switch (state.dayTwoPersistentState()) {
-            case REPROCESSING_PENDING_VERIFICATION -> WATER_UNVERIFIED_FOR_SHIELDING;
+            case REPROCESSING_PENDING_VERIFICATION ->
+                    "APPROVED_POTABLE_RESERVE_AVAILABLE; RECOVERED_WATER_REMAINS_ISOLATED";
             case POTABLE_RESERVE_REDUCED -> "APPROVED_WATER_LIMITED_POTABLE_RESERVE_REDUCED";
             case WATER_CONSERVATION_ACTIVE -> "APPROVED_WATER_LIMITED_WATER_CONSERVATION_ACTIVE";
             default -> "APPROVED_WATER_STATUS_NOT_REPORTED";
@@ -644,10 +651,12 @@ public class MissionRulesService {
     }
 
     private String packagedFoodForShielding(QualitativeState state) {
-        if (PACKAGED_FOOD_DEPENDENCY.equals(state.dayThreePersistentState())) {
+        // A crop-growing choice does not consume the remaining packaged food.
+        // LOW means the reserve is limited, not that it is absent.
+        if (STORED_FOOD_LOW.equals(state.storedFoodSupply())) {
             return "LIMITED_PACKAGED_FOOD_AVAILABLE";
         }
-        return "STORED_FOOD_LOW; " + FOOD_CROPS_NOT_AVAILABLE;
+        return "STORED_FOOD_STATUS_NOT_CONFIRMED; " + FOOD_CROPS_NOT_AVAILABLE;
     }
 
     private String dayFourOperationalConstraint(QualitativeState state) {
@@ -658,8 +667,15 @@ public class MissionRulesService {
     }
 
     private boolean approvedWaterAvailableForShielding(QualitativeState state) {
-        return "APPROVED_WATER_LIMITED_POTABLE_RESERVE_REDUCED".equals(state.approvedWaterForShielding())
-                || "APPROVED_WATER_LIMITED_WATER_CONSERVATION_ACTIVE".equals(state.approvedWaterForShielding());
+        boolean potableSupplyConfirmed = POTABLE_SUPPLY_AVAILABLE.equals(state.potableWaterSupply());
+        boolean recoveredWaterRemainsIsolated = RECOVERED_WATER_ISOLATED.equals(state.recoveredWaterDisposition());
+        boolean approvedWaterStateReported = !"APPROVED_WATER_STATUS_NOT_REPORTED"
+                .equals(state.approvedWaterForShielding());
+
+        // The potable reserve remains approved even when a separate recovered
+        // batch is awaiting verification. Only the isolated recovered batch is
+        // excluded; a reduced reserve is constrained, not automatically empty.
+        return potableSupplyConfirmed && recoveredWaterRemainsIsolated && approvedWaterStateReported;
     }
 
     private boolean packagedFoodAvailableForShielding(QualitativeState state) {

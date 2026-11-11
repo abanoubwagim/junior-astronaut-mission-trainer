@@ -436,6 +436,12 @@
   async function submitChoice() {
     const event = ui.mission?.event;
     if (!event || ui.mission?.status !== "ACTIVE" || !ui.selectedChoiceId || ui.loading) return;
+    if (Number(event.day) === 4 && !ui.emergencyProcedureComplete) {
+      ui.error = "Stop EVA and enter the Storm Shelter before confirming a Day 4 strategy.";
+      announce(ui.error);
+      render();
+      return;
+    }
 
     const candidateHistory = [
       ...ui.decisionHistory,
@@ -958,13 +964,14 @@
 
   function renderStoryChoices(event) {
     const choices = make("div", "story-choices");
+    const emergencyProcedurePending = Number(event?.day) === 4 && !ui.emergencyProcedureComplete;
     choices.setAttribute("role", "group");
     choices.setAttribute("aria-label", "Mission choices");
     (event?.choices || []).forEach((choice, index) => {
       const selected = ui.selectedChoiceId === choice.id;
       const card = make("button", "story-choice");
       card.type = "button";
-      card.disabled = ui.loading;
+      card.disabled = ui.loading || emergencyProcedurePending;
       card.dataset.choiceId = choice.id;
       card.setAttribute("aria-pressed", String(selected));
       card.addEventListener("click", () => {
@@ -1375,15 +1382,19 @@
       make("strong", "", "Mission Control will calculate the result."));
     const choices = renderStoryChoices(event);
     const confirm = make("div", "story-confirm gameplay-confirm");
+    const emergencyProcedurePending = Number(event?.day) === 4 && !ui.emergencyProcedureComplete;
     const submit = button("Confirm decision", "story-primary-action", submitChoice,
-      ui.loading || !ui.selectedChoiceId || (!ui.interactionOpen && ui.sceneAvailable));
+      ui.loading || !ui.selectedChoiceId || emergencyProcedurePending || (!ui.interactionOpen && ui.sceneAvailable));
     if (ui.loading) {
       submit.replaceChildren(make("span", "loading-label", "Sending to Mission Control…"));
       submit.querySelector?.(".loading-label")?.prepend(make("span", "spinner"));
     } else {
       submit.append(make("span", "arrow", "→"));
     }
-    append(confirm, make("span", "story-confirm-hint", ui.selectedChoiceId ? "Ready to send this plan to Mission Control." : "Select a solution to continue."), submit);
+    const confirmHint = emergencyProcedurePending
+      ? "Stop EVA and enter the Storm Shelter before selecting a strategy."
+      : ui.selectedChoiceId ? "Ready to send this plan to Mission Control." : "Select a solution to continue.";
+    append(confirm, make("span", "story-confirm-hint", confirmHint), submit);
     append(choicePanel, choiceHeader, choices, confirm);
     task.append(choicePanel);
 
