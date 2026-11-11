@@ -7,13 +7,30 @@ import org.juniorastronaut.missiontrainer.api.MissionDtos.MissionResponse;
 import org.juniorastronaut.missiontrainer.game.MissionRulesService;
 import org.juniorastronaut.missiontrainer.game.MissionRulesService.GameRequestException;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.core.env.Environment;
 
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.time.Duration;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class MissionTrainerBackendApplicationTests {
-    private final MissionRulesService rules = new MissionRulesService();
+    @Autowired
+    private MissionRulesService rules;
+
+    @Autowired
+    private Environment environment;
+
+    private final HttpClient http = HttpClient.newBuilder()
+            .connectTimeout(Duration.ofSeconds(5))
+            .build();
 
     @Test
     void startReturnsTheCurrentDayOneContract() {
@@ -165,6 +182,46 @@ class MissionTrainerBackendApplicationTests {
         DecisionHistoryRequest request = new DecisionHistoryRequest(decisions);
 
         assertEquals(rules.replay(request), rules.replay(request));
+    }
+
+    @Test
+    void canonicalHttpEndpointReplaysTheCurrentDayFourContract() throws Exception {
+        HttpResponse<String> start = post("/api/v1/missions/start", "");
+        assertEquals(200, start.statusCode());
+        assertTrue(start.body().contains("POWER DROP"));
+
+        String history = """
+                {"decisions":[
+                  {"day":1,"choiceId":"reduce_non_essential_loads"},
+                  {"day":2,"choiceId":"inspect_reprocess_water"},
+                  {"day":3,"choiceId":"PRESERVE_STORED_FOOD"},
+                  {"day":4,"choiceId":"REPOSITION_WATER_SUPPLIES"}
+                ]}
+                """;
+        HttpResponse<String> dayFour = post("/api/v1/missions/decisions", history);
+        assertEquals(200, dayFour.statusCode());
+        assertTrue(dayFour.body().contains("DAY_4_COMPLETE"));
+        assertTrue(dayFour.body().contains("WATER_SUPPLIES_POSITIONED_FOR_SHIELDING"));
+        assertTrue(dayFour.body().contains("RECOVERED_WATER_REMAINS_ISOLATED"));
+
+        HttpResponse<String> invalid = post("/api/v1/missions/decisions",
+                "{\\"decisions\\":[{\\"day\\":2,\\"choiceId\\":\\"conserve_water\\"}]}");
+        assertEquals(400, invalid.statusCode());
+    }
+
+    private HttpResponse<String> post(String path, String body) throws Exception {
+        HttpRequest request = HttpRequest.newBuilder(baseUri(path))
+                .timeout(Duration.ofSeconds(10))
+                .header("Content-Type", "application/json")
+                .POST(HttpRequest.BodyPublishers.ofString(body))
+                .build();
+        return http.send(request, HttpResponse.BodyHandlers.ofString());
+    }
+
+    private URI baseUri(String path) {
+        String port = environment.getProperty("local.server.port");
+        assertNotNull(port);
+        return URI.create("http://127.0.0.1:" + port + path);
     }
 
     private MissionResponse replay(DecisionInput... decisions) {
