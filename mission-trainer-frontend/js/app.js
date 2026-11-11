@@ -923,6 +923,34 @@
     return report;
   }
 
+  function interactionActionCopy(target) {
+    if (target?.id === "solar-array") return "Inspect Solar Array";
+    if (target?.id === "water-recycler") return "Inspect Water Recovery Station";
+    if (target?.id === "grow-tray") return "Inspect Crop Production Unit";
+    if (target?.id === "storm-shelter") return "Enter Storm Shelter";
+    return `Interact with ${target?.name || "mission station"}`;
+  }
+
+  function renderMissionControlAction(target) {
+    const action = make("div", "mission-control-action");
+    action.setAttribute("aria-label", `${interactionActionCopy(target)} action`);
+    const actionHeader = make("div", "mission-control-action-header");
+    append(actionHeader,
+      make("span", "mission-control-action-label", "NEXT ACTION"),
+      make("span", "mission-control-action-status", "READY"));
+    const actionRow = make("div", "mission-control-action-row");
+    append(actionRow,
+      make("span", "interaction-key", "E"),
+      make("strong", "mission-control-action-title", interactionActionCopy(target)));
+    const description = make("p", "mission-control-action-description", target?.description || "Follow the station prompt to continue the mission.");
+    const touchInspect = button(interactionActionCopy(target), "interaction-touch-button", () => {
+      sceneInteractionHandler.onInteract(ui.interactionTarget);
+    }, ui.loading || ui.inspectionComplete);
+    touchInspect.setAttribute("aria-label", interactionActionCopy(target));
+    append(action, actionHeader, actionRow, description, touchInspect);
+    return action;
+  }
+
   function renderGameDialogue(event) {
     const opened = Boolean(ui.interactionOpen);
     const day = Number(event?.day || 0);
@@ -938,13 +966,21 @@
     const portrait = make("div", "crew-portrait");
     append(portrait, make("span", "crew-portrait-visor"), make("span", "crew-portrait-light"));
     const copy = make("div", "gameplay-dialogue-copy");
-    append(copy, make("div", "story-speaker-line", "MISSION CONTROL"));
+    const speakerLine = make("div", "story-speaker-line");
+    append(speakerLine,
+      make("span", "story-speaker-pip"),
+      make("span", "story-speaker", "MISSION CONTROL"),
+      make("span", "mission-control-status", "ONLINE"));
+    append(copy, speakerLine);
     if (!opened && !isDayFour) {
       append(copy, make("p", "story-subtitle", isWaterEvent
         ? "Enter the lunar habitat, find the Water Recovery Station, and press E or use the touch button to inspect it."
         : isFoodEvent
           ? "Enter the lunar habitat, find the Crop Production Unit, and press E or use the touch button to inspect it."
           : "Walk to the highlighted solar-array station. When you are close, press E or use the touch button to inspect it."));
+      if (ui.interactionTarget && !ui.interactionTarget.locked && !ui.gateOpening) {
+        copy.append(renderMissionControlAction(ui.interactionTarget));
+      }
     } else {
       if (isWaterEvent) {
         append(copy,
@@ -977,7 +1013,7 @@
         if (event.contextNote) copy.append(make("p", "mission-context-note", event.contextNote));
       } else {
         append(copy,
-          make("h2", "story-dialogue-title", "POWER DROP DETECTED"),
+          make("h2", "story-dialogue-title power-drop-title", "POWER DROP DETECTED"),
           make("p", "story-subtitle", "Solar power generation is decreasing."),
           make("p", "gameplay-dialogue-note", "Your solar array inspection found no visible damage. Terrain shadows are reducing the sunlight reaching the array."),
           make("p", "gameplay-dialogue-note", "Mission Control needs you to choose how the base should respond."),
@@ -1378,7 +1414,7 @@
               : "Walk to the highlighted solar-array station and inspect it when the prompt appears."),
       append(make("div", "gameplay-task-status"), make("span", "task-status-icon", "!"), make("span", "", isDayTwo ? "Water-station beacon active" : isDayThree ? "Crop-production beacon active" : isDayFour ? (isInspected ? "Emergency procedure complete" : "Storm-shelter beacon active") : "Solar-array beacon active")));
 
-    const showInteractionHint = !ui.interactionOpen && (ui.gateOpening || ui.interactionTarget);
+    const showInteractionHint = !ui.interactionOpen && (ui.gateOpening || ui.interactionTarget?.locked);
     const hint = showInteractionHint
       ? make("div", `gameplay-interaction-hint${ui.interactionTarget && !ui.interactionTarget.locked ? " is-ready" : ""}`)
       : null;
@@ -1393,43 +1429,9 @@
       append(hint, make("span", "interaction-key", "LOCKED"), make("span", "interaction-copy", `${ui.interactionTarget.name} locked`),
         make("small", "interaction-description", ui.interactionTarget.description));
     } else if (hint && ui.interactionTarget) {
-      const interactionCopy = ui.interactionTarget.id === "solar-array"
-        ? "— Inspect Solar Array"
-        : ui.interactionTarget.id === "water-recycler"
-          ? "— Inspect Water Recovery Station"
-        : ui.interactionTarget.id === "storm-shelter"
-          ? "— Enter Storm Shelter"
-        : `Interact with ${ui.interactionTarget.name}`;
+      const interactionCopy = interactionActionCopy(ui.interactionTarget);
       append(hint, make("span", "interaction-key", "E"), make("span", "interaction-copy", interactionCopy),
         make("small", "interaction-description", ui.interactionTarget.description));
-      if (ui.interactionTarget.id === "solar-array") {
-        const touchInspect = button("Inspect Solar Array", "interaction-touch-button", () => {
-          sceneInteractionHandler.onInteract(ui.interactionTarget);
-        }, ui.loading || ui.inspectionComplete);
-        touchInspect.setAttribute("aria-label", "Inspect Solar Array");
-        hint.append(touchInspect);
-      }
-      if (ui.interactionTarget.id === "water-recycler") {
-        const touchInspect = button("Inspect Water Recovery Station", "interaction-touch-button", () => {
-          sceneInteractionHandler.onInteract(ui.interactionTarget);
-        }, ui.loading || ui.inspectionComplete);
-        touchInspect.setAttribute("aria-label", "Inspect Water Recovery Station");
-        hint.append(touchInspect);
-      }
-      if (ui.interactionTarget.id === "grow-tray") {
-        const touchInspect = button("Inspect Crop Production Unit", "interaction-touch-button", () => {
-          sceneInteractionHandler.onInteract(ui.interactionTarget);
-        }, ui.loading || ui.inspectionComplete);
-        touchInspect.setAttribute("aria-label", "Inspect Crop Production Unit");
-        hint.append(touchInspect);
-      }
-      if (ui.interactionTarget.id === "storm-shelter") {
-        const touchEnter = button("Enter Storm Shelter", "interaction-touch-button", () => {
-          sceneInteractionHandler.onInteract(ui.interactionTarget);
-        }, ui.loading || ui.inspectionComplete);
-        touchEnter.setAttribute("aria-label", "Enter Storm Shelter");
-        hint.append(touchEnter);
-      }
     }
 
     const fallbackNotice = ui.sceneAvailable ? null : make("aside", "scene-fallback-notice", "");

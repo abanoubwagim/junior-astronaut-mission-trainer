@@ -300,20 +300,22 @@ body[data-app-screen="game"] .app-shell { width: 100%; max-width: none; margin: 
 .story-confirm { display: grid; gap: 9px; margin-top: 12px; }
 .story-confirm-hint { color: var(--subtle); font-size: 10px; line-height: 1.35; }
 .gameplay-confirm .story-primary-action { width: 100%; }
-.gameplay-dialogue-live { left: max(190px, calc((100vw - 1360px) / 2 + 166px)); bottom: 24px; width: min(405px, 30vw); max-height: min(43svh, 420px); overflow: auto; display: grid; grid-template-columns: 54px minmax(0, 1fr); gap: 12px; padding: 13px; border-color: rgb(101 228 242 / 34%); background: rgb(7 18 41 / 88%); box-shadow: var(--shadow-float); backdrop-filter: blur(18px); }
-.gameplay-dialogue-copy { min-width: 0; }
+.gameplay-dialogue-live { left: max(190px, calc((100vw - 1360px) / 2 + 166px)); bottom: 24px; width: min(460px, 38vw); max-height: min(52svh, 520px); overflow: auto; display: grid; grid-template-columns: 46px minmax(0, 1fr); gap: 14px; padding: 16px; border-color: rgb(101 228 242 / 34%); background: rgb(7 18 41 / 88%); box-shadow: var(--shadow-float); backdrop-filter: blur(18px); }
+.gameplay-dialogue-copy { min-width: 0; overflow-wrap: anywhere; }
 .gameplay-commander-card:not(.is-open) { opacity: .92; }
 .gameplay-dialogue-live:not(.is-open) { max-height: none; }
 .gameplay-dialogue-live:not(.is-open) .story-speaker-line { margin-top: 4px; }
-.gameplay-dialogue-live:not(.is-open) .story-speaker-line::after { content: "ONLINE"; margin-left: auto; color: var(--green); font-size: 8px; }
-.crew-portrait { position: relative; display: grid; place-items: center; width: 54px; min-height: 66px; align-self: start; overflow: hidden; border: 1px solid rgb(101 228 242 / 36%); border-radius: 12px; background: radial-gradient(circle at 50% 35%, rgb(122 224 245 / 40%), rgb(19 45 76 / 88%) 46%, rgb(5 14 31 / 98%)); }
+.crew-portrait { position: relative; display: grid; place-items: center; width: 46px; min-height: 60px; align-self: start; overflow: hidden; border: 1px solid rgb(101 228 242 / 36%); border-radius: 12px; background: radial-gradient(circle at 50% 35%, rgb(122 224 245 / 40%), rgb(19 45 76 / 88%) 46%, rgb(5 14 31 / 98%)); }
 .crew-portrait::before { width: 28px; height: 35px; border: 2px solid var(--sky); border-radius: 47% 47% 43% 43%; background: linear-gradient(160deg, rgb(210 240 255 / 82%), rgb(77 128 165 / 60%)); box-shadow: 0 0 19px rgb(101 228 242 / 27%); content: ""; }
 .crew-portrait-visor { position: absolute; top: 17px; width: 22px; height: 10px; border-radius: 50%; background: #0b1b39; box-shadow: inset 0 0 5px rgb(101 228 242 / 55%); }
 .crew-portrait-light { position: absolute; right: 7px; bottom: 8px; width: 5px; height: 5px; border-radius: 50%; background: var(--green); box-shadow: 0 0 9px var(--green); }
-.gameplay-dialogue-live .story-speaker-line { font-size: 8px; }
-.gameplay-dialogue-title { margin: 7px 0 5px; font-size: 18px; }
-.gameplay-dialogue-live .story-subtitle { font-size: 11px; line-height: 1.45; }
-.gameplay-dialogue-note, .science-explanation { margin: 10px 0 0; color: var(--muted); font-size: 10px; line-height: 1.45; }
+.gameplay-dialogue-live .story-speaker-line { justify-content: space-between; gap: 8px; font-size: 9px; }
+.mission-control-status { display: inline-flex; align-items: center; gap: 5px; margin-left: auto; color: var(--green); font-family: var(--mono); font-size: 8px; letter-spacing: .1em; }
+.mission-control-status::before { width: 5px; height: 5px; border-radius: 50%; background: var(--green); box-shadow: 0 0 8px var(--green); content: ""; }
+.gameplay-dialogue-title { margin: 7px 0 5px; font-size: clamp(1.65rem, 3vw, 2.25rem); letter-spacing: -.04em; line-height: 1.04; }
+.power-drop-title { color: var(--amber); }
+.gameplay-dialogue-live .story-subtitle { font-size: 12px; line-height: 1.5; }
+.gameplay-dialogue-note, .science-explanation { margin: 10px 0 0; color: var(--muted); font-size: 11px; line-height: 1.55; }
 .science-explanation { color: #d8eff5; }
 .learn-science-link { display: inline-block; margin-top: 11px; font-size: 10px; font-weight: 700; }
 .inspection-report { margin-top: 12px; padding: 11px; border: 1px solid var(--line); border-radius: 10px; background: rgb(5 15 34 / 62%); }
@@ -329,6 +331,14 @@ body[data-app-screen="game"] .app-shell { width: 100%; max-width: none; margin: 
 .water-alert-title { color: var(--amber); }
 .food-warning-title { color: var(--green); }
 .solar-alert-title { color: var(--coral); }
+.mission-control-action { display: grid; gap: 8px; margin-top: 14px; padding: 11px 12px; border: 1px solid rgb(101 228 242 / 28%); border-radius: 10px; background: rgb(9 27 51 / 68%); }
+.mission-control-action-header { display: flex; justify-content: space-between; gap: 8px; }
+.mission-control-action-label, .mission-control-action-status { color: var(--cyan); font-family: var(--mono); font-size: 8px; font-weight: 700; letter-spacing: .1em; }
+.mission-control-action-status { color: var(--green); }
+.mission-control-action-row { display: grid; grid-template-columns: 34px minmax(0, 1fr); gap: 9px; align-items: center; }
+.mission-control-action-title { color: var(--ink); font-family: var(--display); font-size: 13px; line-height: 1.2; }
+.mission-control-action-description { grid-column: 1 / -1; margin: 0; color: var(--muted); font-size: 11px; line-height: 1.5; overflow-wrap: anywhere; }
+.mission-control-action .interaction-touch-button { grid-column: 1 / -1; }
 .gameplay-interaction-hint { right: 50%; bottom: 26px; display: grid; grid-template-columns: 36px minmax(0, 1fr); gap: 9px; align-items: center; width: min(410px, 33vw); padding: 10px 12px; border: 1px solid rgb(101 228 242 / 38%); border-radius: 13px; background: rgb(6 17 39 / 91%); box-shadow: var(--shadow-float); transform: translateX(50%); }
 .interaction-key { display: grid; place-items: center; width: 34px; height: 30px; border: 1px solid var(--cyan); border-radius: 8px; color: var(--cyan); background: rgb(42 128 154 / 24%); font-family: var(--mono); font-size: 11px; font-weight: 700; }
 .interaction-copy { color: var(--ink); font-family: var(--mono); font-size: 10px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; }
@@ -410,7 +420,7 @@ body[data-app-screen="game"] .mission-radar-gameplay { border-color: rgb(101 228
   .briefing-science-card { grid-template-columns: 1fr; }
   .gameplay-objective { width: min(285px, 33vw); }
   .gameplay-task { width: min(285px, 33vw); }
-  .gameplay-dialogue-live { width: min(365px, 34vw); }
+  .gameplay-dialogue-live { width: min(430px, 38vw); }
   .welcome-team-badge { display: none; }
 }
 
