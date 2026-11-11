@@ -1,5 +1,22 @@
 # MoonBase — Project Constitution & Implementation Guide
 
+> **Document status: HISTORICAL WORKING SPECIFICATION — NOT THE CURRENT IMPLEMENTATION CONTRACT.**
+> This document contains earlier rebuild proposals, some of which are not implemented
+> and conflict with the current Moon-only, four-day qualitative game. Do not use it
+> to infer shipped features or to reintroduce retired resource arithmetic, HMAC
+> snapshots, database persistence, or old Day 1-only scope.
+>
+> **Current implementation sources of truth:**
+> - [README](README.md)
+> - [Canonical four-day game rules](docs/GAME_RULES.md)
+> - [NASA science references and limitations](docs/SCIENCE_REFERENCES.md)
+> - [API and architecture](docs/API_AND_ARCHITECTURE.md)
+>
+> The NASA resource release is expected Friday, 13 November 2026, as supplied by
+> the project owner. No unreleased data or numerical scientific parameters may be
+> assumed before the official material is received and verified.
+
+
 > **Document status:** Working specification for the rebuild  
 > **Prepared:** 10 November 2026  
 > **NASA challenge:** 2026 — *Build a Junior Astronaut Mission Trainer*  
