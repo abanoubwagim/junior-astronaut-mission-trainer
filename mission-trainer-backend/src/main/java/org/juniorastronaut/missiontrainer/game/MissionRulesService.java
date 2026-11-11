@@ -642,7 +642,8 @@ public class MissionRulesService {
 
     private String approvedWaterForShielding(QualitativeState state) {
         return switch (state.dayTwoPersistentState()) {
-            case REPROCESSING_PENDING_VERIFICATION -> WATER_UNVERIFIED_FOR_SHIELDING;
+            case REPROCESSING_PENDING_VERIFICATION ->
+                    "APPROVED_POTABLE_RESERVE_AVAILABLE; RECOVERED_WATER_REMAINS_ISOLATED";
             case POTABLE_RESERVE_REDUCED -> "APPROVED_WATER_LIMITED_POTABLE_RESERVE_REDUCED";
             case WATER_CONSERVATION_ACTIVE -> "APPROVED_WATER_LIMITED_WATER_CONSERVATION_ACTIVE";
             default -> "APPROVED_WATER_STATUS_NOT_REPORTED";
@@ -668,12 +669,13 @@ public class MissionRulesService {
     private boolean approvedWaterAvailableForShielding(QualitativeState state) {
         boolean potableSupplyConfirmed = POTABLE_SUPPLY_AVAILABLE.equals(state.potableWaterSupply());
         boolean recoveredWaterRemainsIsolated = RECOVERED_WATER_ISOLATED.equals(state.recoveredWaterDisposition());
-        boolean approvedReserveState = "APPROVED_WATER_LIMITED_POTABLE_RESERVE_REDUCED".equals(state.approvedWaterForShielding())
-                || "APPROVED_WATER_LIMITED_WATER_CONSERVATION_ACTIVE".equals(state.approvedWaterForShielding());
+        boolean approvedWaterStateReported = !"APPROVED_WATER_STATUS_NOT_REPORTED"
+                .equals(state.approvedWaterForShielding());
 
-        // Only the already-approved potable supply may be considered. A
-        // recovered-water batch awaiting verification is never repositioned.
-        return potableSupplyConfirmed && recoveredWaterRemainsIsolated && approvedReserveState;
+        // The potable reserve remains approved even when a separate recovered
+        // batch is awaiting verification. Only the isolated recovered batch is
+        // excluded; a reduced reserve is constrained, not automatically empty.
+        return potableSupplyConfirmed && recoveredWaterRemainsIsolated && approvedWaterStateReported;
     }
 
     private boolean packagedFoodAvailableForShielding(QualitativeState state) {
