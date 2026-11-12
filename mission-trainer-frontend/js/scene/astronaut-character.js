@@ -243,6 +243,21 @@ export function createAstronautCharacter(THREE, parent, options = {}) {
     });
   }
 
+  function tuneLoadedMaterial(material, meshName = "") {
+    if (!material || !(material.isMeshStandardMaterial || material.isMeshPhysicalMaterial)) return;
+    const name = String(meshName || material.name || "").toLowerCase();
+    // Preserve the downloaded PBR textures while making the important EVA
+    // surfaces read consistently under MoonBase's hard, low-angle light.
+    material.envMapIntensity = Math.max(1.15, Number(material.envMapIntensity) || 0);
+    if (/visor|glass|helmet.?front|faceplate/.test(name)) {
+      material.roughness = Math.min(Number(material.roughness ?? 0.18), 0.16);
+      material.metalness = Math.max(Number(material.metalness ?? 0), 0.48);
+    } else if (/backpack|life.?support|pack|tank|joint|boot|glove/.test(name)) {
+      material.roughness = Math.max(Number(material.roughness ?? 0.58), 0.48);
+    }
+    material.needsUpdate = true;
+  }
+
   function clipForAction(action) {
     const patterns = {
       idle: /idle|stand|t-?pose/i,
@@ -559,12 +574,7 @@ export function createAstronautCharacter(THREE, parent, options = {}) {
             child.castShadow = true;
             child.receiveShadow = true;
             const materialsToTune = Array.isArray(child.material) ? child.material : [child.material];
-            materialsToTune.filter(Boolean).forEach((material) => {
-              material.needsUpdate = true;
-              if (material.isMeshStandardMaterial || material.isMeshPhysicalMaterial) {
-                material.envMapIntensity = material.envMapIntensity || 1;
-              }
-            });
+            materialsToTune.filter(Boolean).forEach((material) => tuneLoadedMaterial(material, child.name));
           }
         });
         const modelBounds = new THREE.Box3().setFromObject(loadedModel);

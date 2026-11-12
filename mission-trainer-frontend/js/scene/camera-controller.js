@@ -8,8 +8,10 @@ export function createCameraController(THREE, camera, options = {}) {
   const playerPosition = new THREE.Vector3();
   const probe = new THREE.Vector3();
   const pointer = { x: 0, y: 0 };
+  const environmentLocations = options.storyLocations || {};
   const presets = {
     welcome: { position: [0, 2.1, 11.4], target: [0, 0.2, -3.2], strength: 1 },
+    intro: { position: [0, 2.4, 10.8], target: [0, 0.5, -1.5], strength: 0 },
     briefing: { position: [0.2, 1.7, 9.7], target: [0, 0.45, -3.9], strength: 0.7 },
     game: { position: [0, 3.2, 9.2], target: [0, 0.5, -1.8], strength: 0.42 },
     feedback: { position: [-0.5, 1.9, 9.5], target: [0, 0.65, -3.8], strength: 0.52 },
@@ -32,21 +34,43 @@ export function createCameraController(THREE, camera, options = {}) {
   let pointerListenerAttached = false;
   let canvasListenerAttached = false;
   let wheelListenerAttached = false;
+  let introPhase = "arrival";
+  let introClock = 0;
+
+  function normalizeStoryTarget(location, fallback) {
+    return {
+      position: location?.position || location?.camera || fallback.position,
+      target: location?.target || fallback.target
+    };
+  }
 
   const storyTargets = {
     base: { position: [0, 2.1, 11.4], target: [0, 0.4, -3.7] },
-    solar: { position: [4.8, 2.3, 4.7], target: [4.35, 0.55, -3.15] },
-    water: { position: [4.7, 2.25, 4.4], target: [3.15, 0.55, -4.2] },
-    grow: { position: [4.35, 2.0, 5.1], target: [3.18, 0.55, -2.35] },
-    storm: { position: [0.3, 2.7, 5.8], target: [0.1, 0.8, -6.25] },
+    solar: normalizeStoryTarget(environmentLocations.solar, { position: [4.45, 2.25, 3.8], target: [3.55, 0.55, -0.72] }),
+    water: normalizeStoryTarget(environmentLocations.water, { position: [-3.7, 2.25, -6.3], target: [-6.8, 0.55, -10.8] }),
+    grow: normalizeStoryTarget(environmentLocations.grow, { position: [17.8, 2.0, -9.6], target: [15, 0.55, -14] }),
+    storm: normalizeStoryTarget(environmentLocations.storm, { position: [-4.3, 2.7, -18.9], target: [-9, 0.8, -23.7] }),
     // Each mission briefing is presented at the gate that owns that mission.
     // These targets face the front of the four airlocks instead of the old
     // station locations inside MoonBase 1.
-    gate1: { position: [1.7, 2.05, 5.9], target: [1.55, 0.3, -0.7] },
+    gate1: { position: [4.3, 2.45, 5.3], target: [0, 0.72, 0.05] },
     gate2: { position: [-8.6, 2.05, -4.6], target: [-8.6, 0.3, -10.8] },
     gate3: { position: [13.4, 2.05, -7.6], target: [13.4, 0.3, -14.0] },
     gate4: { position: [-11.3, 2.05, -17.3], target: [-11.3, 0.3, -23.7] }
   };
+
+  function introDestination() {
+    const destinations = {
+      arrival: { position: [0, 2.5, 10.6], target: [0, 0.65, -1.5] },
+      incident: storyTargets.gate1,
+      day1: storyTargets.solar,
+      day2: storyTargets.water,
+      day3: storyTargets.grow,
+      day4: storyTargets.storm,
+      ready: storyTargets.gate1
+    };
+    return destinations[introPhase] || destinations.arrival;
+  }
 
   function onPointerMove(event) {
     if (gameplayActive) {
@@ -155,6 +179,10 @@ export function createCameraController(THREE, camera, options = {}) {
   }
 
   function updateStory(delta) {
+    if (mode === "intro") {
+      updateIntro(delta);
+      return;
+    }
     const preset = presets[mode] || presets.welcome;
     const destination = storyTargets[storyTarget] || storyTargets.base;
     const motion = reducedMotion ? 0 : preset.strength;
@@ -165,9 +193,40 @@ export function createCameraController(THREE, camera, options = {}) {
     camera.lookAt(lookTarget);
   }
 
+  function updateIntro(delta) {
+    introClock += Math.max(0, delta || 0);
+    const destination = introDestination();
+    const position = destination.position.slice();
+    const targetPosition = destination.target.slice();
+
+    if (introPhase === "arrival" && !reducedMotion) {
+      const angle = 0.32 + Math.min(introClock, 2.2) * 0.18;
+      const radius = 10.2;
+      position[0] = Math.sin(angle) * radius;
+      position[1] = 2.5 + Math.sin(introClock * 0.8) * 0.12;
+      position[2] = -1.5 + Math.cos(angle) * radius;
+      targetPosition[0] = Math.sin(introClock * 0.35) * 0.22;
+      targetPosition[1] = 0.58;
+      targetPosition[2] = -1.5;
+    } else if (introPhase === "incident" && !reducedMotion) {
+      position[0] += Math.sin(introClock * 0.9) * 0.22;
+      position[1] += Math.sin(introClock * 0.75) * 0.06;
+    } else if (introPhase !== "arrival" && !reducedMotion) {
+      position[0] += Math.sin(introClock * 0.45) * 0.16;
+      position[1] += Math.sin(introClock * 0.62) * 0.05;
+    }
+
+    target.set(position[0], position[1], position[2]);
+    lookTarget.set(targetPosition[0], targetPosition[1], targetPosition[2]);
+    const smoothing = reducedMotion ? 1 : 1 - Math.pow(0.0012, delta);
+    camera.position.lerp(target, smoothing);
+    camera.lookAt(lookTarget);
+  }
+
   function setMode(nextMode) {
     mode = presets[nextMode] ? nextMode : "welcome";
     gameplayActive = mode === "game";
+    if (mode !== "intro") introClock = 0;
     if (mode === "welcome" || mode === "briefing") storyTarget = "base";
     if (!gameplayActive && document.pointerLockElement === canvas) document.exitPointerLock?.();
     attachListeners();
@@ -175,6 +234,12 @@ export function createCameraController(THREE, camera, options = {}) {
 
   function setStoryTarget(nextTarget) {
     storyTarget = storyTargets[nextTarget] ? nextTarget : "base";
+  }
+
+  function setCinematicPhase(nextPhase = "arrival") {
+    const phase = String(nextPhase);
+    if (phase !== introPhase) introClock = 0;
+    introPhase = phase;
   }
 
   function setPlayer(nextPlayer) {
@@ -236,6 +301,7 @@ export function createCameraController(THREE, camera, options = {}) {
   return {
     setMode,
     setStoryTarget,
+    setCinematicPhase,
     setPlayer,
     setCollisionObjects,
     setTerrainHeight,

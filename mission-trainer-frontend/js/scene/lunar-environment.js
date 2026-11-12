@@ -86,12 +86,13 @@ export function createLunarEnvironment(THREE, scene) {
     locations: {},
     beacons: [],
     solarDust: null,
-    waterLeak: null,
+    waterIsolation: null,
     growLights: [],
     shelterDome: null,
     stormRings: [],
+    stormConsoleScreen: null,
     communicationDish: null,
-    story: { screen: "welcome", day: 0, location: "base", selectedChoiceId: null, gateProgress: {} },
+    story: { screen: "welcome", day: 0, location: "base", selectedChoiceId: null, gateProgress: {}, introPhase: "arrival", introArrowVisible: false },
     interactiveObjects: [],
     collisionObjects: [],
     moonTexture: null,
@@ -567,9 +568,10 @@ export function createLunarEnvironment(THREE, scene) {
     const arrow = new THREE.Group();
     arrow.name = `${id}-objective-arrow`;
     arrow.position.set(...position);
-    const arrowCyan = new THREE.MeshBasicMaterial({ color: 0x43eaff });
-    const arrowGold = new THREE.MeshBasicMaterial({ color: 0xffd36f });
-    const beamMaterial = new THREE.MeshBasicMaterial({ color: 0x43eaff, transparent: true, opacity: 0.34 });
+    const arrowCyan = new THREE.MeshBasicMaterial({ color: 0x43eaff, depthTest: false });
+    const arrowGold = new THREE.MeshBasicMaterial({ color: 0xffd36f, depthTest: false });
+    const beamMaterial = new THREE.MeshBasicMaterial({ color: 0x43eaff, transparent: true, opacity: 0.34, depthTest: false });
+    arrow.renderOrder = 20;
     addMesh(arrow, new THREE.BoxGeometry(0.14, 0.72, 0.14), arrowCyan, [0, 0.3, 0]);
     addMesh(arrow, new THREE.ConeGeometry(0.36, 0.62, 4), arrowGold, [0, -0.32, 0], [Math.PI, 0, 0]);
     addMesh(arrow, new THREE.TorusGeometry(0.56, 0.035, 8, 24), arrowCyan, [0, -0.72, 0], [Math.PI / 2, 0, 0]);
@@ -918,7 +920,10 @@ export function createLunarEnvironment(THREE, scene) {
     signal.entryDoor = { left: leftDoor, right: rightDoor, light: doorLight, open: 0, target: 0 };
     createGateColliders(entrance, signal.entryDoor, "moonbase-entry", [base.position.x, base.position.z]);
     base.add(entrance);
-    createObjectiveArrow(base, [0, 3.25, 3.42], "moonbase-one");
+    // Keep the navigation marker anchored above the real airlock entrance so
+    // it remains visible in the incident close-up and still reads as a gate
+    // direction cue in gameplay.
+    createObjectiveArrow(base, [0, 2.7, 3.42], "moonbase-one");
 
     // A visible landing step makes the entrance read as a door rather than a
     // window and gives the player a physical approach point.
@@ -1329,10 +1334,10 @@ export function createLunarEnvironment(THREE, scene) {
       leakPositions[index * 3 + 2] = -0.48 + Math.random() * 0.22;
     }
     leakGeometry.setAttribute("position", new THREE.Float32BufferAttribute(leakPositions, 3));
-    signal.waterLeak = new THREE.Points(leakGeometry,
-      new THREE.PointsMaterial({ color: colors.earth, size: 0.06, transparent: true, opacity: 0.02 }));
-    signal.waterLeak.name = "water-recycler-leak-hazard";
-    recycler.add(signal.waterLeak);
+    signal.waterIsolation = new THREE.Points(leakGeometry,
+      new THREE.PointsMaterial({ color: colors.warm, size: 0.06, transparent: true, opacity: 0.02 }));
+    signal.waterIsolation.name = "water-recovery-isolation-signal";
+    recycler.add(signal.waterIsolation);
     addMissionLabel(recycler, "WATER RECOVERY", [0, 1.56, 0], 1.62, 0.34);
     root.add(recycler);
     registerInteractive(recycler, {
@@ -1359,6 +1364,7 @@ export function createLunarEnvironment(THREE, scene) {
     }
     const growLight = addMesh(grow, new THREE.BoxGeometry(1.05, 0.035, 0.24), materials.violet, [0, 1.18, 0]);
     signal.growLights.push(growLight.material);
+    addMissionLabel(grow, "INDOOR GROW STATION", [0, 1.58, 0], 1.9, 0.34);
     // The Day 3 choices cover both growing food and opening reserve meals.
     const mealCrate = new THREE.Group();
     mealCrate.position.set(1.05, 0, 0.16);
@@ -1395,6 +1401,21 @@ export function createLunarEnvironment(THREE, scene) {
     warningBeacon.position.set(0, 1.65, 0.15);
     shelter.add(warningBeacon);
     addMesh(shelter, new THREE.SphereGeometry(0.12, 10, 8), materials.warm, [0, 1.65, 0.15]);
+    const stormConsole = new THREE.Group();
+    stormConsole.name = "mission-control-alert-screen";
+    stormConsole.position.set(1.68, 0.02, 0.36);
+    addMesh(stormConsole, new THREE.BoxGeometry(0.92, 0.82, 0.12), materials.dark, [0, 0.44, 0]);
+    signal.stormConsoleScreen = new THREE.MeshStandardMaterial({
+      color: 0x2a1e49,
+      emissive: colors.warm,
+      emissiveIntensity: 0.2,
+      roughness: 0.28,
+      metalness: 0.12
+    });
+    addMesh(stormConsole, new THREE.BoxGeometry(0.72, 0.42, 0.025), signal.stormConsoleScreen, [0, 0.62, -0.08]);
+    addMissionLabel(stormConsole, "SOLAR PARTICLE ALERT", [0, 0.62, -0.1], 0.68, 0.18);
+    addMissionLabel(stormConsole, "MISSION CONTROL", [0, 1.16, -0.02], 1.22, 0.24);
+    shelter.add(stormConsole);
     for (const x of [-1.9, 1.9]) {
       addMesh(shelter, new THREE.BoxGeometry(0.12, 1.25, 0.9), materials.violet, [x, 0.45, 0.08]);
       addMesh(shelter, new THREE.BoxGeometry(0.16, 0.08, 0.96), materials.cyan, [x, 0.78, 0.08]);
@@ -1617,7 +1638,8 @@ export function createLunarEnvironment(THREE, scene) {
       signal.rover.position.y = baseY + Math.sin(time * 0.0015) * 0.012;
     }
     signal.gateArrows.forEach((arrow, index) => {
-      const active = arrow.id === signal.navigationGate;
+      const introArrowHidden = signal.story.screen === "intro" && !signal.story.introArrowVisible;
+      const active = arrow.id === signal.navigationGate && !introArrowHidden;
       arrow.object.visible = active;
       if (active) {
         arrow.object.position.y = arrow.baseY + Math.sin(time * 0.003 + index) * 0.08;
@@ -1631,6 +1653,15 @@ export function createLunarEnvironment(THREE, scene) {
       door.right.position.x = 0.42 + door.open * 0.72;
       door.light.intensity = 1.2 + door.open * 2.4;
       updateGateDoorColliders(door);
+      const alerting = signal.story.screen === "intro"
+        && ["incident", "day4"].includes(signal.story.introPhase);
+      const pulse = 1 + (Math.sin(time * 0.009) + 1) * 0.28;
+      door.light.color.setHex(alerting ? colors.warm : colors.cyan);
+      door.light.intensity = alerting ? pulse * 2.3 : 1.2 + door.open * 2.4;
+      if (signal.baseGlow) {
+        signal.baseGlow.color.setHex(alerting ? colors.warm : colors.cyan);
+        signal.baseGlow.intensity = alerting ? pulse * 2.1 : 3.6;
+      }
     }
     [signal.dayGateDoor, signal.dayThreeGateDoor, signal.dayFourGateDoor].forEach((door) => {
       if (!door) return;
@@ -1649,13 +1680,20 @@ export function createLunarEnvironment(THREE, scene) {
       signal.storm.rotation.y += delta * 0.14;
       signal.storm.position.x = Math.sin(time * 0.0004) * 0.5;
     }
+    if (signal.stormConsoleScreen) {
+      const alerting = signal.story.location === "storm"
+        || (signal.story.screen === "intro" && signal.story.introPhase === "day4");
+      signal.stormConsoleScreen.emissiveIntensity = alerting
+        ? 0.85 + (Math.sin(time * 0.009) + 1) * 0.35
+        : 0.2;
+    }
     signal.beacons.forEach((beacon, index) => {
       const pulse = 0.08 + (Math.sin(time * 0.0025 + index) + 1) * 0.04;
       beacon.userData.ring.material.opacity = signal.story.location === beacon.name.replace("-beacon", "") ? pulse + 0.16 : 0.025;
       beacon.userData.beam.material.opacity = signal.story.location === beacon.name.replace("-beacon", "") ? pulse : 0.01;
       beacon.rotation.y += delta * 0.16;
     });
-    if (signal.waterLeak) signal.waterLeak.position.y = Math.sin(time * 0.004) * 0.06;
+    if (signal.waterIsolation) signal.waterIsolation.position.y = Math.sin(time * 0.004) * 0.06;
     if (signal.communicationDish) signal.communicationDish.rotation.y = Math.sin(time * 0.0008) * 0.15;
     signal.growLights.forEach((material, index) => { material.emissiveIntensity = signal.growBaseIntensity + (Math.sin(time * 0.003 + index) + 1) * 0.18; });
     signal.stormRings.forEach((ring, index) => { ring.rotation.y += delta * (0.18 + index * 0.06); });
@@ -1664,8 +1702,11 @@ export function createLunarEnvironment(THREE, scene) {
   function setStoryState(story = {}) {
     const mission = story.mission || null;
     const day = mission?.event?.day || mission?.day || 0;
-    const location = story.location || ["base", "solar", "water", "grow", "storm"][day] || "base";
-    const active = story.screen === "game" || story.screen === "feedback"
+    const introLocation = story.introFocus || "base";
+    const location = story.screen === "intro"
+      ? introLocation
+      : story.location || ["base", "solar", "water", "grow", "storm"][day] || "base";
+    const active = story.screen === "intro" || story.screen === "game" || story.screen === "feedback"
       || story.screen === "day1Complete" || story.screen === "result";
     const dayOneComplete = Boolean(story.dayOneComplete)
       || story.screen === "day1Complete"
@@ -1679,14 +1720,23 @@ export function createLunarEnvironment(THREE, scene) {
     const showThirdGate = !showFourthGate && (dayTwoComplete || day >= 3);
     const showSecondGate = !showThirdGate && !showFourthGate
       && (dayOneComplete || day >= 2 || story.screen === "day1Complete");
-    signal.story = { ...signal.story, ...story, day, location, gateProgress: story.gateProgress || signal.story.gateProgress || {} };
+    signal.story = {
+      ...signal.story,
+      ...story,
+      day,
+      location,
+      introArrowVisible: story.screen === "intro"
+        ? Boolean(story.introArrowVisible)
+        : false,
+      gateProgress: story.gateProgress || signal.story.gateProgress || {}
+    };
     signal.navigationGate = showFourthGate
       ? "moonbase-four"
       : showThirdGate ? "moonbase-three" : showSecondGate ? "moonbase-two" : "moonbase-one";
     // The Day 1 scenario is terrain shadow, not dust or visible equipment
     // damage. Keep the station visually intact when the inspection opens.
     signal.solarDust.material.opacity = 0;
-    signal.waterLeak.material.opacity = active && location === "water" ? 0.72 : 0.02;
+    signal.waterIsolation.material.opacity = active && location === "water" ? 0.72 : 0.02;
     signal.shelterDome.material.opacity = active && location === "storm" ? 0.24 : 0.12;
     signal.stormRings.forEach((ring) => { ring.material.opacity = active && location === "storm" ? 0.42 : 0.05; });
     signal.growLights.forEach((material) => { material.emissiveIntensity = active && location === "grow" ? Math.max(0.75, signal.growBaseIntensity) : signal.growBaseIntensity; });

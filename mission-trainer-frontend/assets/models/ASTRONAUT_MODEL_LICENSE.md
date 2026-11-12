@@ -9,6 +9,10 @@
 - Retrieved: 2026-11-10
 - SHA-256: `9A6EADE71E81C8F6B742A37E847F031D72E55CCC56BF7ED3269AD161F311326B`
 
+The bundled file is the verified local copy used by the frontend. The download
+URL is retained only as provenance; the browser does not fetch the model from
+Grab3D at runtime.
+
 ## License
 
 Grab3D lists this model as **CC0 1.0 / public domain**, with permission to use,

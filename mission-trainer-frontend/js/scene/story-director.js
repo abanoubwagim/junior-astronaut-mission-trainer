@@ -1,17 +1,18 @@
-import { createAstronautCharacter } from "./astronaut-character.js?v=20261111-v60";
+import { createAstronautCharacter } from "./astronaut-character.js?v=20261112-v61";
 
 export function createStoryDirector(THREE, parent, environment, cameraController) {
+  const astronautAssetUrl = new URL("../../assets/models/astronaut-in-spacesuit-rigged.glb", import.meta.url).href;
   const astronaut = createAstronautCharacter(THREE, parent, {
     name: "junior-astronaut",
     // Give the opening shot enough breathing room for the base silhouette and
     // the Earth to sit behind the playable astronaut.
-    // Keep the opening composition clear: the astronaut stands left of the
-    // airlock so MoonBase 1 and its doorway are readable on the first frame.
-    position: [-1.8, -1.03, 1.75],
+    // Keep the opening composition clear: the astronaut stands beside the
+    // airlock, leaving the cinematic copy on the left and the gate readable.
+    position: [1.2, -1.03, 1.4],
     rotationY: 0,
     accentColor: 0x63e9ef,
     playerControlled: true,
-    assetUrl: new URL("../../assets/models/astronaut-in-spacesuit-rigged.glb", import.meta.url).href,
+    assetUrl: astronautAssetUrl,
     assetScale: 1,
     assetHeight: 1.95,
     assetRotationY: Math.PI,
@@ -25,7 +26,11 @@ export function createStoryDirector(THREE, parent, environment, cameraController
     suitShadow: 0x8f83c7,
     accentColor: 0xffd36f,
     visorColor: 0x241c55,
-    packColor: 0x493c77
+    packColor: 0x493c77,
+    assetUrl: astronautAssetUrl,
+    assetScale: 1,
+    assetHeight: 1.9,
+    assetRotationY: Math.PI
   });
   let state = { screen: "welcome", mission: null, selectedChoiceId: null, interactionOpen: false };
   let wasGame = false;
@@ -48,7 +53,16 @@ export function createStoryDirector(THREE, parent, environment, cameraController
     state = { ...state, ...nextState };
     const active = state.screen === "game";
     const location = objectiveLocation(state.mission);
-    environment.setStoryState({ ...state, location });
+    const introFocus = {
+      arrival: "base",
+      incident: "base",
+      day1: "solar",
+      day2: "water",
+      day3: "grow",
+      day4: "storm",
+      ready: "base"
+    }[state.introPhase] || "base";
+    environment.setStoryState({ ...state, location, introFocus });
     const presentationLocation = state.interactionOpen
       ? (Number(state.mission?.event?.day || state.mission?.day || 0) === 1 ? "solar" : missionGateLocation(state.mission))
       : location;
@@ -75,12 +89,28 @@ export function createStoryDirector(THREE, parent, environment, cameraController
       }
     }
     wasGame = active;
-    operator.root.visible = !active;
+    operator.root.visible = !active && state.screen !== "intro";
     if (state.screen === "welcome") {
       astronaut.setAction("float");
       operator.setAction("idle");
       cameraController.setStoryTarget("base");
       cameraController.setPresentationActive?.(false);
+    } else if (state.screen === "intro") {
+      const introPhase = state.introPhase || "arrival";
+      if (introPhase === "day4") {
+        const storm = environment.getLocations?.().storm;
+        const target = storm?.target || [-9, 0.8, -23.7];
+        astronaut.moveTo([target[0], -1.03, target[2]], 3.1);
+      } else if (introPhase === "incident") {
+        astronaut.setAction("react");
+      } else if (introPhase === "ready") {
+        astronaut.moveTo([1.2, -1.03, 1.4], 1.1);
+      } else {
+        astronaut.setAction("idle");
+      }
+      cameraController.setCinematicPhase?.(introPhase);
+      cameraController.setStoryTarget("base");
+      cameraController.setPresentationActive?.(true);
     } else if (state.screen === "briefing") {
       astronaut.setAction("point");
       operator.setAction("talk");

@@ -5,7 +5,7 @@
   const sceneRoot = document.querySelector("#lunar-scene");
   const scriptUrl = document.currentScript?.src || new URL("../js/scene/scene-manager.js", window.location.href).href;
   const THREE_URL = "https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js";
-  const SCENE_VERSION = "20261111-v63";
+  const SCENE_VERSION = "20261112-v66";
 
   if (!canvas || !sceneRoot) return;
 
@@ -16,6 +16,7 @@
   let effects = null;
   let storyDirector = null;
   let playerController = null;
+  let cinematicIntro = null;
   let interactionHandler = window.MOONBASE_SCENE_INTERACTION_HANDLER || null;
   let animationFrame = 0;
   let lastTime = 0;
@@ -71,6 +72,7 @@
     cameraController?.dispose();
     playerController?.dispose();
     storyDirector?.dispose();
+    cinematicIntro?.dispose?.();
     environment?.dispose();
     effects?.dispose?.();
     renderer?.dispose();
@@ -80,6 +82,7 @@
     cameraController = null;
     effects = null;
     storyDirector = null;
+    cinematicIntro = null;
     playerController = null;
     window.MOONBASE_SCENE_AVAILABLE = false;
   }
@@ -88,12 +91,13 @@
     setStatus("loading");
     try {
       const moduleUrl = (relativePath) => `${new URL(relativePath, scriptUrl).href}?v=${SCENE_VERSION}`;
-      const [threeModule, lunarEnvironmentModule, cameraModule, effectsModule, storyModule, playerModule] = await Promise.all([
+      const [threeModule, lunarEnvironmentModule, cameraModule, effectsModule, storyModule, introModule, playerModule] = await Promise.all([
         import(THREE_URL),
         import(moduleUrl("./lunar-environment.js")),
         import(moduleUrl("./camera-controller.js")),
         import(moduleUrl("./scene-effects.js")),
         import(moduleUrl("./story-director.js")),
+        import(moduleUrl("./cinematic-intro.js")),
         import(moduleUrl("./player-controller.js"))
       ]);
       if (disposed) return;
@@ -114,10 +118,14 @@
       cameraController = cameraModule.createCameraController(THREE, camera, {
         canvas,
         collisionObjects: environment.getCollisionObjects?.() || [],
-        terrainHeight: environment.getTerrainHeight?.()
+        terrainHeight: environment.getTerrainHeight?.(),
+        storyLocations: environment.getLocations?.() || {}
       });
       effects = effectsModule.createSceneEffects(environment);
       storyDirector = storyModule.createStoryDirector(THREE, scene, environment, cameraController);
+      cinematicIntro = introModule.createCinematicIntroController({
+        onPhaseChange: (detail) => notifyLifecycle("onIntroPhase", detail)
+      });
       const player = storyDirector.getPlayer();
       cameraController.setPlayer(player.root);
       playerController = playerModule.createPlayerController(THREE, {
@@ -146,6 +154,7 @@
         mission: window.MOONBASE_SCENE_STATE || null,
         selectedChoiceId: null
       });
+      cinematicIntro?.setActive(initialMode === "intro");
       resize(camera, THREE);
       setStatus("ready");
 
@@ -158,6 +167,7 @@
         environment.update(time, delta);
         cameraController.update(delta);
         effects.update(delta);
+        cinematicIntro?.update(delta);
         playerController?.update(delta);
         storyDirector.update(delta, time);
         renderer.render(scene, camera);
@@ -182,10 +192,16 @@
         },
         setMode(mode) {
           const enteringGameplay = mode === "game" && currentMode !== "game";
+          const enteringIntro = mode === "intro" && currentMode !== "intro";
           currentMode = mode;
           window.MOONBASE_SCENE_MODE = mode;
           cameraController?.setMode(mode);
           effects?.setMode(mode);
+          if (mode === "intro") {
+            if (enteringIntro) cinematicIntro?.setActive(true);
+          } else {
+            cinematicIntro?.setActive(false);
+          }
           const explorable = ["game", "welcome", "day1Complete"].includes(mode);
           cameraController?.setGameplayActive(explorable);
           playerController?.setActive(explorable);
@@ -199,6 +215,12 @@
         setStoryState(story) {
           window.MOONBASE_SCENE_STORY = story || null;
           storyDirector?.setState(story || {});
+          if (story?.screen === "intro") {
+            cinematicIntro?.setActive(true);
+            cameraController?.setCinematicPhase?.(story.introPhase || "arrival");
+          } else {
+            cinematicIntro?.setActive(false);
+          }
           const explorable = ["game", "welcome", "day1Complete"].includes(story?.screen);
           cameraController?.setGameplayActive(explorable);
           playerController?.setActive(explorable);
