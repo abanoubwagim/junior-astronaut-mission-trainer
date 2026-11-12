@@ -11,7 +11,7 @@
   const RADAR_WORLD_BOUNDS = Object.freeze({ minX: -36.5, maxX: 36.5, minZ: -40.5, maxZ: 27.5 });
 
   const ui = {
-    screen: "intro",
+    screen: "welcome",
     mission: null,
     decisionHistory: [],
     selectedChoiceId: null,
@@ -37,8 +37,15 @@
     dayThreeComplete: false,
     dayFourComplete: false,
     emergencyProcedureComplete: false,
-    introPhase: "arrival",
-    introFallback: false
+    emergency: {
+      active: false,
+      visible: false,
+      objectiveVisible: false,
+      day: 0,
+      title: "",
+      message: "",
+      status: "idle"
+    }
   };
 
   function syncScene() {
@@ -61,8 +68,11 @@
       dayFourComplete: ui.dayFourComplete,
       inspectionComplete: ui.inspectionComplete,
       emergencyProcedureComplete: ui.emergencyProcedureComplete,
-      introPhase: ui.introPhase,
-      introFallback: ui.introFallback
+      emergencyActive: ui.emergency.active,
+      emergencyVisible: ui.emergency.visible,
+      emergencyObjectiveVisible: ui.emergency.objectiveVisible,
+      emergencyDay: ui.emergency.day,
+      feedbackOpen: Boolean(ui.mission?.latestDecision && !ui.feedbackDismissed)
     };
     if (document.body?.dataset) document.body.dataset.appScreen = ui.screen;
     if (document.body?.dataset) document.body.dataset.appWorld = ui.world;
@@ -85,20 +95,18 @@
       ui.sceneError = "";
       render();
     },
-    onIntroPhase(detail = {}) {
-      if (ui.screen !== "intro") return;
-      ui.introPhase = detail.phase || ui.introPhase || "arrival";
-      ui.introFallback = false;
-      render();
-      const messages = {
-        incident: "Mission alert. Follow the animated arrow to the MoonBase gate.",
-        day1: "Day 1 preview: the power drop is caused by terrain shadow.",
-        day2: "Day 2 preview: recovered water is isolated until it passes inspection.",
-        day3: "Day 3 preview: food stores are falling while crops need time to grow.",
-        day4: "Day 4 preview: follow emergency protocol and enter the Storm Shelter.",
-        ready: "Mission briefing ready. Choose Start Your Mission when you are ready."
+    onEmergencyPresentation(detail = {}) {
+      const wasVisible = ui.emergency.visible;
+      ui.emergency = {
+        ...ui.emergency,
+        ...detail
       };
-      if (messages[ui.introPhase]) announce(messages[ui.introPhase]);
+      if (detail.visible && !wasVisible) {
+        announce(`${detail.title}. ${detail.message}`);
+        render();
+      } else if (detail.status === "dismissed" || (wasVisible && !detail.visible)) {
+        render();
+      }
     },
     onAssetStatus(detail = {}) {
       ui.sceneAssetStatus = detail.status || "loading";
@@ -114,10 +122,6 @@
     onFallback(error) {
       ui.sceneAvailable = false;
       ui.sceneError = "The 3D view is unavailable, so Mission Control has opened the accessible mission terminal.";
-      if (ui.screen === "intro") {
-        ui.introFallback = true;
-        ui.introPhase = "ready";
-      }
       console.warn("MoonBase is using the accessible gameplay fallback.", error);
       render();
     }
@@ -353,12 +357,6 @@
       return;
     }
 
-    if (ui.screen === "intro" && event.code === "Escape") {
-      event.preventDefault();
-      skipIntro();
-      return;
-    }
-
     if (event.code !== "Space" || ui.screen !== "welcome") return;
     event.preventDefault();
     root.querySelector?.(".welcome-start-button")?.focus?.({ preventScroll: true });
@@ -388,8 +386,15 @@
     ui.dayThreeComplete = false;
     ui.dayFourComplete = false;
     ui.emergencyProcedureComplete = false;
-    if (screen !== "intro") ui.introPhase = "arrival";
-    ui.introFallback = false;
+    ui.emergency = {
+      active: false,
+      visible: false,
+      objectiveVisible: false,
+      day: 0,
+      title: "",
+      message: "",
+      status: "idle"
+    };
     render();
     root.focus({ preventScroll: true });
   }
@@ -484,6 +489,15 @@
     ui.dayThreeComplete = false;
     ui.dayFourComplete = false;
     ui.emergencyProcedureComplete = false;
+    ui.emergency = {
+      active: false,
+      visible: false,
+      objectiveVisible: false,
+      day: 0,
+      title: "",
+      message: "",
+      status: "idle"
+    };
     ui.loading = false;
   }
 
@@ -491,29 +505,10 @@
     if (ui.loading) return;
     resetViewport();
     resetMissionRuntime();
-    ui.introPhase = "arrival";
-    ui.introFallback = false;
-    ui.screen = "intro";
-    render();
-    announce("Cinematic mission introduction started. You can skip it at any time.");
-    root.focus({ preventScroll: true });
-  }
-
-  function continueFromIntro() {
-    if (ui.loading || ui.screen !== "intro") return;
-    resetViewport();
-    resetMissionRuntime();
     ui.screen = "briefing";
-    ui.introFallback = false;
     render();
     announce("Mission briefing ready. Review the objectives, then choose the Moon.");
     root.focus({ preventScroll: true });
-  }
-
-  function skipIntro() {
-    if (ui.screen !== "intro") return;
-    continueFromIntro();
-    announce("Intro skipped. Mission briefing ready.");
   }
 
   async function startMoonMission() {
@@ -539,7 +534,7 @@
     ui.dayFourComplete = false;
     ui.emergencyProcedureComplete = false;
     ui.loading = true;
-    ui.screen = "worldSelection";
+    ui.screen = "game";
     render();
 
     try {
@@ -549,7 +544,7 @@
       }
       ui.mission = mission;
       ui.screen = "game";
-      announce("Day 1 is ready. Walk to the solar array and inspect it.");
+      announce("Day 1 is ready. Explore the Moon, then follow the active gate objective when Mission Control calls.");
     } catch (error) {
       ui.error = displayError(error);
       ui.screen = "worldSelection";
@@ -603,7 +598,7 @@
       ui.dayTwoComplete = event.day === 2;
       ui.dayThreeComplete = event.day === 3;
       ui.dayFourComplete = event.day === 4;
-      ui.screen = event.day === 1 ? "day1Complete" : event.day === 2 ? "day2Complete" : event.day === 3 ? "day3Complete" : event.day === 4 ? "day4Complete" : "result";
+      ui.screen = updatedMission.status === "ACTIVE" ? "game" : "day4Complete";
       resetViewport();
       announce(`Day ${event.day} complete. ${updatedMission.latestDecision.explanation}`);
     } catch (error) {
@@ -615,115 +610,6 @@
       render();
       root.focus({ preventScroll: true });
     }
-  }
-
-  function beginDayTwo() {
-    if (ui.loading || !ui.mission?.event || ui.mission.event.day !== 2) return;
-    resetViewport();
-    ui.screen = "game";
-    ui.error = "";
-    ui.selectedChoiceId = null;
-    ui.interactionOpen = false;
-    ui.interactionTarget = null;
-    ui.inspectionComplete = false;
-    ui.gateOpening = false;
-    ui.paused = false;
-    ui.controlsCollapsed = true;
-    ui.gateProgress = {};
-    ui.feedbackDismissed = true;
-    ui.dayOneComplete = true;
-    ui.dayTwoComplete = false;
-    ui.dayThreeComplete = false;
-    ui.dayFourComplete = false;
-    ui.emergencyProcedureComplete = false;
-    render();
-    announce("Day 2 briefing ready. Enter the lunar habitat and find the Water Recovery Station.");
-    root.focus({ preventScroll: true });
-    window.MoonBaseScene?.focus?.();
-  }
-
-  function beginDayThree() {
-    if (ui.loading || !ui.mission?.event || ui.mission.event.day !== 3) return;
-    resetViewport();
-    ui.screen = "game";
-    ui.error = "";
-    ui.selectedChoiceId = null;
-    ui.interactionOpen = false;
-    ui.interactionTarget = null;
-    ui.inspectionComplete = false;
-    ui.gateOpening = false;
-    ui.paused = false;
-    ui.controlsCollapsed = true;
-    ui.gateProgress = {};
-    ui.feedbackDismissed = true;
-    ui.dayOneComplete = true;
-    ui.dayTwoComplete = true;
-    ui.dayThreeComplete = false;
-    ui.dayFourComplete = false;
-    ui.emergencyProcedureComplete = false;
-    render();
-    announce("Day 3 briefing ready. Enter the Crop Production Unit and inspect the food and crop systems.");
-    root.focus({ preventScroll: true });
-    window.MoonBaseScene?.focus?.();
-  }
-
-  async function beginDayFour() {
-    if (ui.loading || !ui.mission) return;
-    resetViewport();
-
-    // A browser can still be holding the pre-Day-4 response where Day 3 was
-    // terminal. Replay the complete in-memory history once so the current
-    // backend can open Day 4 without changing the stateless contract.
-    if (ui.mission.event?.day === 3 && ui.decisionHistory.length === 3) {
-      ui.loading = true;
-      ui.error = "";
-      render();
-      try {
-        const updatedMission = validateMission(await request("/missions/decisions", {
-          method: "POST",
-          body: { decisions: ui.decisionHistory }
-        }));
-        if (updatedMission.status !== "ACTIVE" || updatedMission.day !== 4 || !updatedMission.event) {
-          throw new Error("Mission Control did not return the Day 4 briefing. Restart the backend and try again.");
-        }
-        ui.mission = updatedMission;
-        ui.decisionHistory = updatedMission.decisionHistory;
-      } catch (error) {
-        ui.error = displayError(error);
-        ui.loading = false;
-        render();
-        announce(ui.error);
-        return;
-      }
-      ui.loading = false;
-    }
-
-    if (!ui.mission.event || ui.mission.event.day !== 4) {
-      ui.error = "Day 4 is not available from the current mission response. Restart the backend, then try again.";
-      render();
-      announce(ui.error);
-      return;
-    }
-    ui.screen = "game";
-    ui.error = "";
-    ui.selectedChoiceId = null;
-    ui.interactionOpen = false;
-    ui.interactionTarget = null;
-    ui.inspectionComplete = false;
-    ui.emergencyProcedureComplete = false;
-    ui.gateOpening = false;
-    ui.paused = false;
-    ui.controlsCollapsed = true;
-    ui.gateProgress = {};
-    ui.feedbackDismissed = true;
-    ui.dayOneComplete = true;
-    ui.dayTwoComplete = true;
-    ui.dayThreeComplete = true;
-    ui.dayFourComplete = false;
-    render();
-    announce("Day 4 briefing ready. Stop EVA and enter the designated Storm Shelter before choosing a shielding strategy.");
-    root.focus({ preventScroll: true });
-    window.MoonBaseScene?.focus?.();
   }
 
   function announce(message) {
@@ -738,13 +624,9 @@
     if (ui.error) root.append(make("div", "alert-box", ui.error));
 
     switch (ui.screen) {
-      case "intro": renderIntro(); break;
       case "briefing": renderBriefing(); break;
       case "worldSelection": renderWorldSelection(); break;
       case "game": renderGame(); break;
-      case "day1Complete": renderDayOneComplete(); break;
-      case "day2Complete": renderDayTwoComplete(); break;
-      case "day3Complete": renderDayThreeComplete(); break;
       case "day4Complete": renderDayFourComplete(); break;
       case "feedback": renderFeedback(); break;
       case "result": renderResult(); break;
@@ -756,92 +638,6 @@
       brandName.dataset.totalDays = String(ui.mission?.totalDays || 4);
     }
     if (!previousScreen || previousScreen !== ui.screen) resetViewport();
-  }
-
-  function renderIntro() {
-    const phase = ui.introPhase || "arrival";
-    const copy = {
-      arrival: {
-        kicker: "MOONBASE ARRIVAL // SOUTH POLE SECTOR",
-        title: "Welcome, Junior Explorer.",
-        text: "Your mission is about to begin.",
-        detail: "The lunar base is waiting. Stay curious, look closely, and help the crew make smart decisions."
-      },
-      incident: {
-        kicker: "MISSION ALERT // PRIORITY SIGNAL",
-        title: "WAIT! Something is wrong...",
-        text: "MoonBase needs your help!",
-        detail: "A warning has reached the base. Follow the animated arrow to the MoonBase gate for your first briefing."
-      },
-      day1: {
-        kicker: "DAY 1 // ESTABLISH THE BASE",
-        title: "POWER DROP",
-        text: "The lunar base is receiving less sunlight because of the surrounding terrain.",
-        detail: "The solar array is intact. Terrain shadows are blocking part of the sunlight, so you must choose how the base should respond."
-      },
-      day2: {
-        kicker: "DAY 2 // LIFE SUPPORT CRISIS",
-        title: "WATER QUALITY ALERT",
-        text: "The recovered water has not passed its quality check.",
-        detail: "The water is isolated for inspection and verification. The other life-support systems are still operating."
-      },
-      day3: {
-        kicker: "DAY 3 // FOOD PRODUCTION",
-        title: "FOOD SUPPLY WARNING",
-        text: "The food supply is running low.",
-        detail: "Your decisions will affect future food production, but newly planted crops will not provide immediate meals."
-      },
-      day4: {
-        kicker: "DAY 4 // EMERGENCY PROTOCOL",
-        title: "SOLAR RADIATION ALERT",
-        text: "A solar particle event warning has reached the base.",
-        detail: "Stop EVA, enter the existing Storm Shelter, and choose a supplementary shielding strategy."
-      },
-      ready: {
-        kicker: "MISSION BRIEFING READY // FOUR CHALLENGES",
-        title: "Four challenges. One MoonBase.",
-        text: "Investigate, understand, and make decisions to help the base survive.",
-        detail: "Your mission briefing is next. You will enter the existing four-day mission flow only after you choose Start Your Mission."
-      }
-    }[phase] || null;
-    const activeCopy = copy || {
-      kicker: "MISSION INTRODUCTION",
-      title: "MoonBase is preparing.",
-      text: "Your mission is about to begin.",
-      detail: ""
-    };
-    const section = make("section", `cinematic-intro cinematic-intro-${phase}`);
-    section.setAttribute("aria-labelledby", "intro-title");
-    const skip = button("Skip intro", "cinematic-intro-skip", skipIntro);
-    skip.setAttribute("aria-label", "Skip cinematic mission introduction");
-    const status = make("div", "cinematic-intro-status");
-    append(status, make("span", "cinematic-intro-status-dot"), make("span", "cinematic-intro-status-copy", "LIVE MISSION STORY"));
-    const content = make("div", "cinematic-intro-content");
-    const kicker = make("span", "cinematic-intro-kicker", activeCopy.kicker);
-    const title = make("h1", "cinematic-intro-title", activeCopy.title);
-    title.id = "intro-title";
-    const text = make("p", "cinematic-intro-text", activeCopy.text);
-    const detail = make("p", "cinematic-intro-detail", activeCopy.detail);
-    const direction = phase === "incident"
-      ? make("p", "cinematic-intro-direction", "FOLLOW THE ANIMATED ARROW TO THE MISSION GATE")
-      : null;
-    const progress = make("div", "cinematic-intro-progress");
-    progress.setAttribute("aria-label", "Mission introduction progress");
-    ["ARRIVAL", "ALERT", "DAY 1", "DAY 2", "DAY 3", "DAY 4", "READY"].forEach((label, index) => {
-      const dot = make("span", `cinematic-intro-progress-step${index === ["arrival", "incident", "day1", "day2", "day3", "day4", "ready"].indexOf(phase) ? " is-active" : ""}`);
-      dot.title = label;
-      dot.setAttribute("aria-label", label);
-      progress.append(dot);
-    });
-    const action = phase === "ready"
-      ? button("START YOUR MISSION", "cinematic-intro-start", continueFromIntro)
-      : null;
-    if (ui.introFallback) {
-      content.append(make("p", "cinematic-intro-fallback", "The 3D view is unavailable on this device. Mission Control is ready with the accessible mission briefing."));
-    }
-    append(content, kicker, title, text, detail, direction, progress, action);
-    append(section, skip, status, content);
-    root.append(section);
   }
 
   function renderWelcome() {
@@ -1099,11 +895,12 @@
     const isFoodEvent = day === 3;
     const isDayFour = day === 4;
     const emergencyReady = Boolean(ui.emergencyProcedureComplete && opened);
+    const gateEntered = Boolean(ui.gateProgress[event?.day]);
     const dialogue = make("aside", `story-dialogue gameplay-dialogue gameplay-dialogue-live gameplay-commander-card${opened || isDayFour ? " is-briefing is-open" : ""}`);
     dialogue.setAttribute("aria-live", "polite");
     dialogue.setAttribute("aria-label", opened || isDayFour
       ? (isWaterEvent ? "Water quality alert and system report" : isFoodEvent ? "Food supply warning and system report" : isDayFour ? "Solar radiation alert and storm shelter status" : "Power drop inspection report")
-      : (isWaterEvent ? "Water recovery station objective" : isFoodEvent ? "Crop production unit objective" : "Solar array objective"));
+      : (isWaterEvent ? "Water recovery station objective" : isFoodEvent ? "Crop production unit objective" : gateEntered ? "Solar array objective" : "MoonBase gate objective"));
     const portrait = make("div", "crew-portrait");
     append(portrait, make("span", "crew-portrait-visor"), make("span", "crew-portrait-light"));
     const copy = make("div", "gameplay-dialogue-copy");
@@ -1118,7 +915,9 @@
         ? "Enter the lunar habitat, find the Water Recovery Station, and press E or use the touch button to inspect it."
         : isFoodEvent
           ? "Enter the lunar habitat, find the Crop Production Unit, and press E or use the touch button to inspect it."
-          : "Walk to the highlighted solar-array station. When you are close, press E or use the touch button to inspect it."));
+          : gateEntered
+            ? "Walk to the highlighted solar-array station. When you are close, press E or use the touch button to inspect it."
+            : "Walk to the active MoonBase gate. When you are close, press E or use the touch button to open the airlock."));
       if (ui.interactionTarget && !ui.interactionTarget.locked && !ui.gateOpening) {
         copy.append(renderMissionControlAction(ui.interactionTarget));
       }
@@ -1484,6 +1283,24 @@
     root.append(section);
   }
 
+  function renderEmergencyBanner() {
+    if (ui.screen !== "game" || !ui.emergency.active || !ui.emergency.visible) return null;
+    const banner = make("aside", "mission-emergency-banner");
+    banner.setAttribute("role", "alert");
+    banner.setAttribute("aria-live", "assertive");
+    const header = make("div", "mission-emergency-header");
+    append(header,
+      make("span", "mission-emergency-kicker", "MISSION CONTROL // IN-WORLD ALERT"),
+      make("span", "mission-emergency-signal", "LIVE SCENARIO"));
+    append(banner, header,
+      make("h2", "mission-emergency-title", ui.emergency.title),
+      make("p", "mission-emergency-message", ui.emergency.message),
+      button("Dismiss warning", "button-secondary mission-emergency-dismiss", () => {
+        window.MoonBaseScene?.dismissEmergency?.();
+      }));
+    return banner;
+  }
+
   function renderGame() {
     const mission = ui.mission;
     const event = mission?.event;
@@ -1491,7 +1308,7 @@
       if (ui.loading) {
         const loading = make("section", "story-shell mission-loading", "");
         append(loading, make("span", "story-eyebrow", "MISSION CONTROL"), make("h1", "", "INITIALIZING THE MOON"),
-          make("p", "", "Loading the Day 1 lunar environment and preparing the solar-array objective…"),
+          make("p", "", "Loading the Day 1 lunar environment and preparing the first gate objective…"),
           make("span", "loading-line", "Please wait"));
         root.append(loading);
         return;
@@ -1507,6 +1324,7 @@
     const isDayTwo = Number(event.day) === 2;
     const isDayThree = Number(event.day) === 3;
     const isDayFour = Number(event.day) === 4;
+    const gateEntered = Boolean(ui.gateProgress[event.day]);
     const isInspected = Boolean(ui.inspectionComplete && ui.interactionOpen);
     const hud = renderStoryHud(mission, event);
     hud.className = "story-hud gameplay-hud";
@@ -1519,7 +1337,9 @@
           : isDayFour
             ? "Review the Storm Shelter status, compare the three supplementary-shielding strategies, and choose a response."
           : "Inspect the report, compare the three responses, and choose how the base should respond.")
-      : (isDayTwo
+      : (!gateEntered
+        ? "Walk to the active MoonBase gate and press E to enter the mission area. The station objective begins after the airlock opens."
+        : isDayTwo
         ? "Enter the lunar habitat and find the Water Recovery Station. Inspect it before choosing a response."
         : isDayThree
           ? "Enter the lunar habitat and find the Crop Production Unit. Inspect it before choosing a response."
@@ -1540,9 +1360,11 @@
     const task = make("aside", `gameplay-task${ui.interactionOpen ? " is-briefing-task" : ""}`);
     append(task,
       make("div", "gameplay-task-kicker", "CURRENT TASK"),
-      make("h2", "gameplay-task-title", isDayTwo && !isInspected ? "WATER RECOVERY STATION" : isDayThree && !isInspected ? "CROP PRODUCTION UNIT" : isDayFour && !isInspected ? "STORM SHELTER" : event.title),
+      make("h2", "gameplay-task-title", !gateEntered ? "MOONBASE GATE" : isDayTwo && !isInspected ? "WATER RECOVERY STATION" : isDayThree && !isInspected ? "CROP PRODUCTION UNIT" : isDayFour && !isInspected ? "STORM SHELTER" : event.title),
       make("p", "gameplay-task-copy", ui.gateOpening
-        ? `${ui.interactionTarget?.name || "Mission gate"} is opening. Hold position for the cinematic transition.`
+        ? `${ui.interactionTarget?.name || "Mission gate"} is opening. Hold position while the airlock unlocks.`
+        : !gateEntered
+          ? "Reach the physical gate and press E to open the airlock. Do not leave the approach automatically."
         : isInspected
           ? "Compare the three response choices, then send one plan to Mission Control."
           : isDayTwo
@@ -1552,7 +1374,7 @@
               : isDayFour
                 ? "Enter the Storm Shelter when the prompt appears. The emergency procedure must be completed before choosing a strategy."
               : "Walk to the highlighted solar-array station and inspect it when the prompt appears."),
-      append(make("div", "gameplay-task-status"), make("span", "task-status-icon", "!"), make("span", "", isDayTwo ? "Water-station beacon active" : isDayThree ? "Crop-production beacon active" : isDayFour ? (isInspected ? "Emergency procedure complete" : "Storm-shelter beacon active") : "Solar-array beacon active")));
+      append(make("div", "gameplay-task-status"), make("span", "task-status-icon", "!"), make("span", "", !gateEntered ? "MoonBase gate objective active" : isDayTwo ? "Water-station beacon active" : isDayThree ? "Crop-production beacon active" : isDayFour ? (isInspected ? "Emergency procedure complete" : "Storm-shelter beacon active") : "Solar-array beacon active")));
 
     const showInteractionHint = !ui.interactionOpen && (ui.gateOpening || ui.interactionTarget?.locked);
     const hint = showInteractionHint
@@ -1627,7 +1449,7 @@
       button("Resume exploration", "story-primary-action", () => { ui.paused = false; render(); }, ui.loading),
       make("small", "", "Press Escape any time to release the mouse pointer."));
 
-    append(section, hud, objective, task, renderMissionRadar({ gameplay: true }), hint, controls, touchControls, renderStorySystems(mission),
+    append(section, renderEmergencyBanner(), hud, objective, task, renderMissionRadar({ gameplay: true }), hint, controls, touchControls, renderStorySystems(mission),
       fallbackNotice, dialogue, renderDecisionFeedback(mission), pauseMenu);
     root.append(section);
   }

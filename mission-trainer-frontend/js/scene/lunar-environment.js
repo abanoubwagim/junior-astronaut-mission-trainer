@@ -9,6 +9,7 @@ export function getGateDoorForId(signal, id) {
 }
 
 export function createLunarEnvironment(THREE, scene) {
+  const reducedMotion = window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches;
   const root = new THREE.Group();
   root.name = "moonbase-environment";
   scene.add(root);
@@ -92,7 +93,16 @@ export function createLunarEnvironment(THREE, scene) {
     stormRings: [],
     stormConsoleScreen: null,
     communicationDish: null,
-    story: { screen: "welcome", day: 0, location: "base", selectedChoiceId: null, gateProgress: {}, introPhase: "arrival", introArrowVisible: false },
+    story: {
+      screen: "welcome",
+      day: 0,
+      location: "base",
+      selectedChoiceId: null,
+      gateProgress: {},
+      emergencyActive: false,
+      emergencyDay: 0,
+      emergencyObjectiveVisible: false
+    },
     interactiveObjects: [],
     collisionObjects: [],
     moonTexture: null,
@@ -1638,12 +1648,14 @@ export function createLunarEnvironment(THREE, scene) {
       signal.rover.position.y = baseY + Math.sin(time * 0.0015) * 0.012;
     }
     signal.gateArrows.forEach((arrow, index) => {
-      const introArrowHidden = signal.story.screen === "intro" && !signal.story.introArrowVisible;
-      const active = arrow.id === signal.navigationGate && !introArrowHidden;
+      const active = signal.story.screen === "game"
+        && signal.story.emergencyObjectiveVisible
+        && arrow.id === signal.navigationGate
+        && !Boolean(signal.story.gateProgress?.[signal.story.day]);
       arrow.object.visible = active;
       if (active) {
-        arrow.object.position.y = arrow.baseY + Math.sin(time * 0.003 + index) * 0.08;
-        arrow.light.intensity = 1.35 + (Math.sin(time * 0.005 + index) + 1) * 0.45;
+        arrow.object.position.y = reducedMotion ? arrow.baseY : arrow.baseY + Math.sin(time * 0.003 + index) * 0.08;
+        arrow.light.intensity = reducedMotion ? 1.35 : 1.35 + (Math.sin(time * 0.005 + index) + 1) * 0.45;
       }
     });
     if (signal.entryDoor) {
@@ -1653,9 +1665,10 @@ export function createLunarEnvironment(THREE, scene) {
       door.right.position.x = 0.42 + door.open * 0.72;
       door.light.intensity = 1.2 + door.open * 2.4;
       updateGateDoorColliders(door);
-      const alerting = signal.story.screen === "intro"
-        && ["incident", "day4"].includes(signal.story.introPhase);
-      const pulse = 1 + (Math.sin(time * 0.009) + 1) * 0.28;
+      const alerting = signal.story.screen === "game"
+        && signal.story.emergencyActive
+        && Number(signal.story.emergencyDay) === 1;
+      const pulse = reducedMotion ? 1 : 1 + (Math.sin(time * 0.009) + 1) * 0.28;
       door.light.color.setHex(alerting ? colors.warm : colors.cyan);
       door.light.intensity = alerting ? pulse * 2.3 : 1.2 + door.open * 2.4;
       if (signal.baseGlow) {
@@ -1682,9 +1695,11 @@ export function createLunarEnvironment(THREE, scene) {
     }
     if (signal.stormConsoleScreen) {
       const alerting = signal.story.location === "storm"
-        || (signal.story.screen === "intro" && signal.story.introPhase === "day4");
+        || (signal.story.screen === "game"
+          && signal.story.emergencyActive
+          && Number(signal.story.emergencyDay) === 4);
       signal.stormConsoleScreen.emissiveIntensity = alerting
-        ? 0.85 + (Math.sin(time * 0.009) + 1) * 0.35
+        ? reducedMotion ? 0.85 : 0.85 + (Math.sin(time * 0.009) + 1) * 0.35
         : 0.2;
     }
     signal.beacons.forEach((beacon, index) => {
@@ -1702,11 +1717,8 @@ export function createLunarEnvironment(THREE, scene) {
   function setStoryState(story = {}) {
     const mission = story.mission || null;
     const day = mission?.event?.day || mission?.day || 0;
-    const introLocation = story.introFocus || "base";
-    const location = story.screen === "intro"
-      ? introLocation
-      : story.location || ["base", "solar", "water", "grow", "storm"][day] || "base";
-    const active = story.screen === "intro" || story.screen === "game" || story.screen === "feedback"
+    const location = story.location || ["base", "solar", "water", "grow", "storm"][day] || "base";
+    const active = story.screen === "game" || story.screen === "feedback"
       || story.screen === "day1Complete" || story.screen === "result";
     const dayOneComplete = Boolean(story.dayOneComplete)
       || story.screen === "day1Complete"
@@ -1725,9 +1737,6 @@ export function createLunarEnvironment(THREE, scene) {
       ...story,
       day,
       location,
-      introArrowVisible: story.screen === "intro"
-        ? Boolean(story.introArrowVisible)
-        : false,
       gateProgress: story.gateProgress || signal.story.gateProgress || {}
     };
     signal.navigationGate = showFourthGate
@@ -1756,10 +1765,6 @@ export function createLunarEnvironment(THREE, scene) {
 
   function getNavigationTarget() {
     const currentDay = Number(signal.story.day || 0);
-    if (signal.story.screen === "game" && currentDay === 1) {
-      const solar = signal.interactiveObjects.find((object) => object.id === "solar-array");
-      if (solar) return { x: solar.position[0], z: solar.position[1], id: solar.id };
-    }
     if (signal.story.screen === "game") {
       const currentGateId = getGateIdForDay(currentDay);
       const currentGate = signal.interactiveObjects.find((object) => object.id === currentGateId);

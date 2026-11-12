@@ -47,22 +47,10 @@ export function createStoryDirector(THREE, parent, environment, cameraController
 
   function setState(nextState = {}) {
     const previousScreen = state.screen;
-    const previousDayOneComplete = Boolean(state.dayOneComplete);
-    const previousDayTwoComplete = Boolean(state.dayTwoComplete);
-    const previousDayThreeComplete = Boolean(state.dayThreeComplete);
     state = { ...state, ...nextState };
     const active = state.screen === "game";
     const location = objectiveLocation(state.mission);
-    const introFocus = {
-      arrival: "base",
-      incident: "base",
-      day1: "solar",
-      day2: "water",
-      day3: "grow",
-      day4: "storm",
-      ready: "base"
-    }[state.introPhase] || "base";
-    environment.setStoryState({ ...state, location, introFocus });
+    environment.setStoryState({ ...state, location });
     const presentationLocation = state.interactionOpen
       ? (Number(state.mission?.event?.day || state.mission?.day || 0) === 1 ? "solar" : missionGateLocation(state.mission))
       : location;
@@ -77,40 +65,13 @@ export function createStoryDirector(THREE, parent, environment, cameraController
       astronaut.root.position.set(-0.8, -1.03, 0.55);
       astronaut.root.rotation.y = 0;
     }
-    if (state.screen !== "day1Complete" && ((state.dayOneComplete && !previousDayOneComplete)
-        || (state.dayTwoComplete && !previousDayTwoComplete)
-        || (state.dayThreeComplete && !previousDayThreeComplete))) {
-      const navigationTarget = environment.getNavigationTarget?.();
-      if (navigationTarget) {
-        const deltaX = navigationTarget.x - astronaut.root.position.x;
-        const deltaZ = navigationTarget.z - astronaut.root.position.z;
-        cameraController.setHeading?.(Math.atan2(deltaX, -deltaZ));
-        cameraController.setDistance?.(11.2);
-      }
-    }
     wasGame = active;
-    operator.root.visible = !active && state.screen !== "intro";
+    operator.root.visible = !active;
     if (state.screen === "welcome") {
       astronaut.setAction("float");
       operator.setAction("idle");
       cameraController.setStoryTarget("base");
       cameraController.setPresentationActive?.(false);
-    } else if (state.screen === "intro") {
-      const introPhase = state.introPhase || "arrival";
-      if (introPhase === "day4") {
-        const storm = environment.getLocations?.().storm;
-        const target = storm?.target || [-9, 0.8, -23.7];
-        astronaut.moveTo([target[0], -1.03, target[2]], 3.1);
-      } else if (introPhase === "incident") {
-        astronaut.setAction("react");
-      } else if (introPhase === "ready") {
-        astronaut.moveTo([1.2, -1.03, 1.4], 1.1);
-      } else {
-        astronaut.setAction("idle");
-      }
-      cameraController.setCinematicPhase?.(introPhase);
-      cameraController.setStoryTarget("base");
-      cameraController.setPresentationActive?.(true);
     } else if (state.screen === "briefing") {
       astronaut.setAction("point");
       operator.setAction("talk");
@@ -118,6 +79,8 @@ export function createStoryDirector(THREE, parent, environment, cameraController
       cameraController.setPresentationActive?.(false);
     } else if (state.screen === "game") {
       if (state.interactionOpen) astronaut.setAction("talk");
+      else if (state.emergencyVisible) astronaut.setAction("react");
+      else astronaut.setAction("idle");
       cameraController.setStoryTarget(presentationLocation);
       cameraController.setPresentationActive?.(Boolean(state.interactionOpen));
     } else if (state.screen === "feedback") {

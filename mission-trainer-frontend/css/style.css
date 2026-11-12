@@ -46,8 +46,6 @@ button:focus-visible, a:focus-visible, canvas:focus-visible { outline: 3px solid
 .app-shell { position: relative; z-index: 1; width: min(100% - (var(--gutter) * 2), var(--content)); margin: 0 auto; padding: 112px 0 44px; outline: none; }
 body[data-app-screen="welcome"] .app-shell { padding-top: 0; padding-bottom: 0; }
 body[data-app-screen="welcome"] .page-footer { display: none; }
-body[data-app-screen="intro"] .app-shell { width: 100%; max-width: none; margin: 0; padding: 0; }
-body[data-app-screen="intro"] .page-footer { display: none; }
 .page-footer { display: flex; align-items: center; justify-content: space-between; gap: 16px; width: min(100% - (var(--gutter) * 2), var(--content)); margin: auto auto 0; padding: 16px 0 24px; color: var(--subtle); font-family: var(--mono); font-size: 10px; letter-spacing: .06em; line-height: 1.45; text-transform: uppercase; }
 .topbar { position: fixed; z-index: 12; top: 18px; left: var(--gutter); right: var(--gutter); display: flex; align-items: center; justify-content: space-between; gap: 20px; min-height: 54px; padding: 9px 14px; border: 1px solid rgb(158 202 242 / 18%); border-radius: var(--radius-md); background: rgb(6 14 32 / 72%); box-shadow: 0 16px 40px rgb(0 2 15 / 24%), inset 0 1px 0 rgb(255 255 255 / 8%); backdrop-filter: blur(18px); }
 .brand-lockup { display: inline-flex; align-items: center; gap: 10px; min-width: 0; }
@@ -80,13 +78,6 @@ body[data-app-screen="worldSelection"] .lunar-scene {
   background-position: center center;
   background-repeat: no-repeat;
   background-size: cover;
-}
-body[data-app-screen="intro"] .lunar-scene { background: #02050c; pointer-events: none; }
-body[data-app-screen="intro"] #lunar-canvas { display: block; }
-body[data-app-screen="intro"] .scene-fallback-art { display: none; }
-body[data-app-screen="intro"] .scene-vignette {
-  background: linear-gradient(90deg, rgb(3 7 20 / 86%), rgb(3 7 20 / 22%) 48%, rgb(3 7 20 / 26%)),
-    linear-gradient(0deg, rgb(3 7 20 / 72%), transparent 46%, rgb(3 7 20 / 12%));
 }
 body[data-app-screen="welcome"] #lunar-canvas,
 body[data-app-screen="welcome"] .scene-fallback-art,
@@ -122,32 +113,14 @@ body[data-app-screen="worldSelection"] .scene-vignette {
 .spinner { width: 14px; height: 14px; border: 2px solid rgb(3 18 37 / 25%); border-top-color: currentColor; border-radius: 50%; animation: spin .7s linear infinite; }
 .story-eyebrow, .welcome-mono, .story-hud-kicker, .story-effects-label, .story-change-label, .mission-feedback-kicker { color: var(--cyan); font-family: var(--mono); font-size: 10px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; }
 
-/* Cinematic mission introduction. The 3D scene remains the visual stage; this
-   layer only supplies readable story copy and explicit child-controlled actions. */
-.cinematic-intro { position: fixed; z-index: 4; inset: 0; display: flex; align-items: flex-end; padding: 0 var(--gutter) clamp(34px, 9svh, 96px); pointer-events: none; }
-.cinematic-intro::after { position: absolute; inset: auto 0 0; height: 28svh; background: linear-gradient(0deg, rgb(2 5 12 / 74%), transparent); content: ""; pointer-events: none; }
-.cinematic-intro-status { position: fixed; top: 91px; left: var(--gutter); display: inline-flex; align-items: center; gap: 8px; color: var(--muted); font-family: var(--mono); font-size: 9px; letter-spacing: .12em; text-transform: uppercase; }
-.cinematic-intro-status-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--green); box-shadow: 0 0 14px var(--green); }
-.cinematic-intro-skip { position: fixed; top: 86px; right: var(--gutter); z-index: 2; min-height: 36px; padding: 8px 13px; border: 1px solid rgb(164 190 235 / 38%); border-radius: 999px; color: var(--ink); background: rgb(7 17 38 / 76%); box-shadow: inset 0 1px 0 rgb(255 255 255 / 7%); font-family: var(--mono); font-size: 9px; letter-spacing: .08em; text-transform: uppercase; pointer-events: auto; }
-.cinematic-intro-skip:hover { border-color: var(--cyan); color: var(--cyan); }
-.cinematic-intro-content { position: relative; z-index: 1; width: min(520px, 44vw); padding: clamp(21px, 3vw, 34px); border: 1px solid rgb(143 203 242 / 30%); border-radius: var(--radius-lg); background: linear-gradient(135deg, rgb(8 21 46 / 84%), rgb(7 14 32 / 66%)); box-shadow: var(--shadow-float), inset 0 1px 0 rgb(255 255 255 / 9%); backdrop-filter: blur(14px); pointer-events: auto; }
-.cinematic-intro-arrival .cinematic-intro-content { border-color: rgb(101 228 242 / 36%); }
-.cinematic-intro-incident .cinematic-intro-content, .cinematic-intro-day4 .cinematic-intro-content { border-color: rgb(255 157 139 / 48%); }
-.cinematic-intro-day1 .cinematic-intro-content { border-color: rgb(255 210 118 / 40%); }
-.cinematic-intro-day2 .cinematic-intro-content { border-color: rgb(101 228 242 / 38%); }
-.cinematic-intro-day3 .cinematic-intro-content { border-color: rgb(140 229 189 / 42%); }
-.cinematic-intro-kicker { display: block; color: var(--cyan); font-family: var(--mono); font-size: 10px; font-weight: 700; letter-spacing: .14em; line-height: 1.5; text-transform: uppercase; }
-.cinematic-intro-incident .cinematic-intro-kicker, .cinematic-intro-day4 .cinematic-intro-kicker { color: var(--coral); }
-.cinematic-intro-title { max-width: 680px; margin: 13px 0 9px; color: var(--ink); font-family: var(--display); font-size: clamp(2.1rem, 5.2vw, 4.8rem); letter-spacing: -.06em; line-height: .96; }
-.cinematic-intro-text { max-width: 590px; margin: 0; color: var(--ink); font-size: clamp(1rem, 1.8vw, 1.35rem); font-weight: 600; line-height: 1.35; }
-.cinematic-intro-detail { max-width: 570px; margin: 12px 0 0; color: var(--muted); font-size: 13px; line-height: 1.6; }
-.cinematic-intro-direction { display: inline-flex; align-items: center; gap: 8px; margin: 17px 0 0; padding: 8px 10px; border: 1px solid rgb(255 210 118 / 38%); border-radius: 8px; color: var(--amber); background: rgb(255 210 118 / 8%); font-family: var(--mono); font-size: 9px; font-weight: 700; letter-spacing: .08em; line-height: 1.35; }
-.cinematic-intro-direction::before { width: 7px; height: 7px; border-radius: 50%; background: var(--amber); box-shadow: 0 0 12px var(--amber); content: ""; }
-.cinematic-intro-progress { display: flex; gap: 7px; margin-top: 23px; }
-.cinematic-intro-progress-step { display: block; width: 32px; height: 4px; border-radius: 999px; background: rgb(164 190 235 / 20%); }
-.cinematic-intro-progress-step.is-active { background: var(--cyan); box-shadow: 0 0 12px rgb(101 228 242 / 45%); }
-.cinematic-intro-start { margin-top: 24px; min-width: 220px; min-height: 50px; font-family: var(--mono); font-size: 12px; letter-spacing: .1em; }
-.cinematic-intro-fallback { margin: 0 0 12px; padding: 9px 11px; border: 1px solid rgb(255 210 118 / 32%); border-radius: 8px; color: #f5d99c; background: rgb(255 210 118 / 8%); font-size: 11px; line-height: 1.45; }
+/* Mission Control warning that stays inside the playable world. */
+.mission-emergency-banner { position: fixed; z-index: 8; top: 148px; left: 50%; display: grid; gap: 8px; width: min(520px, calc(100vw - 48px)); padding: 15px 17px; border: 1px solid rgb(255 157 139 / 58%); border-radius: 14px; background: linear-gradient(135deg, rgb(53 25 45 / 92%), rgb(12 20 45 / 92%)); box-shadow: 0 18px 50px rgb(0 0 0 / 32%), 0 0 28px rgb(255 117 103 / 14%); transform: translateX(-50%); backdrop-filter: blur(16px); pointer-events: auto; }
+.mission-emergency-header { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.mission-emergency-kicker, .mission-emergency-signal { color: var(--coral); font-family: var(--mono); font-size: 8px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; }
+.mission-emergency-signal { color: var(--amber); }
+.mission-emergency-title { margin: 0; color: var(--ink); font-family: var(--display); font-size: clamp(1.25rem, 2.8vw, 1.85rem); letter-spacing: -.04em; line-height: 1; }
+.mission-emergency-message { margin: 0; color: #f5eaf0; font-size: 12px; line-height: 1.5; }
+.mission-emergency-dismiss { justify-self: start; min-height: 34px; padding: 7px 11px; font-family: var(--mono); font-size: 9px; letter-spacing: .05em; }
 
 /* Welcome */
 .moonbase-welcome { position: relative; display: grid; min-height: 100svh; align-content: center; padding: 72px 0 48px; }
@@ -493,15 +466,7 @@ body[data-app-screen="game"] .mission-radar-gameplay { border-color: rgb(101 228
   .brand-mark span { width: 12px; height: 12px; }
   .brand-name { font-size: 12px; }
   .topbar-right { display: none; }
-  .cinematic-intro { align-items: flex-end; padding: 0 14px 25px; }
-  .cinematic-intro-status { top: 72px; left: 14px; font-size: 8px; }
-  .cinematic-intro-skip { top: 68px; right: 14px; min-height: 34px; font-size: 8px; }
-  .cinematic-intro-content { width: 100%; padding: 20px; border-radius: 18px; }
-  .cinematic-intro-title { font-size: clamp(2rem, 10vw, 3.35rem); }
-  .cinematic-intro-text { font-size: 16px; }
-  .cinematic-intro-detail { font-size: 12px; }
-  .cinematic-intro-progress-step { flex: 1 1 0; width: auto; }
-  .cinematic-intro-start { width: 100%; }
+  .mission-emergency-banner { top: 68px; width: min(100% - 28px, 520px); padding: 13px 14px; }
   .app-shell { width: min(100% - 28px, 620px); padding-top: 78px; }
   .page-footer { width: min(100% - 28px, 620px); align-items: flex-start; flex-direction: column; gap: 5px; padding-bottom: 18px; font-size: 9px; }
   .welcome-top-hud { top: 61px; align-items: flex-start; flex-direction: column; gap: 5px; }
@@ -591,12 +556,6 @@ body[data-app-screen="game"] .mission-radar-gameplay { border-color: rgb(101 228
   .welcome-rule-right { flex-basis: 22px; }
   .welcome-reference-ribbon { font-size: 8px; }
   .welcome-reference-copy { display: none; }
-  .cinematic-intro-status-copy { display: none; }
-  .cinematic-intro-content { padding: 18px; }
-  .cinematic-intro-kicker { font-size: 8px; }
-  .cinematic-intro-title { margin-top: 11px; font-size: clamp(1.95rem, 11vw, 3rem); }
-  .cinematic-intro-text { font-size: 14px; }
-  .cinematic-intro-direction { font-size: 8px; }
   .story-qualitative-status, .story-change-rail, .day-one-report-grid, .day-two-status-grid, .day-three-status-grid, .day-four-status-grid { grid-template-columns: 1fr; }
   .story-qualitative-chip { padding: 9px; }
   .story-recap-row { grid-template-columns: 50px 1fr; }
