@@ -1,0 +1,124 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/moonbase/site01/frozen/v1.0.1/manifest.schema.json",
+  "title": "MoonBase Site01 frozen evidence manifest",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "manifest_id",
+    "semantic_version",
+    "created_utc",
+    "research_phase",
+    "product_scope",
+    "reference_site",
+    "candidate",
+    "reference_epoch",
+    "heights_analyzed_m",
+    "classification",
+    "source_records",
+    "input_dataset_ids",
+    "input_dataset_hashes",
+    "kernel_ids",
+    "processing_script_hashes",
+    "phase2_artifact_hashes",
+    "software_versions",
+    "methodology_id",
+    "result_references",
+    "known_limitations",
+    "status",
+    "review_status",
+    "supersedes_manifest_id",
+    "correction",
+    "version_history"
+  ],
+  "properties": {
+    "$schema": {"type": "string"},
+    "manifest_id": {"type": "string", "minLength": 1},
+    "semantic_version": {"type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"},
+    "created_utc": {"type": "string", "format": "date-time"},
+    "research_phase": {"type": "string"},
+    "product_scope": {"type": "object"},
+    "reference_site": {"type": "string"},
+    "candidate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "projected_coordinates_m", "coordinate_system", "reference_frame", "ephemeris"],
+      "properties": {
+        "id": {"type": "string"},
+        "projected_coordinates_m": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["x", "y"],
+          "properties": {"x": {"type": "number"}, "y": {"type": "number"}}
+        },
+        "coordinate_system": {"type": "string"},
+        "reference_frame": {"type": "string"},
+        "ephemeris": {"type": "string"},
+        "candidate_role": {"type": "string"}
+      }
+    },
+    "reference_epoch": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["utc", "spice_et_s"],
+      "properties": {"utc": {"type": "string", "format": "date-time"}, "spice_et_s": {"type": "number"}, "utc_to_et_kernel": {"type": "string"}}
+    },
+    "heights_analyzed_m": {"type": "array", "items": {"type": "number"}, "minItems": 2},
+    "dem_models_analyzed": {"type": "array", "items": {"type": "string"}, "minItems": 1},
+    "classification": {"enum": ["NASA_PUBLISHED", "TEAM_DERIVED", "GAME_DESIGN", "CONTEXT_ONLY", "EDUCATIONAL_EXPLANATION", "UNAVAILABLE", "NOT_APPLICABLE"]},
+    "source_records": {"type": "array", "items": {"type": "object"}},
+    "input_dataset_ids": {"type": "array", "items": {"type": "string"}, "minItems": 1},
+    "input_dataset_hashes": {"type": "object", "additionalProperties": {"type": "string", "pattern": "^[A-Fa-f0-9]{64}$"}},
+    "kernel_ids": {"type": "array", "items": {"type": "string"}, "minItems": 1},
+    "processing_script_hashes": {"type": "object", "additionalProperties": {"type": "string", "pattern": "^[A-Fa-f0-9]{64}$"}},
+    "phase2_artifact_hashes": {"type": "object", "additionalProperties": {"type": "string", "pattern": "^[A-Fa-f0-9]{64}$"}},
+    "software_versions": {"type": "object"},
+    "methodology_id": {"type": "string"},
+    "result_references": {"type": "array", "items": {"type": "string"}},
+    "known_limitations": {"type": "array", "items": {"type": "string"}},
+    "excluded_inputs": {"type": "object"},
+    "status": {"type": "string"},
+    "review_status": {"type": "string"},
+    "application_integration": {"type": "string"},
+    "api_key_used": {"type": "boolean"},
+    "supersedes_manifest_id": {"type": "string", "minLength": 1},
+    "correction": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "type",
+        "reason",
+        "incorrect_formula",
+        "correct_formula",
+        "equivalent_formula",
+        "scientific_result_changed",
+        "full_scientific_recomputation",
+        "affected_files"
+      ],
+      "properties": {
+        "type": {"const": "DOCUMENTATION_ONLY"},
+        "reason": {"type": "string", "minLength": 1},
+        "incorrect_formula": {"type": "string", "minLength": 1},
+        "correct_formula": {"type": "string", "minLength": 1},
+        "equivalent_formula": {"type": "string", "minLength": 1},
+        "scientific_result_changed": {"const": false},
+        "full_scientific_recomputation": {"const": "NOT_PERFORMED"},
+        "affected_files": {"type": "array", "items": {"type": "string"}, "minItems": 1}
+      }
+    },
+    "version_history": {
+      "type": "array",
+      "minItems": 2,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["version", "status", "reason"],
+        "properties": {
+          "version": {"type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"},
+          "status": {"type": "string"},
+          "reason": {"type": "string", "minLength": 1}
+        }
+      }
+    }
+  }
+}

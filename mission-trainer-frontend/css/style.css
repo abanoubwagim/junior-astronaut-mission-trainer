@@ -354,6 +354,24 @@ body[data-app-screen="game"] .app-shell { width: 100%; max-width: none; margin: 
 .gameplay-dialogue-note, .science-explanation { margin: 10px 0 0; color: var(--muted); font-size: 11px; line-height: 1.55; }
 .science-explanation { color: #d8eff5; }
 .learn-science-link { display: inline-block; margin-top: 11px; font-size: 10px; font-weight: 700; }
+.scientific-evidence-card { display: grid; gap: 10px; margin-top: 14px; padding: 13px; border: 1px solid rgb(101 228 242 / 30%); border-radius: 12px; background: linear-gradient(140deg, rgb(23 75 101 / 38%), rgb(7 21 47 / 76%)); }
+.scientific-evidence-heading { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; }
+.scientific-evidence-classification { padding: 4px 7px; border: 1px solid rgb(245 193 93 / 42%); border-radius: 999px; color: var(--amber); font-family: var(--mono); font-size: 8px; font-weight: 700; letter-spacing: .08em; }
+.scientific-evidence-title { margin: 0; color: var(--ink); font-family: var(--display); font-size: 17px; }
+.scientific-evidence-copy, .scientific-evidence-team-copy, .scientific-evidence-limit { margin: 0; color: var(--muted); font-size: 11px; line-height: 1.55; }
+.scientific-evidence-source, .scientific-evidence-team { display: grid; gap: 4px; padding: 10px; border: 1px solid var(--line); border-radius: 9px; background: rgb(5 15 35 / 48%); }
+.scientific-evidence-source-title { color: var(--ink); font-size: 11px; line-height: 1.4; }
+.scientific-evidence-source-org { color: var(--subtle); font-family: var(--mono); font-size: 9px; }
+.scientific-evidence-source-link { width: fit-content; color: var(--sky); font-size: 10px; font-weight: 700; }
+.scientific-evidence-limit { color: var(--amber); }
+.scientific-evidence-details { border-top: 1px solid var(--line); padding-top: 9px; }
+.scientific-evidence-details summary { color: var(--cyan); cursor: pointer; font-family: var(--mono); font-size: 9px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+.scientific-evidence-technical { display: grid; gap: 6px; margin-top: 10px; }
+.scientific-evidence-row { display: grid; grid-template-columns: minmax(125px, .7fr) minmax(0, 1.3fr); gap: 10px; padding: 6px 0; border-bottom: 1px solid rgb(148 193 239 / 12%); }
+.scientific-evidence-row-label { color: var(--subtle); font-family: var(--mono); font-size: 8px; letter-spacing: .05em; text-transform: uppercase; }
+.scientific-evidence-row-value { overflow-wrap: anywhere; color: var(--ink); font-family: var(--mono); font-size: 9px; line-height: 1.4; }
+.scientific-evidence-limitations { padding-top: 5px; }
+.scientific-evidence-limitations ul { margin: 7px 0 0; padding-left: 18px; color: var(--muted); font-size: 10px; line-height: 1.5; }
 .inspection-report { margin-top: 12px; padding: 11px; border: 1px solid var(--line); border-radius: 10px; background: rgb(5 15 34 / 62%); }
 .inspection-report-title { margin: 0 0 9px; color: var(--cyan); font-family: var(--mono); font-size: 9px; letter-spacing: .1em; }
 .inspection-report-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 7px 12px; margin: 0; }
@@ -559,6 +577,7 @@ body[data-app-screen="game"] .mission-radar-gameplay { border-color: rgb(101 228
   .story-qualitative-status, .story-change-rail, .day-one-report-grid, .day-two-status-grid, .day-three-status-grid, .day-four-status-grid { grid-template-columns: 1fr; }
   .story-qualitative-chip { padding: 9px; }
   .story-recap-row { grid-template-columns: 50px 1fr; }
+  .scientific-evidence-row { grid-template-columns: 1fr; gap: 3px; }
   .inspection-report-grid { grid-template-columns: 1fr; }
   .destination-card { min-height: 360px; }
 }

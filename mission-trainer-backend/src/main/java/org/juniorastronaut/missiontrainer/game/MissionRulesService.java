@@ -13,12 +13,19 @@ import org.juniorastronaut.missiontrainer.api.MissionDtos.QualitativeState;
 import org.juniorastronaut.missiontrainer.api.MissionDtos.ResolvedChoice;
 import org.juniorastronaut.missiontrainer.api.MissionDtos.ScienceSource;
 import org.juniorastronaut.missiontrainer.api.MissionDtos.SystemStatus;
+import org.juniorastronaut.missiontrainer.nasa.Site01EvidenceProvider;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
 public class MissionRulesService {
+    private final Site01EvidenceProvider evidenceProvider;
+
+    public MissionRulesService(Site01EvidenceProvider evidenceProvider) {
+        this.evidenceProvider = evidenceProvider;
+    }
+
     private static final int DAY_ONE = 1;
     private static final int DAY_TWO = 2;
     private static final int DAY_THREE = 3;
@@ -436,7 +443,8 @@ public class MissionRulesService {
                 DAY_ONE_SCIENCE_SOURCES,
                 DAY_ONE_CHOICES,
                 DATA_STATUS,
-                VALUE_ORIGIN
+                VALUE_ORIGIN,
+                evidenceProvider.dayOneEvidence()
         );
     }
 

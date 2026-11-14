@@ -1,0 +1,516 @@
+{
+  "generated_utc": "2026-11-13T22:21:10.481960Z",
+  "script": "C:\\Users\\Abanoub\\Desktop\\junior-astronaut-mission-trainer\\tools\\nasa-research\\site01\\site01_shadow_analysis.py",
+  "python": "3.14.2 (tags/v3.14.2:df79316, Dec  5 2025, 17:18:21) [MSC v.1944 64 bit (AMD64)]",
+  "platform": "Windows-11-10.0.26200-SP0",
+  "numpy": "2.5.4",
+  "spiceypy": "8.4.0",
+  "input_files": {
+    "C:\\Users\\Abanoub\\Desktop\\moonbase-nasa-research\\downloads\\site01b\\surf.tif": {
+      "sha256": "3BA7B97CB00A2BCF21189C3AEB535F65AFC21207154AB9F0D43C5BDC1F7E747E",
+      "size_bytes": 40980810
+    },
+    "C:\\Users\\Abanoub\\Desktop\\moonbase-nasa-research\\downloads\\site01b\\slp.tif": {
+      "sha256": "3A90035A4946B4A04B7332C52F0B2B1CFF71648BD8C105E14D8A7E15C6BCFE8E",
+      "size_bytes": 40980776
+    },
+    "C:\\Users\\Abanoub\\Desktop\\moonbase-nasa-research\\downloads\\site01b\\ldec.tif": {
+      "sha256": "16D6ED21020AD48FA71D94E7437492ACF5BF04118F52BCD292F57F22EAD4CD23",
+      "size_bytes": 40980744
+    },
+    "C:\\Users\\Abanoub\\Desktop\\moonbase-nasa-research\\downloads\\site01b\\toterr.tif": {
+      "sha256": "CF2CF52F52D2AA51E60D058010D10B0EBFB1D3E920F5A2B9A46EB6C51054AB1C",
+      "size_bytes": 40980810
+    },
+    "C:\\Users\\Abanoub\\Desktop\\moonbase-nasa-research\\downloads\\site01b\\slperr.tif": {
+      "sha256": "52BC3B239F61605E6BB98BAB6D6B17ACD22389C59E57336862157F2FBD643A33",
+      "size_bytes": 40980810
+    },
+    "C:\\Users\\Abanoub\\Desktop\\moonbase-nasa-research\\downloads\\site01b\\clone001_err.tif": {
+      "sha256": "242DE9E3DA624A276864CC4FA7C499E96981C95FD27583565E68E92434FAF05B",
+      "size_bytes": 40987165
+    },
+    "C:\\Users\\Abanoub\\Desktop\\moonbase-nasa-research\\downloads\\site01b\\clone050_err.tif": {
+      "sha256": "5819388022B1F32D50EAB7BDD1C8D8446A9DDFCF88BA4693D24116F86EA02E37",
+      "size_bytes": 40987161
+    },
+    "C:\\Users\\Abanoub\\Desktop\\moonbase-nasa-research\\downloads\\site01b\\clone100_err.tif": {
+      "sha256": "596DCDF341B411893E2994571685BD54F911BFB476855CA6CE8D8F0F5F676698",
+      "size_bytes": 40987165
+    },
+    "C:\\Users\\Abanoub\\Desktop\\moonbase-nasa-research\\roi\\Site01_ROIs.shp": {
+      "sha256": "7BECAD19A382DB4F14EC33DD652AE37E18CC58D9C9236AFA75679C70C1D7A099",
+      "size_bytes": 10204
+    }
+  },
+  "source_urls": {
+    "pgda_product": "https://pgda.gsfc.nasa.gov/products/78",
+    "pgda_data": "https://pgda.gsfc.nasa.gov/data/LOLA_5mpp/",
+    "pgda_readme": "https://pgda.gsfc.nasa.gov/data/LOLA_5mpp/README",
+    "naif_de421": "https://naif.jpl.nasa.gov/pub/naif/generic_kernels/spk/planets/a_old_versions/de421.bsp",
+    "naif_lunar_pck": "https://naif.jpl.nasa.gov/pub/naif/generic_kernels/pck/moon_pa_de421_1900-2050.bpc",
+    "naif_lunar_fk": "https://naif.jpl.nasa.gov/pub/naif/generic_kernels/fk/satellites/moon_080317.tf"
+  },
+  "grid": {
+    "width": 3200,
+    "height": 3200,
+    "pixel_x_m": 5.0,
+    "pixel_y_m": -5.0,
+    "first_center_x_m": -18997.5,
+    "first_center_y_m": -3997.5,
+    "raster_type": 1,
+    "nodata": "NaN"
+  },
+  "projection": {
+    "description": "South-polar stereographic, standard parallel -90 deg, central meridian 0 deg, spherical inverse used for local geometry",
+    "map_units": "m",
+    "frame": "MOON_ME_DE421",
+    "moon_radius_m": 1737400.0,
+    "longitude_inference": "not exposed; conventional x=east/y=north formula used only to transform local geometry"
+  },
+  "spice_coverage": {
+    "frame": "MOON_ME_DE421",
+    "frame_id": 31007,
+    "spk_objects": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      199,
+      299,
+      301,
+      399,
+      499
+    ],
+    "spk_coverage": {
+      "10": [
+        [
+          "1899 JUL 28 23:59:18.817",
+          "2053 OCT 08 23:58:50.818"
+        ]
+      ],
+      "301": [
+        [
+          "1899 JUL 28 23:59:18.817",
+          "2053 OCT 08 23:58:50.818"
+        ]
+      ]
+    },
+    "lunar_pck_frame": "MOON_PA_DE421",
+    "lunar_pck_frame_id": 31006,
+    "lunar_pck_coverage": [
+      [
+        "1899 DEC 31 23:59:18.816",
+        "2050 DEC 31 23:58:50.816"
+      ]
+    ],
+    "moon_radii_m": [
+      1737.4,
+      1737.4,
+      1737.4
+    ]
+  },
+  "rois": {
+    "1": {
+      "pixel_count": 306,
+      "valid_pixel_count": 306,
+      "valid_data_fraction": 1.0,
+      "elevation_m": {
+        "count": 306,
+        "min": 1955.7362060546875,
+        "p05": 1956.49169921875,
+        "median": 1957.9171142578125,
+        "p95": 1958.723876953125,
+        "max": 1959.4962158203125
+      },
+      "slope_deg": {
+        "count": 306,
+        "min": 0.38664302229881287,
+        "p05": 0.8677117824554443,
+        "median": 2.2937936782836914,
+        "p95": 4.036849021911621,
+        "max": 4.994300365447998
+      },
+      "ldec_returns_per_pixel": {
+        "count": 306,
+        "min": 0.0,
+        "p05": 0.0,
+        "median": 0.0,
+        "p95": 0.75,
+        "max": 1.0
+      },
+      "elevation_rms_m": {
+        "count": 306,
+        "min": 0.11761994659900665,
+        "p05": 0.20594556629657745,
+        "median": 0.4346633553504944,
+        "p95": 0.6428716778755188,
+        "max": 0.7995540499687195
+      },
+      "slope_rms_deg": {
+        "count": 306,
+        "min": 1.4583418369293213,
+        "p05": 1.739996314048767,
+        "median": 2.090355396270752,
+        "p95": 2.4292454719543457,
+        "max": 2.9721319675445557
+      },
+      "suitable_rule": "finite all products; slope <= 15 deg; LDEC >= 1; elevation RMS <= 2 m"
+    },
+    "2": {
+      "pixel_count": 265,
+      "valid_pixel_count": 265,
+      "valid_data_fraction": 1.0,
+      "elevation_m": {
+        "count": 265,
+        "min": 1954.76318359375,
+        "p05": 1955.79150390625,
+        "median": 1957.444091796875,
+        "p95": 1958.29736328125,
+        "max": 1958.47314453125
+      },
+      "slope_deg": {
+        "count": 265,
+        "min": 0.15065784752368927,
+        "p05": 0.7577975392341614,
+        "median": 2.491279363632202,
+        "p95": 5.660711765289307,
+        "max": 9.398792266845703
+      },
+      "ldec_returns_per_pixel": {
+        "count": 265,
+        "min": 0.0,
+        "p05": 0.0,
+        "median": 0.0,
+        "p95": 1.0,
+        "max": 2.0
+      },
+      "elevation_rms_m": {
+        "count": 265,
+        "min": 0.09487559646368027,
+        "p05": 0.1481565237045288,
+        "median": 0.3145563304424286,
+        "p95": 0.5465417504310608,
+        "max": 0.644668698310852
+      },
+      "slope_rms_deg": {
+        "count": 265,
+        "min": 1.114691138267517,
+        "p05": 1.3936039209365845,
+        "median": 1.8337241411209106,
+        "p95": 2.4891982078552246,
+        "max": 2.806544065475464
+      },
+      "suitable_rule": "finite all products; slope <= 15 deg; LDEC >= 1; elevation RMS <= 2 m"
+    },
+    "3": {
+      "pixel_count": 125,
+      "valid_pixel_count": 125,
+      "valid_data_fraction": 1.0,
+      "elevation_m": {
+        "count": 125,
+        "min": 1954.74609375,
+        "p05": 1955.216552734375,
+        "median": 1956.25439453125,
+        "p95": 1956.91748046875,
+        "max": 1957.305908203125
+      },
+      "slope_deg": {
+        "count": 125,
+        "min": 0.27124205231666565,
+        "p05": 0.5542333722114563,
+        "median": 2.310883045196533,
+        "p95": 6.026203632354736,
+        "max": 10.158865928649902
+      },
+      "ldec_returns_per_pixel": {
+        "count": 125,
+        "min": 0.0,
+        "p05": 0.0,
+        "median": 0.0,
+        "p95": 1.0,
+        "max": 1.0
+      },
+      "elevation_rms_m": {
+        "count": 125,
+        "min": 0.09560585767030716,
+        "p05": 0.15336275100708008,
+        "median": 0.24017249047756195,
+        "p95": 0.519854724407196,
+        "max": 0.6350417733192444
+      },
+      "slope_rms_deg": {
+        "count": 125,
+        "min": 1.0770071744918823,
+        "p05": 1.243792176246643,
+        "median": 1.562760591506958,
+        "p95": 2.26300048828125,
+        "max": 2.8085243701934814
+      },
+      "suitable_rule": "finite all products; slope <= 15 deg; LDEC >= 1; elevation RMS <= 2 m"
+    },
+    "4": {
+      "pixel_count": 476,
+      "valid_pixel_count": 476,
+      "valid_data_fraction": 1.0,
+      "elevation_m": {
+        "count": 476,
+        "min": 1952.6007080078125,
+        "p05": 1953.2481689453125,
+        "median": 1956.322265625,
+        "p95": 1957.3741455078125,
+        "max": 1957.73046875
+      },
+      "slope_deg": {
+        "count": 476,
+        "min": 0.10467831790447235,
+        "p05": 0.7467067837715149,
+        "median": 2.2974987030029297,
+        "p95": 4.943705081939697,
+        "max": 6.924810409545898
+      },
+      "ldec_returns_per_pixel": {
+        "count": 476,
+        "min": 0.0,
+        "p05": 0.0,
+        "median": 0.0,
+        "p95": 1.0,
+        "max": 2.0
+      },
+      "elevation_rms_m": {
+        "count": 476,
+        "min": 0.1004750058054924,
+        "p05": 0.15984441339969635,
+        "median": 0.35560834407806396,
+        "p95": 0.6179177761077881,
+        "max": 0.7142830491065979
+      },
+      "slope_rms_deg": {
+        "count": 476,
+        "min": 1.1657739877700806,
+        "p05": 1.5132322311401367,
+        "median": 1.9110791683197021,
+        "p95": 2.4253416061401367,
+        "max": 3.0173771381378174
+      },
+      "suitable_rule": "finite all products; slope <= 15 deg; LDEC >= 1; elevation RMS <= 2 m"
+    },
+    "5": {
+      "pixel_count": 345,
+      "valid_pixel_count": 345,
+      "valid_data_fraction": 1.0,
+      "elevation_m": {
+        "count": 345,
+        "min": 1948.4188232421875,
+        "p05": 1948.88134765625,
+        "median": 1950.926025390625,
+        "p95": 1951.434326171875,
+        "max": 1951.92578125
+      },
+      "slope_deg": {
+        "count": 345,
+        "min": 0.16312941908836365,
+        "p05": 0.4977702796459198,
+        "median": 1.8988823890686035,
+        "p95": 3.962481737136841,
+        "max": 6.462169170379639
+      },
+      "ldec_returns_per_pixel": {
+        "count": 345,
+        "min": 0.0,
+        "p05": 0.0,
+        "median": 0.0,
+        "p95": 1.0,
+        "max": 2.0
+      },
+      "elevation_rms_m": {
+        "count": 345,
+        "min": 0.09715308994054794,
+        "p05": 0.15362176299095154,
+        "median": 0.29388123750686646,
+        "p95": 0.46454116702079773,
+        "max": 0.5402727127075195
+      },
+      "slope_rms_deg": {
+        "count": 345,
+        "min": 1.110845685005188,
+        "p05": 1.3764228820800781,
+        "median": 1.7833187580108643,
+        "p95": 2.21475887298584,
+        "max": 2.681785821914673
+      },
+      "suitable_rule": "finite all products; slope <= 15 deg; LDEC >= 1; elevation RMS <= 2 m"
+    },
+    "6": {
+      "pixel_count": 355,
+      "valid_pixel_count": 355,
+      "valid_data_fraction": 1.0,
+      "elevation_m": {
+        "count": 355,
+        "min": 1945.4295654296875,
+        "p05": 1946.209228515625,
+        "median": 1947.82861328125,
+        "p95": 1948.6556396484375,
+        "max": 1948.985595703125
+      },
+      "slope_deg": {
+        "count": 355,
+        "min": 0.17017418146133423,
+        "p05": 0.7928295731544495,
+        "median": 2.6951522827148438,
+        "p95": 5.022277355194092,
+        "max": 8.069786071777344
+      },
+      "ldec_returns_per_pixel": {
+        "count": 355,
+        "min": 0.0,
+        "p05": 0.0,
+        "median": 0.0,
+        "p95": 1.0,
+        "max": 3.0
+      },
+      "elevation_rms_m": {
+        "count": 355,
+        "min": 0.10452444106340408,
+        "p05": 0.16552197933197021,
+        "median": 0.3079802393913269,
+        "p95": 0.5307663083076477,
+        "max": 0.6037305593490601
+      },
+      "slope_rms_deg": {
+        "count": 355,
+        "min": 1.1432750225067139,
+        "p05": 1.3874256610870361,
+        "median": 1.8164629936218262,
+        "p95": 2.2955334186553955,
+        "max": 2.811767339706421
+      },
+      "suitable_rule": "finite all products; slope <= 15 deg; LDEC >= 1; elevation RMS <= 2 m"
+    },
+    "7": {
+      "pixel_count": 242,
+      "valid_pixel_count": 242,
+      "valid_data_fraction": 1.0,
+      "elevation_m": {
+        "count": 242,
+        "min": 1927.39990234375,
+        "p05": 1927.7393798828125,
+        "median": 1928.5849609375,
+        "p95": 1928.9261474609375,
+        "max": 1929.2457275390625
+      },
+      "slope_deg": {
+        "count": 242,
+        "min": 0.11869406700134277,
+        "p05": 0.551925539970398,
+        "median": 1.9286720752716064,
+        "p95": 3.8490219116210938,
+        "max": 4.987941265106201
+      },
+      "ldec_returns_per_pixel": {
+        "count": 242,
+        "min": 0.0,
+        "p05": 0.0,
+        "median": 0.0,
+        "p95": 1.0,
+        "max": 2.0
+      },
+      "elevation_rms_m": {
+        "count": 242,
+        "min": 0.10127650946378708,
+        "p05": 0.14218412339687347,
+        "median": 0.2915761470794678,
+        "p95": 0.5549773573875427,
+        "max": 0.6020552515983582
+      },
+      "slope_rms_deg": {
+        "count": 242,
+        "min": 1.0978667736053467,
+        "p05": 1.2684293985366821,
+        "median": 1.7435657978057861,
+        "p95": 2.2756197452545166,
+        "max": 2.5705084800720215
+      },
+      "suitable_rule": "finite all products; slope <= 15 deg; LDEC >= 1; elevation RMS <= 2 m"
+    }
+  },
+  "candidate_count": 42,
+  "selected_shadow_candidates": [
+    "ROI1_C1",
+    "ROI1_C2",
+    "ROI1_C3",
+    "ROI1_C4",
+    "ROI1_C5",
+    "ROI1_C6",
+    "ROI2_C1",
+    "ROI2_C2",
+    "ROI2_C3",
+    "ROI2_C4",
+    "ROI2_C5",
+    "ROI2_C6",
+    "ROI3_C1",
+    "ROI3_C2",
+    "ROI3_C3",
+    "ROI3_C4",
+    "ROI3_C5",
+    "ROI3_C6",
+    "ROI4_C1",
+    "ROI4_C2",
+    "ROI4_C3",
+    "ROI4_C4",
+    "ROI4_C5",
+    "ROI4_C6",
+    "ROI5_C1",
+    "ROI5_C2",
+    "ROI5_C3",
+    "ROI5_C4",
+    "ROI5_C5",
+    "ROI5_C6",
+    "ROI6_C1",
+    "ROI6_C2",
+    "ROI6_C3",
+    "ROI6_C4",
+    "ROI6_C5",
+    "ROI6_C6",
+    "ROI7_C1",
+    "ROI7_C2",
+    "ROI7_C3",
+    "ROI7_C4",
+    "ROI7_C5",
+    "ROI7_C6"
+  ],
+  "epochs_utc": [
+    "2024-01-01 00:00:00 UTC",
+    "2024-07-01 00:00:00 UTC",
+    "2025-01-01 00:00:00 UTC",
+    "2025-07-01 00:00:00 UTC",
+    "2026-01-01 00:00:00 UTC",
+    "2024-03-28 12:00:00 UTC"
+  ],
+  "heights_m": [
+    1.0,
+    5.0
+  ],
+  "ray_trace": {
+    "interpolation": "bilinear",
+    "step_m": 5.0,
+    "max_range_m": 8000.0,
+    "edge_handling": "stop at first invalid/out-of-raster sample and flag edge_truncated",
+    "shadow_margin_threshold_deg": 0.02
+  },
+  "uncertainty": {
+    "clone_files": [
+      "clone001",
+      "clone050",
+      "clone100"
+    ],
+    "method": "repeat selected-candidate ray traces across available clone001/050/100 error DEM products",
+    "confidence": "not estimated; three available clones are a representative sensitivity run, not a statistical confidence interval"
+  }
+}

@@ -140,6 +140,24 @@ wrong-day entries, invalid Day 3 or Day 4 choice IDs, unsupported future-day
 entries, and decisions after the Day 4 terminal state. Repeating an identical valid
 request returns the same result.
 
+## Offline Day 1 NASA evidence
+
+The Day 1 event includes an optional typed `scientificEvidence` object loaded
+from the bundled classpath package `nasa-evidence/site01/v1.0.1/`. It is present
+only for Day 1; Day 2–Day 4 events do not inherit the local terrain evidence.
+The provider validates the bundle checksums and required Site01 identifiers at
+startup and never requests NASA or uses an API key. The object separates the
+NASA PGDA source record from the `TEAM_DERIVED` terrain interpretation and
+includes the candidate, projected coordinates, `MOON_ME_DE421` frame, epoch,
+four tested DEM models, review limitations, and original dataset provenance.
+
+The original dataset hashes are provenance references only. Raw NASA binaries
+are not shipped in the JAR, and runtime bundle-checksum validation must not be
+described as revalidating those original files. Electrical power remains
+`UNAVAILABLE`; no watts, watt-hours, battery capacity, or power-loss percentage
+is calculated. The existing decision request and stateless replay contract are
+unchanged.
+
 ## Local verification
 
 From the repository root:

@@ -1,0 +1,58 @@
+{
+  "schema_version": "1.0.0",
+  "fixture_id": "moonbase-day1-shadow-replay-site01-roi5c1-v1.0.1",
+  "manifest_id": "moonbase-site01-day1-shadow-v1.0.1",
+  "manifest_version": "1.0.1",
+  "evidence_record_ids": [
+    "S01-ROI5C1-20240328T120000Z-ORIGINAL-H1M",
+    "S01-ROI5C1-20240328T120000Z-ORIGINAL-H5M",
+    "S01-ROI5C1-20240328T120000Z-CLONE001-H1M",
+    "S01-ROI5C1-20240328T120000Z-CLONE001-H5M",
+    "S01-ROI5C1-20240328T120000Z-CLONE050-H1M",
+    "S01-ROI5C1-20240328T120000Z-CLONE050-H5M",
+    "S01-ROI5C1-20240328T120000Z-CLONE100-H1M",
+    "S01-ROI5C1-20240328T120000Z-CLONE100-H5M"
+  ],
+  "candidate_id": "ROI5_C1",
+  "reference_site": "NASA PGDA Site01 — Connecting Ridge",
+  "reference_epoch": {
+    "utc": "2024-03-28T12:00:00Z",
+    "spice_et_s": 764899269.185648
+  },
+  "coordinate": {
+    "projected_x_m": -11152.5,
+    "projected_y_m": -12052.5,
+    "coordinate_system": "NASA PGDA south-polar stereographic X/Y pixel-center coordinates, metres; not latitude/longitude",
+    "reference_frame": "MOON_ME_DE421",
+    "ephemeris": "DE421"
+  },
+  "height_assumptions_m": [1, 5],
+  "tested_dem_identifiers": ["ORIGINAL", "CLONE_001", "CLONE_050", "CLONE_100"],
+  "expected_outcomes": {
+    "idealized_horizon_visibility": "ILLUMINATED",
+    "local_terrain_horizon_visibility": "OBSTRUCTED",
+    "direct_sunlight_classification_by_dem_and_height": {
+      "ORIGINAL": {"1": "SHADOWED_BY_LOCAL_TERRAIN", "5": "SHADOWED_BY_LOCAL_TERRAIN"},
+      "CLONE_001": {"1": "SHADOWED_BY_LOCAL_TERRAIN", "5": "SHADOWED_BY_LOCAL_TERRAIN"},
+      "CLONE_050": {"1": "SHADOWED_BY_LOCAL_TERRAIN", "5": "SHADOWED_BY_LOCAL_TERRAIN"},
+      "CLONE_100": {"1": "SHADOWED_BY_LOCAL_TERRAIN", "5": "SHADOWED_BY_LOCAL_TERRAIN"}
+    }
+  },
+  "scientific_interpretation": "At the selected Site01 reference point and epoch, the idealized lunar horizon is illuminated, but local terrain obstructs direct sunlight.",
+  "child_friendly_explanation": "Even though the Sun is above the Moon's horizon, a nearby ridge can block its light from reaching this location.",
+  "required_limitation": "The analysis demonstrates sunlight obstruction, not a measured electrical power reduction.",
+  "source_references": {
+    "dataset_ids": ["PGDA_SITE01_SURF", "PGDA_SITE01_LDEC_COMPLETE", "PGDA_SITE01_TOTERR", "PGDA_SITE01_SLPERR", "PGDA_SITE01_CLONE_001", "PGDA_SITE01_CLONE_050", "PGDA_SITE01_CLONE_100", "PGDA_SITE01_ROI_SHP"],
+    "kernel_ids": ["NAIF_DE421", "NAIF_MOON_PA_DE421_1900_2050", "NAIF_MOON_080317_TF", "NAIF_NAIF0012_TLS", "NAIF_PCK00010_TPC"],
+    "methodology_id": "SITE01-DEM-RAYTRACE-v1"
+  },
+  "limitations": [
+    "This fixture reconstructs the frozen scientific explanation without requesting live NASA data.",
+    "The expected result is team-derived and not NASA-approved.",
+    "The three tested clones are not a complete 100-clone uncertainty analysis.",
+    "The referenced 15-minute time series contains sampled timestamps, not exact continuous shadow boundaries.",
+    "No electrical power, watts, watt-hours, battery capacity, or power-loss percentage is represented."
+  ],
+  "classification": "TEAM_DERIVED",
+  "replay_scope": "Deterministic snapshot and interpretation replay only; not a full scientific calculation recomputation."
+}

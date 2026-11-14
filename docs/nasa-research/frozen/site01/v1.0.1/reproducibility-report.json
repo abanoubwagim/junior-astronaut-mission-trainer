@@ -1,0 +1,21 @@
+{
+  "report_type": "MoonBase frozen Site01 reproducibility report",
+  "manifest_id": "moonbase-site01-day1-shadow-v1.0.1",
+  "manifest_version": "1.0.1",
+  "manifest_schema_contract_validation": "PASS",
+  "snapshot_integrity_validation": "PASS",
+  "replay_fixture_validation": "PASS",
+  "full_scientific_calculation_reproduction": "NOT_PERFORMED",
+  "input_file_checksums": "validated for every available used dataset and kernel",
+  "processing_script_checksums": "validated against manifest",
+  "expected_result": "ROI5_C1 is ideal-horizon illuminated but locally terrain-shadowed at 1 m and 5 m across ORIGINAL, CLONE_001, CLONE_050, and CLONE_100 at the frozen epoch",
+  "actual_validated_result": "snapshot and replay expectations match",
+  "differences": [],
+  "existing_sha256sums_before_run": "not_present_before_generation",
+  "unavailable_or_not_checked": [],
+  "errors": [],
+  "limitations": [
+    "This validator does not rerun SPICE, DEM sampling, or terrain ray tracing.",
+    "A PASS proves snapshot integrity and deterministic replay consistency, not a fresh astronomical recomputation."
+  ]
+}

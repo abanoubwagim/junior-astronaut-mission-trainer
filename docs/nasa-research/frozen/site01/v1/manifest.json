@@ -1,0 +1,133 @@
+{
+  "$schema": "./manifest.schema.json",
+  "manifest_id": "moonbase-site01-day1-shadow-v1",
+  "semantic_version": "1.0.0",
+  "created_utc": "2026-11-14T13:52:31.333Z",
+  "research_phase": "Phase 3 — Freeze Versioned NASA Evidence & Deterministic Replay Fixture",
+  "product_scope": {
+    "product": "Moon",
+    "game": "MoonBase — 4 Days to Survive",
+    "day": "Day 1",
+    "research_goal": "Freeze a reproducible local terrain-shadow evidence example without connecting it to gameplay."
+  },
+  "reference_site": "NASA PGDA Site01 — Connecting Ridge",
+  "candidate": {
+    "id": "ROI5_C1",
+    "projected_coordinates_m": {"x": -11152.5, "y": -12052.5},
+    "coordinate_system": "NASA PGDA south-polar stereographic X/Y pixel-center coordinates, metres; not latitude/longitude",
+    "reference_frame": "MOON_ME_DE421",
+    "ephemeris": "DE421",
+    "candidate_role": "candidate research coordinate only; not a NASA-approved habitat or array coordinate"
+  },
+  "reference_epoch": {
+    "utc": "2024-03-28T12:00:00Z",
+    "spice_et_s": 764899269.185648,
+    "utc_to_et_kernel": "NAIF_NAIF0012_TLS"
+  },
+  "heights_analyzed_m": [1, 5],
+  "dem_models_analyzed": ["ORIGINAL", "CLONE_001", "CLONE_050", "CLONE_100"],
+  "classification": "TEAM_DERIVED",
+  "source_records": [
+    {
+      "source_id": "PGDA-SITE01",
+      "classification": "NASA_PUBLISHED",
+      "organization": "NASA GSFC PGDA",
+      "title": "High-Resolution LOLA Topography for Lunar South Pole Sites",
+      "url": "https://pgda.gsfc.nasa.gov/products/78",
+      "data_url": "https://pgda.gsfc.nasa.gov/data/LOLA_5mpp/"
+    },
+    {
+      "source_id": "NAIF-DE421-SITE01",
+      "classification": "NASA_PUBLISHED",
+      "organization": "NASA/JPL NAIF",
+      "title": "DE421-compatible SPICE kernel set used for Site01 analysis",
+      "url": "https://naif.jpl.nasa.gov/"
+    },
+    {
+      "source_id": "PHASE2-TEAM-ANALYSIS",
+      "classification": "TEAM_DERIVED",
+      "organization": "MoonBase research team",
+      "title": "Site01 Phase 2 DEM terrain-shadow analysis and 15-minute sampled time series",
+      "url": "docs/nasa-research/SITE01_ILLUMINATION_ANALYSIS.md"
+    }
+  ],
+  "input_dataset_ids": [
+    "PGDA_SITE01_SURF",
+    "PGDA_SITE01_SLP",
+    "PGDA_SITE01_LDEC_COMPLETE",
+    "PGDA_SITE01_TOTERR",
+    "PGDA_SITE01_SLPERR",
+    "PGDA_SITE01_ROI_ARCHIVE",
+    "PGDA_SITE01_ROI_SHP",
+    "PGDA_SITE01_CLONE_001",
+    "PGDA_SITE01_CLONE_050",
+    "PGDA_SITE01_CLONE_100"
+  ],
+  "input_dataset_hashes": {
+    "PGDA_SITE01_SURF": "3BA7B97CB00A2BCF21189C3AEB535F65AFC21207154AB9F0D43C5BDC1F7E747E",
+    "PGDA_SITE01_SLP": "3A90035A4946B4A04B7332C52F0B2B1CFF71648BD8C105E14D8A7E15C6BCFE8E",
+    "PGDA_SITE01_LDEC_COMPLETE": "16D6ED21020AD48FA71D94E7437492ACF5BF04118F52BCD292F57F22EAD4CD23",
+    "PGDA_SITE01_TOTERR": "CF2CF52F52D2AA51E60D058010D10B0EBFB1D3E920F5A2B9A46EB6C51054AB1C",
+    "PGDA_SITE01_SLPERR": "52BC3B239F61605E6BB98BAB6D6B17ACD22389C59E57336862157F2FBD643A33",
+    "PGDA_SITE01_ROI_ARCHIVE": "40B961417A344CE0274AECBAB522E171A22F658507D82E8FB4D7BC97526FFC4F",
+    "PGDA_SITE01_ROI_SHP": "7BECAD19A382DB4F14EC33DD652AE37E18CC58D9C9236AFA75679C70C1D7A099",
+    "PGDA_SITE01_CLONE_001": "242DE9E3DA624A276864CC4FA7C499E96981C95FD27583565E68E92434FAF05B",
+    "PGDA_SITE01_CLONE_050": "5819388022B1F32D50EAB7BDD1C8D8446A9DDFCF88BA4693D24116F86EA02E37",
+    "PGDA_SITE01_CLONE_100": "596DCDF341B411893E2994571685BD54F911BFB476855CA6CE8D8F0F5F676698"
+  },
+  "excluded_inputs": {
+    "PGDA_SITE01_LDEC_PHASE1_INCOMPLETE": {
+      "sha256": "5F9FE99A58320B15613D1D8DAAC191DC71025A4D2AD8CB7721DC7CCB4247A2A7",
+      "used": false,
+      "reason": "incomplete local pixel strips; never used by the frozen analysis"
+    }
+  },
+  "kernel_ids": [
+    "NAIF_DE421",
+    "NAIF_MOON_PA_DE421_1900_2050",
+    "NAIF_MOON_080317_TF",
+    "NAIF_NAIF0012_TLS",
+    "NAIF_PCK00010_TPC"
+  ],
+  "processing_script_hashes": {
+    "tools/nasa-research/site01/site01_shadow_analysis.py": "776AC65F9FF140D68358174DDFB40D832B237130EA58A79D727744280ED06447",
+    "tools/nasa-research/site01/site01_time_series.py": "78EF4657080D8BA8D0982F80306B8228DA8506B789203F39D0D78B044E5567E9",
+    "tools/nasa-research/site01/validate_frozen_manifest.py": "802960849CD7A1932B8C71DB49814C62A3B3BF2ED0C5411F215DE4D2170EBD27"
+  },
+  "phase2_artifact_hashes": {
+    "docs/nasa-research/SITE01_ILLUMINATION_ANALYSIS.md": "1BD9E72B79DF54A76B8AD6A2B9E174F1C3FECF0415B5319458F92E56ED31F936",
+    "docs/nasa-research/SITE01_CANDIDATE_LOCATIONS.csv": "390144305AF2F2C692FB0EFC0E765B3701F8A37F0A896753212C73E394530CD1",
+    "docs/nasa-research/SITE01_ILLUMINATION_SUMMARY.csv": "F06E17E4D9C5E25AE58B93DDC8B2AED7E4EBE2D62BB9E6ABE3972A2D97B90CCE",
+    "docs/nasa-research/SITE01_SHADOW_ANALYSIS.geojson": "CC5D80A1A6A399A50FDF4D83C6430988702D4E0668521D1F032A0F86D435FB04",
+    "docs/nasa-research/SITE01_TRANSITION_SAMPLES.csv": "B38C20D5315363342A038BE7DB0ABB0DEB7658B4D66E5D95FF3D3A20E5854A0D",
+    "docs/nasa-research/SITE01_TIME_SERIES_SUMMARY.csv": "FF334BA88CB4C377C3180A9FB95BF70046EA46D776D41EE43E2623D1A15861D5",
+    "docs/nasa-research/SITE01_ANALYSIS_MANIFEST.json": "0653718616D0FF54A1F22B3A76ECF50346D6FDF56961E2F6E44A2522DE3BE608",
+    "docs/nasa-research/SITE01_TIME_SERIES_MANIFEST.json": "35AA55632338BCCBF4CE3DA06B85C9C2F58B561E2BC92420942E5C8362C0E025"
+  },
+  "software_versions": {
+    "python": "3.14.2",
+    "numpy": "2.5.4",
+    "spiceypy": "8.4.0",
+    "spice_toolkit": "N0067",
+    "platform": "Windows-11-10.0.26200-SP0"
+  },
+  "methodology_id": "SITE01-DEM-RAYTRACE-v1",
+  "result_references": [
+    "evidence.json#/records",
+    "day1-shadow-replay.json#/expected_outcomes",
+    "evidence.json#/time_series_evidence",
+    "methodology.json#/algorithm"
+  ],
+  "known_limitations": [
+    "TEAM_DERIVED point selection and ray trace, not NASA approval",
+    "Three selected clones are sensitivity evidence, not a complete 100-clone analysis",
+    "15-minute timestamps are sampled intervals, not exact continuous transitions",
+    "No electrical power model or measured array telemetry",
+    "Phase 3 validation does not rerun the original astronomical calculation",
+    "Projected raster-to-body mapping uses the documented spherical inverse and requires review"
+  ],
+  "status": "PRELIMINARY_RESEARCH_REVIEWED",
+  "review_status": "PRELIMINARY_RESEARCH_REVIEWED",
+  "application_integration": "NONE",
+  "api_key_used": false
+}

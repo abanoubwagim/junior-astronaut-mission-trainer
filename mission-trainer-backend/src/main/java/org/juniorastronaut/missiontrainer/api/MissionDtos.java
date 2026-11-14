@@ -27,6 +27,70 @@ public final class MissionDtos {
     public record ScienceSource(String title, String url) {
     }
 
+    public record EvidenceSource(
+            String organization,
+            String title,
+            String url,
+            String dataUrl
+    ) {
+    }
+
+    public record ProjectedCoordinate(
+            double x,
+            double y
+    ) {
+    }
+
+    public record DatasetHash(
+            String datasetId,
+            String sha256
+    ) {
+    }
+
+    public record EvidenceProvenance(
+            String methodologyId,
+            List<String> sourceDatasetIds,
+            List<String> sourceKernelIds,
+            List<DatasetHash> originalDatasetHashes,
+            String bundledArtifactChecksumStatus
+    ) {
+    }
+
+    /**
+     * Immutable, offline evidence returned with the Day 1 event. NASA source
+     * provenance and team-derived interpretation are intentionally separate
+     * fields; none of these values represent live telemetry or power output.
+     */
+    public record ScientificEvidence(
+            String evidenceId,
+            String manifestVersion,
+            String classification,
+            EvidenceSource nasaSource,
+            String datasetIdentifier,
+            String datasetSourcePath,
+            String researchSite,
+            String candidateId,
+            ProjectedCoordinate projectedCoordinate,
+            String projectionDescription,
+            String referenceFrame,
+            String epochUtc,
+            List<Integer> testedHeightsM,
+            String idealizedHorizonResult,
+            String localTerrainObstructionResult,
+            List<String> testedDemModelIds,
+            String independentVerificationClassification,
+            String frameReviewStatus,
+            String day1ScientificDecision,
+            String educationalExplanation,
+            String childFriendlyExplanation,
+            String teamAnalysisSummary,
+            Double minimumReportedObstructionMarginDeg,
+            List<String> limitationNotes,
+            EvidenceProvenance provenance,
+            String electricalPowerMeasurementStatus
+    ) {
+    }
+
     public record InspectionReport(
             String arrayCondition,
             String sunlightExposure,
@@ -50,7 +114,8 @@ public final class MissionDtos {
             String dataStatus,
             String valueOrigin,
             List<SystemStatus> systemReport,
-            String contextNote
+            String contextNote,
+            ScientificEvidence scientificEvidence
     ) {
         public Event(
                 int day,
@@ -66,6 +131,41 @@ public final class MissionDtos {
         ) {
             this(day, title, description, scientificExplanation, eventCause, inspectionReport,
                     scienceSources, choices, dataStatus, valueOrigin, List.of(), "");
+        }
+
+        public Event(
+                int day,
+                String title,
+                String description,
+                String scientificExplanation,
+                String eventCause,
+                InspectionReport inspectionReport,
+                List<ScienceSource> scienceSources,
+                List<Choice> choices,
+                String dataStatus,
+                String valueOrigin,
+                List<SystemStatus> systemReport,
+                String contextNote
+        ) {
+            this(day, title, description, scientificExplanation, eventCause, inspectionReport,
+                    scienceSources, choices, dataStatus, valueOrigin, systemReport, contextNote, null);
+        }
+
+        public Event(
+                int day,
+                String title,
+                String description,
+                String scientificExplanation,
+                String eventCause,
+                InspectionReport inspectionReport,
+                List<ScienceSource> scienceSources,
+                List<Choice> choices,
+                String dataStatus,
+                String valueOrigin,
+                ScientificEvidence scientificEvidence
+        ) {
+            this(day, title, description, scientificExplanation, eventCause, inspectionReport,
+                    scienceSources, choices, dataStatus, valueOrigin, List.of(), "", scientificEvidence);
         }
     }
 

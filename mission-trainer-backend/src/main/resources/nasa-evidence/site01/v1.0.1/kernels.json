@@ -1,0 +1,109 @@
+{
+  "schema_version": "1.0.0",
+  "source_organization": "NASA/JPL Navigation and Ancillary Information Facility (NAIF)",
+  "kernel_load_order": [
+    "NAIF_NAIF0012_TLS",
+    "NAIF_PCK00010_TPC",
+    "NAIF_MOON_PA_DE421_1900_2050",
+    "NAIF_MOON_080317_TF",
+    "NAIF_DE421"
+  ],
+  "kernels": [
+    {
+      "kernel_id": "NAIF_DE421",
+      "filename": "de421.bsp",
+      "local_path": "C:\\Users\\Abanoub\\Desktop\\moonbase-nasa-research\\kernels\\de421-site01\\de421.bsp",
+      "original_source_url": "https://naif.jpl.nasa.gov/pub/naif/generic_kernels/spk/planets/a_old_versions/de421.bsp",
+      "sha256": "08B20DB2AE22488650641C5A9033E5BFDA4B1C4B440CFEAF20F621CFA18ECDB3",
+      "size_bytes": 16790528,
+      "kernel_type": "SPK planetary ephemeris",
+      "version": "DE421",
+      "coverage_start": "1899 JUL 28 23:59:18.817",
+      "coverage_end": "2053 OCT 08 23:58:50.818",
+      "frames": ["J2000"],
+      "relevant_identifiers": ["10 SUN", "301 MOON"],
+      "processing_role": "Sun and Moon center ephemeris used by spkpos with aberration correction NONE",
+      "classification": "NASA_PUBLISHED"
+    },
+    {
+      "kernel_id": "NAIF_MOON_PA_DE421_1900_2050",
+      "filename": "moon_pa_de421_1900-2050.bpc",
+      "local_path": "C:\\Users\\Abanoub\\Desktop\\moonbase-nasa-research\\kernels\\de421-site01\\moon_pa_de421_1900-2050.bpc",
+      "original_source_url": "https://naif.jpl.nasa.gov/pub/naif/generic_kernels/pck/moon_pa_de421_1900-2050.bpc",
+      "sha256": "656F90616403D75A75F0CD6C8830FC5B44F8CB4FACB5CCB8915E752B397520CF",
+      "size_bytes": 1770496,
+      "kernel_type": "binary PCK lunar orientation",
+      "version": "DE421-compatible 1900-2050",
+      "coverage_start": "1899 DEC 31 23:59:18.816",
+      "coverage_end": "2050 DEC 31 23:58:50.816",
+      "frames": ["MOON_PA_DE421", "J2000"],
+      "relevant_identifiers": ["31006 MOON_PA_DE421"],
+      "processing_role": "Lunar body orientation in the DE421 principal-axis frame",
+      "classification": "NASA_PUBLISHED"
+    },
+    {
+      "kernel_id": "NAIF_MOON_080317_TF",
+      "filename": "moon_080317.tf",
+      "local_path": "C:\\Users\\Abanoub\\Desktop\\moonbase-nasa-research\\kernels\\de421-site01\\moon_080317.tf",
+      "original_source_url": "https://naif.jpl.nasa.gov/pub/naif/generic_kernels/fk/satellites/moon_080317.tf",
+      "sha256": "78732477B96F9863E7B0D65BCEE3C22B8707CA5ED0DB56D1173319CB2E8C7993",
+      "size_bytes": 21437,
+      "kernel_type": "text frame kernel",
+      "version": "file revision 2008-03-21; MOON FK moon_080317.tf",
+      "coverage_start": "fixed frame definitions; no independent time interval",
+      "coverage_end": "fixed frame definitions; no independent time interval",
+      "frames": ["MOON_ME_DE421", "MOON_PA_DE421", "J2000"],
+      "relevant_identifiers": ["31001 MOON_ME_DE421", "31006 MOON_PA_DE421", "31007 MOON_ME_DE421 to MOON_PA_DE421"],
+      "processing_role": "Defines the DE421-compatible mean-Earth lunar frame used for the terrain coordinate interpretation",
+      "classification": "NASA_PUBLISHED"
+    },
+    {
+      "kernel_id": "NAIF_NAIF0012_TLS",
+      "filename": "naif0012.tls",
+      "local_path": "C:\\Users\\Abanoub\\Desktop\\moonbase-nasa-research\\kernels\\de421-site01\\naif0012.tls",
+      "original_source_url": "https://naif.jpl.nasa.gov/pub/naif/generic_kernels/lsk/naif0012.tls",
+      "sha256": "678E32BDB5A744117A467CD9601CD6B373F0E9BC9BBDE1371D5EEE39600A039B",
+      "size_bytes": 5257,
+      "kernel_type": "leapseconds kernel",
+      "version": "NAIF0012",
+      "coverage_start": "kernel-wide leapsecond coverage",
+      "coverage_end": "kernel-wide leapsecond coverage",
+      "frames": ["time-system conversion"],
+      "relevant_identifiers": ["ET/UTC conversion"],
+      "processing_role": "Converts the UTC reference epoch to SPICE ephemeris time",
+      "classification": "NASA_PUBLISHED"
+    },
+    {
+      "kernel_id": "NAIF_PCK00010_TPC",
+      "filename": "pck00010.tpc",
+      "local_path": "C:\\Users\\Abanoub\\Desktop\\moonbase-nasa-research\\kernels\\de421-site01\\pck00010.tpc",
+      "original_source_url": "https://naif.jpl.nasa.gov/pub/naif/generic_kernels/pck/pck00010.tpc",
+      "sha256": "59468328349AA730D18BF1F8D7E86EFE6E40B75DFB921908F99321B3A7A701D2",
+      "size_bytes": 126143,
+      "kernel_type": "text planetary constants kernel",
+      "version": "PCK00010",
+      "coverage_start": "constant/model data; no bounded ephemeris interval",
+      "coverage_end": "constant/model data; no bounded ephemeris interval",
+      "frames": ["IAU_MOON", "body constants"],
+      "relevant_identifiers": ["Moon radii queried as 1737.4 km spherical reference radius"],
+      "processing_role": "Loaded as part of the SPICE environment; the terrain inverse uses the explicitly documented 1737400 m spherical radius",
+      "classification": "NASA_PUBLISHED"
+    }
+  ],
+  "frame_transformation_chain": {
+    "spice_geometry": [
+      "DE421 SPK provides Sun and Moon state geometry in J2000.",
+      "moon_pa_de421_1900-2050.bpc orients the Moon in MOON_PA_DE421 relative to J2000.",
+      "moon_080317.tf defines MOON_ME_DE421 (frame ID 31001) relative to MOON_PA_DE421 (frame ID 31006).",
+      "spkpos(\"SUN\", ET, \"MOON_ME_DE421\", \"NONE\", \"MOON\") returns the Moon-center-to-Sun vector in MOON_ME_DE421."
+    ],
+    "terrain_map_conversion": [
+      "Site01 projected X/Y are not treated as Cartesian body-fixed coordinates.",
+      "The team method applies the documented spherical south-polar stereographic inverse with R=1737400 m, central meridian 0 degrees, x=east, y=north, and MOON_ME_DE421 axes.",
+      "The DEM height is added radially to the mapped unit vector to form the local surface point.",
+      "Local map tangent basis vectors and DEM surface normals are computed from finite differences in the projected raster coordinates."
+    ],
+    "aberration_correction": "NONE",
+    "compatibility_note": "The selected epoch is within both DE421 SPK and moon_pa_de421_1900-2050.bpc coverage. The map-to-body inverse is a documented team-derived approximation because PGDA distributes projected raster products rather than a SPICE DSK."
+  }
+}

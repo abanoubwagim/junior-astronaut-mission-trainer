@@ -1,0 +1,361 @@
+{
+  "schema_version": "1.0.0",
+  "review_id": "moonbase-site01-frame-closure-v1",
+  "frozen_manifest_id": "moonbase-site01-day1-shadow-v1",
+  "frozen_manifest_version": "1.0.0",
+  "frame_blocker_status": "CLOSED_WITH_LIMITATIONS",
+  "day1_scientific_decision": "READY_WITH_LIMITATIONS",
+  "classification": "TEAM_DERIVED",
+  "official_source_definitions": {
+    "explicitly_documented_by_pgda": [
+      {
+        "statement": "Site01 products are 5 m/pixel GeoTIFFs with south polar stereographic X/Y coordinates in metres and the MOON_ME reference frame of DE421.",
+        "source": "PGDA downloadable README and product 78",
+        "status": "EXPLICIT",
+        "url": "https://pgda.gsfc.nasa.gov/data/LOLA_5mpp/README"
+      },
+      {
+        "statement": "X/Y coordinates use GMT pixel-registered convention and are pixel centers.",
+        "source": "PGDA downloadable README",
+        "status": "EXPLICIT",
+        "url": "https://pgda.gsfc.nasa.gov/data/LOLA_5mpp/README"
+      },
+      {
+        "statement": "Surface product Z is surface height in metres with interpolation filling empty pixels.",
+        "source": "PGDA downloadable README",
+        "status": "EXPLICIT",
+        "url": "https://pgda.gsfc.nasa.gov/data/LOLA_5mpp/README"
+      },
+      {
+        "statement": "The PGDA MOON_PA page gives a 1737.4 km reference radius for its LOLA elevation dataset and publishes the ME/PA distinction and DE421 rotation matrix.",
+        "source": "PGDA product 95",
+        "status": "EXPLICIT_FOR_PRODUCT_95_CONTEXT",
+        "url": "https://pgda.gsfc.nasa.gov/products/95"
+      },
+      {
+        "statement": "MOON_ME_DE421 is a fixed frame relative to MOON_PA_DE421, with frame ID 31007; MOON_PA_DE421 has frame ID 31006.",
+        "source": "NAIF moon_080317.tf",
+        "status": "EXPLICIT",
+        "url": "https://naif.jpl.nasa.gov/pub/naif/generic_kernels/fk/satellites/moon_080317.tf"
+      }
+    ],
+    "inferred_or_team_interpreted": [
+      {
+        "statement": "The Site01 GeoTIFF GeoKeys encode a custom/unnamed stereographic definition with natural-origin latitude -90°, straight-vertical-pole longitude 0°, false easting/northing 0 m, metre units, and semi-major radius 1737400 m; no formal named CRS or ProjStdParallel1 key is present.",
+        "basis": "GeoTIFF GeoKeyDirectory and ModelPixelScale/ModelTiepoint tags",
+        "status": "RASTER_METADATA_VERIFIED_BUT_NOT_NAMED_CRS"
+      },
+      {
+        "statement": "The inverse uses longitude atan2(X, -Y), with X east and Y north, expressed in MOON_ME_DE421 axes.",
+        "basis": "team spherical inverse consistent with the polar stereographic axis convention and independent round trips",
+        "status": "TEAM_INTERPRETATION"
+      },
+      {
+        "statement": "The raster tiepoint and scale are interpreted as the upper-left corner plus PixelIsArea, yielding first pixel center (-18997.5,-3997.5) m.",
+        "basis": "GeoTIFF tags plus PGDA pixel-registered statement",
+        "status": "INDEPENDENTLY_VERIFIED"
+      },
+      {
+        "statement": "A DEM height Z is added radially to the 1737400 m reference sphere for local Cartesian geometry.",
+        "basis": "PGDA elevation units and product-95 reference radius; no Site01-specific Cartesian surface equation is published",
+        "status": "TEAM_INTERPRETATION"
+      }
+    ],
+    "remaining_metadata_gap": "The Site01 README does not provide a named EPSG/IAU CRS, explicit longitude sign convention, false-origin statement, or a formal GeoTIFF-to-MOON_ME Cartesian equation. The GeoTIFF keys and independent tests make the working transformation reproducible, but do not constitute full formal CRS certification."
+  },
+  "frozen_documentation_audit": {
+    "frozen_methodology_y_formula": "-4000 - 5 * (row + 0.5)",
+    "verified_implemented_y_formula": "y = -4000 + 5/2 - 5*row = -3997.5 - 5*row",
+    "verified_first_pixel_center_y_m": -3997.5,
+    "status": "INCONSISTENT_FROZEN_DOCUMENTATION",
+    "effect_on_phase4_result": "Phase 4 independent verification used the GeoTIFF/script transform and matched the frozen shadow result; no v1 file was modified.",
+    "required_follow_up": "Correct the frozen methodology prose in a future version before treating the package as fully self-consistent."
+  },
+  "geotiff_metadata": {
+    "source_file": "C:\\Users\\Abanoub\\Desktop\\moonbase-nasa-research\\downloads\\site01b\\surf.tif",
+    "sha256": "3BA7B97CB00A2BCF21189C3AEB535F65AFC21207154AB9F0D43C5BDC1F7E747E",
+    "geo_keys": {
+      "GTModelTypeGeoKey": 1,
+      "GTRasterTypeGeoKey": 1,
+      "1026": "unnamed",
+      "GeographicTypeGeoKey": 32767,
+      "2049": "GCS Name = unnamed ellipse|Datum = unknown|Ellipsoid = unnamed|Primem = Greenwich",
+      "2050": 32767,
+      "2054": 9102,
+      "2056": 32767,
+      "GeogSemiMajorAxisGeoKey": 1737400.0,
+      "GeogSemiMinorAxisGeoKey": 1737400.0,
+      "GeogPrimeMeridianLongGeoKey": 0.0,
+      "ProjectedCSTypeGeoKey": 32767,
+      "3074": 32767,
+      "ProjCoordTransGeoKey": 15,
+      "ProjLinearUnitsGeoKey": 9001,
+      "ProjNatOriginLatGeoKey": -90.0,
+      "ProjFalseEastingGeoKey": 0.0,
+      "ProjFalseNorthingGeoKey": 0.0,
+      "ProjScaleAtNatOriginGeoKey": 1.0,
+      "ProjStraightVertPoleLongGeoKey": 0.0
+    },
+    "raster_transform": {
+      "width": 3200,
+      "height": 3200,
+      "pixel_x_m": 5.0,
+      "pixel_y_m": -5.0,
+      "first_center_x_m": -18997.5,
+      "first_center_y_m": -3997.5,
+      "tiepoint_x_m": -19000.0,
+      "tiepoint_y_m": -4000.0,
+      "nodata": "NaN"
+    },
+    "pixel_registration": "PixelIsArea GeoKey plus PGDA README pixel-registered centers"
+  },
+  "spice_frame_verification": {
+    "frame_me": "MOON_ME_DE421",
+    "frame_me_id": 31007,
+    "frame_pa": "MOON_PA_DE421",
+    "frame_pa_id": 31006,
+    "reference_epoch_utc": "2024-03-28T12:00:00Z",
+    "spice_et_s": 764899269.185648,
+    "spice_et_difference_from_frozen_s": 0.0,
+    "me_to_pa_rotation_matrix": [
+      [
+        0.999999873254714,
+        0.000329286000210947,
+        -0.000380869119096078
+      ],
+      [
+        -0.00032928542237557117,
+        0.9999999457843058,
+        1.5798557868269077e-06
+      ],
+      [
+        0.0003808696186713873,
+        -1.4544409378362703e-06,
+        0.9999999274681064
+      ]
+    ],
+    "pa_to_me_rotation_matrix": [
+      [
+        0.999999873254714,
+        -0.00032928542237557117,
+        0.0003808696186713873
+      ],
+      [
+        0.000329286000210947,
+        0.9999999457843058,
+        -1.4544409378362703e-06
+      ],
+      [
+        -0.000380869119096078,
+        1.5798557868269077e-06,
+        0.9999999274681064
+      ]
+    ],
+    "rotation_angle_deg": 0.028847322811347248,
+    "rotation_angle_arcsec": 103.8503621208501,
+    "surface_displacement_at_reference_radius_m": 874.7474784070436,
+    "matrix_inverse_residual": 1.5700925881828328e-16,
+    "sun_position_me_m": [
+      113619453.9022403,
+      -97404660.43479727,
+      -596634.0834684959
+    ],
+    "sun_position_pa_m": [
+      113587592.74997145,
+      -97442069.32640012,
+      -553218.1727864277
+    ],
+    "sun_pa_from_me_m": [
+      113587592.74997143,
+      -97442069.32640009,
+      -553218.172786426
+    ],
+    "sun_frame_transform_residual_m": 3.3359845922122394e-08,
+    "compatibility": "DE421 SPK, DE421 lunar PCK, and moon_080317.tf are consistently loaded; Site01 terrain and Sun query remain in MOON_ME_DE421. MOON_PA_DE421 is used only for explicit audit comparison."
+  },
+  "transformation_chain": [
+    {
+      "step": 1,
+      "name": "raster index to pixel center",
+      "input": "GeoTIFF row/column",
+      "output": "projected X/Y",
+      "units": "m",
+      "formula": "x=tie_x+scale_x*(column+0.5); y=tie_y+scale_y/2+pixel_y*row",
+      "parameters": {
+        "width": 3200,
+        "height": 3200,
+        "pixel_x_m": 5.0,
+        "pixel_y_m": -5.0,
+        "first_center_x_m": -18997.5,
+        "first_center_y_m": -3997.5,
+        "tiepoint_x_m": -19000.0,
+        "tiepoint_y_m": -4000.0,
+        "nodata": "NaN"
+      },
+      "source": "PGDA README and GeoTIFF tags",
+      "validation": "control-point pixel indices and round trips"
+    },
+    {
+      "step": 2,
+      "name": "projected inverse",
+      "input": "Site01 south-polar stereographic X/Y",
+      "output": "internal lunar latitude/longitude",
+      "units": "degrees",
+      "formula": "rho=hypot(X,Y); c=2 atan(rho/(2R)); lat=-90°+c; lon=atan2(X,-Y)",
+      "parameters": {
+        "R_m": 1737400.0,
+        "natural_origin_latitude_deg": -90.0,
+        "straight_vertical_pole_longitude_deg": 0.0,
+        "standard_parallel_deg": "not separately keyed in this GeoTIFF; south-polar stereographic interpretation"
+      },
+      "source": "GeoTIFF GeoKeys plus team interpretation",
+      "validation": "forward/inverse round trips across seven controls"
+    },
+    {
+      "step": 3,
+      "name": "spherical Cartesian conversion",
+      "input": "latitude/longitude and DEM Z",
+      "output": "surface point in MOON_ME_DE421",
+      "units": "m",
+      "formula": "u=[cos(lat)cos(lon), cos(lat)sin(lon), sin(lat)]; P=(R+Z)u",
+      "parameters": {
+        "reference_radius_m": 1737400.0,
+        "elevation_reference": "Z relative to R"
+      },
+      "source": "PGDA units and product 95 radius context",
+      "validation": "round-trip direction and elevation-reference tests"
+    },
+    {
+      "step": 4,
+      "name": "SPICE Sun geometry",
+      "input": "UTC and DE421 kernels",
+      "output": "Sun vector from Moon in MOON_ME_DE421",
+      "units": "m",
+      "formula": "spkpos('SUN',ET,'MOON_ME_DE421','NONE','MOON')",
+      "parameters": {
+        "et_s": 764899269.185648,
+        "aberration": "NONE"
+      },
+      "source": "NAIF SPICE and frozen kernel set",
+      "validation": "ET equality, frame IDs, ME↔PA rotation audit, Sun vector transform residual"
+    },
+    {
+      "step": 5,
+      "name": "surface normal",
+      "input": "neighboring DEM surface points",
+      "output": "outward local normal in MOON_ME_DE421",
+      "units": "unitless",
+      "formula": "cross of independent 3-D finite-difference tangents, oriented outward",
+      "parameters": {
+        "finite_difference_m": 5.0
+      },
+      "source": "team-derived method",
+      "validation": "independent local-incidence values agree qualitatively with Phase 4"
+    },
+    {
+      "step": 6,
+      "name": "terrain obstruction",
+      "input": "Sun direction, DEM surface, local tangent azimuth",
+      "output": "terrain horizon, margin, obstruction",
+      "units": "degrees and metres",
+      "formula": "maximum 3-D terrain elevation angle along solar azimuth minus ideal Sun elevation",
+      "parameters": {
+        "ray_step_m": 5.0,
+        "max_range_m": 8000.0,
+        "interpolation": "bilinear"
+      },
+      "source": "Phase 4 independent verifier",
+      "validation": "frozen ROI5_C1 result and synthetic geometry tests"
+    }
+  ],
+  "control_point_summary": {
+    "count": 7,
+    "max_roundtrip_norm_m": 1.6985894078867208e-10,
+    "max_pa_me_roundtrip_error_m": 2.328661680805657e-10,
+    "max_pixel_corner_shift_m": 3.5394358413415032,
+    "max_pixel_corner_angular_shift_deg": 0.00011658934848049331,
+    "min_control_me_pa_surface_displacement_m": 655.4394978075157,
+    "max_control_me_pa_surface_displacement_m": 658.1800955514385,
+    "controls": [
+      "ROI4_C1",
+      "ROI5_C1",
+      "ROI5_C2",
+      "ROI6_C1",
+      "ROI6_C2",
+      "RASTER_NW_CENTER",
+      "GRID_INTERIOR_CENTER"
+    ]
+  },
+  "source_usage_audit": {
+    "terrain_frame_required": "MOON_ME_DE421",
+    "terrain_frame_used_in_frozen_manifest": "MOON_ME_DE421",
+    "phase4_independent_frame": "MOON_ME_DE421",
+    "pa_frame_used_for_terrain_result": false,
+    "source_scan": {
+      "tools\\nasa-research\\site01\\site01_shadow_analysis.py": {
+        "moon_me_de421_mentions": 4,
+        "moon_pa_de421_mentions": 1,
+        "spkpos_in_moon_me_calls": 1
+      },
+      "tools\\nasa-research\\site01\\site01_time_series.py": {
+        "moon_me_de421_mentions": 0,
+        "moon_pa_de421_mentions": 0,
+        "spkpos_in_moon_me_calls": 0
+      },
+      "tools\\nasa-research\\site01\\independent_site01_verification.py": {
+        "moon_me_de421_mentions": 4,
+        "moon_pa_de421_mentions": 1,
+        "spkpos_in_moon_me_calls": 2
+      },
+      "docs\\nasa-research\\frozen\\site01\\v1\\methodology.json": {
+        "moon_me_de421_mentions": 2,
+        "moon_pa_de421_mentions": 1,
+        "spkpos_in_moon_me_calls": 1
+      },
+      "docs\\nasa-research\\frozen\\site01\\v1\\kernels.json": {
+        "moon_me_de421_mentions": 7,
+        "moon_pa_de421_mentions": 9,
+        "spkpos_in_moon_me_calls": 1
+      }
+    },
+    "kernel_roles": "MOON_PA_DE421 is loaded because MOON_ME_DE421 is defined relative to it; it is not substituted for the terrain frame."
+  },
+  "obstruction_margin_reassessment": {
+    "minimum_margin_deg": 0.05448564022658271,
+    "minimum_margin_case": {
+      "model": "CLONE_001",
+      "height_m": 5.0
+    },
+    "obstacle_distance_m": 220.2428345820732,
+    "line_of_sight_clearance_m": -0.20944187271332004,
+    "surface_elevation_uncertainty_rms_m_at_roi5c1": 0.1380771,
+    "slope_uncertainty_rms_deg_at_roi5c1": 2.1098816,
+    "projection_scale_distortion_percent_at_roi5c1": 0.0022331933377861546,
+    "pixel_corner_shift_m_at_roi5c1": 3.539425573949761,
+    "pixel_corner_shift_angular_deg_at_roi5c1": 0.00011658934848049331,
+    "sampling_interpolation_minimum_margin_deg": 0.05448564022658271,
+    "sampling_interpolation_case": {
+      "model": "CLONE_001",
+      "height_m": 5.0,
+      "step_m": 5.0,
+      "interpolation": "bilinear",
+      "terrain_shadow": true,
+      "margin_deg": 0.05448564022658271,
+      "controlling_distance_m": 220.2428345820732
+    },
+    "interpretation": "The exact-epoch margin is positive across the four tested models and remains positive under the Phase 4 sampling/interpolation sensitivity runs. The DEM uncertainty and slope RMS values are retained quality indicators, not a confidence interval."
+  },
+  "remaining_unresolved": [
+    "PGDA does not publish a named formal CRS or a complete Site01 GeoTIFF-to-MOON_ME Cartesian equation in the downloadable README.",
+    "The team longitude sign/axis convention is reproducible and consistent with the raster metadata and control-point tests, but remains an interpretation rather than an explicit PGDA sentence.",
+    "The frozen methodology.json Y pixel-center formula is inconsistent with its own first-center value and with the actual GeoTIFF/analysis transform; v1 was intentionally not modified.",
+    "Only three non-original clones were locally available; the official page lists 100, but full clone expansion is outside the coordinate-frame closure question."
+  ],
+  "software": {
+    "python": "3.14.2",
+    "numpy": "2.5.4",
+    "spiceypy": "8.4.0",
+    "platform": "Windows-11-10.0.26200-SP0",
+    "implementation": "frame_closure_review.py"
+  }
+}

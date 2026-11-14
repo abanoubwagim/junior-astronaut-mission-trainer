@@ -1,0 +1,64 @@
+{
+  "research_phase": "MoonBase NASA Data Audit Phase 1",
+  "retrieval_utc": "2026-11-13T21:28:35.561Z",
+  "source_organization": "NASA Open Science Data Repository",
+  "api_documentation_entry": "https://osdr.nasa.gov/osdr/data/search?term=KEYWORD",
+  "study_metadata_endpoint": "https://osdr.nasa.gov/geode-py/ws/repo/studies/{accession}",
+  "file_listing_endpoint": "https://osdr.nasa.gov/geode-py/ws/files/v2",
+  "studies": [
+    {
+      "accession": "OSD-267",
+      "identifiers": ["GLDS-267", "VEG-01A"],
+      "title": "Microbiological and nutritional analysis of lettuce crops grown on the International Space Station-VEG01A",
+      "project_title": "Veggie Hardware Validation Test (VEG-01)",
+      "flight_program": "International Space Station (ISS)",
+      "mission": "SpaceX-3",
+      "mission_dates": {"start": "04/18/2014", "end": "05/18/2014"},
+      "protocol_dates": {"VEG-01A": "2014-05-08 through 2014-06-10"},
+      "organism_in_metadata": "Microbiota; study narrative identifies red romaine lettuce, Lactuca sativa cv. Outredgeous",
+      "platform": "Vegetable Production System (Veggie)",
+      "measured_domains": ["microbial plate counts", "16S/ITS sequencing", "elemental composition", "phenolics", "anthocyanins", "ORAC"],
+      "environmental_setup": "Veggie pillows with porous arcillite substrate and controlled-release fertilizer; LED lighting; 16 h light/8 h dark; approximately 200 micromole m^-2 s^-1 PAR at pillow centre; ground controls with delay; samples frozen at -80 C",
+      "release_date": "21-Feb-2020",
+      "study_version": 8,
+      "total_file_size_bytes": 1413577232,
+      "public_files": [
+        {"key": "osd-data/OSD-267/metadata/OSD-267_metadata_OSD-267-ISA.zip", "file_id": "6aa85582899470d232ea7ed9", "version": 5, "size_bytes": 101319}
+      ],
+      "classification": "CONTEXT_ONLY",
+      "limitation": "ISS microgravity and ground-control crop experiment; does not provide lunar-surface yield, calorie, harvest-time, or survival guarantees."
+    },
+    {
+      "accession": "OSD-655",
+      "identifiers": ["LSDS-63", "VEG-04A", "VEG-04B"],
+      "title": "Pick-and-eat space crop production flight testing on the International Space Station (Elemental Analysis, ORAC, Phenolic Content)",
+      "project_title": "VEG-04",
+      "flight_program": "International Space Station (ISS)",
+      "mission_metadata": "SpaceX-16 and SpaceX-18; study protocol states VEG-04A 2019-06-06 through 2019-07-11 and VEG-04B 2019-10-03 through 2019-11-30",
+      "organism": "Mizuna, Brassica rapa var. Japonica / var. nipposinica",
+      "platform": "VEGGIE",
+      "measured_domains": ["ICP-OES elemental analysis", "ORAC antioxidant capacity", "total phenolic content"],
+      "units": ["microgram per gram dry weight for elemental transformed CSV", "micromole Trolox equivalents per gram dry weight for ORAC", "gallic-acid-equivalent reporting for phenolics"],
+      "environmental_setup": "250 mL porous ceramic substrate in pillows with controlled-release fertilizer; red-rich 90%R:10%B and blue-rich 50%R:50%B treatments; pillow shade; downlinked-photo watering recommendations; ISS and ground controls",
+      "harvest_design": "VEG-04A terminal harvest at 35 days after initiation; VEG-04B outer-leaf harvests at 29 and 43 days and final whole-plant harvest at 58 days",
+      "known_limitations": ["VEG-04A fertilizer concentration caused salt stress and plant death; T70 was reduced by 47% for VEG-04B", "ISS experiment, not lunar surface", "chemistry samples pooled for some analyses; transformed files are assay outputs, not crop production models"],
+      "release_date": "22-Dec-2025",
+      "study_version": 2,
+      "total_file_size_bytes": 26492007,
+      "public_files": [
+        {"key": "osd-data/OSD-655/dictionary/OSD-655_dictionary_DataDictionary_OSD-655.csv", "file_id": "6aa8528c03fcdf89b4d68a61", "version": 2, "size_bytes": 3664},
+        {"key": "alsda-data/LSDS-63/InductivelyCoupledPlasmaOpticalEmissionSpectroscopy/LSDS-63_InductivelyCoupledPlasmaOpticalEmissionSpectroscopy_Bunchek2024_ICPOES_TRANSFORMED.csv", "file_id": "6aa8528c03fcdf89b4d68a62", "version": 2, "size_bytes": 4462},
+        {"key": "alsda-data/LSDS-63/Oxygen Radical Absorbance Capacity/LSDS-63_Oxygen Radical Absorbance Capacity_Bunchek2024_ORAC_TRANSFORMED.csv", "file_id": "6949dad0b0a47755ce2a1053", "version": 1, "size_bytes": 1188},
+        {"key": "alsda-data/LSDS-63/Phenolic_Content/LSDS-63_Phenolic_Content_Bunchek2024_TotalPhenolic_TRANSFORMED.csv", "file_id": "6949dad0b0a47755ce2a1054", "version": 1, "size_bytes": 1146},
+        {"key": "osd-data/OSD-655/metadata/OSD-655_metadata_OSD-655-ISA.zip", "file_id": "6949dacfb0a47755ce2a1042", "version": 1, "size_bytes": 192836}
+      ],
+      "retrieved_data_sample": {
+        "local_path": "C:\\Users\\Abanoub\\Desktop\\moonbase-nasa-research\\osd655-icpoes-transformed.csv",
+        "size_bytes": 4462,
+        "sha256": "DD4234E094741A06315F1C0D95F32F9BDEB881C02F408227715EF22BCC337CB4"
+      },
+      "classification": "CONTEXT_ONLY",
+      "limitation": "ISS crop experiment; does not support lunar yield, calorie production, growth-rate, harvest-duration, or guaranteed food-production values."
+    }
+  ]
+}

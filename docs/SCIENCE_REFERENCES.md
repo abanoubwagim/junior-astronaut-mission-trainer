@@ -5,6 +5,29 @@ has not endorsed or validated the game. The fictional base, array condition,
 qualitative power states, choice effects, and persistent effects are game
 mechanics, not NASA measurements or operational procedures.
 
+## Integrated Day 1 research evidence
+
+The Day 1 research card uses the frozen, offline package
+[`docs/nasa-research/frozen/site01/v1.0.1/`](nasa-research/frozen/site01/v1.0.1/).
+Its NASA source is [NASA GSFC PGDA — High-Resolution LOLA Topography for Lunar
+South Pole Sites](https://pgda.gsfc.nasa.gov/products/78), with the official
+[LOLA 5mpp data directory](https://pgda.gsfc.nasa.gov/data/LOLA_5mpp/). The
+package also preserves NASA/JPL NAIF DE421 kernel provenance.
+
+The displayed local terrain result is `TEAM_DERIVED`: the research team
+selected ROI5_C1 and calculated a local terrain obstruction using NASA-sourced
+terrain and ephemeris inputs. The record says the idealized horizon is
+illuminated while local terrain obstructs direct sunlight at the selected epoch
+for `ORIGINAL`, `CLONE_001`, `CLONE_050`, and `CLONE_100`, at 1 m and 5 m above
+terrain. This is not NASA telemetry, NASA approval, a real habitat coordinate,
+or an electrical-power measurement.
+
+Only four models were tested, not all 100 listed PGDA clones. The reported
+minimum obstruction margin is not an uncertainty interval. The application
+does not convert the result into watts, watt-hours, battery capacity, or a
+power-loss percentage. The fictional Day 1 `POWER DROP` remains a game
+scenario associated with the research example, not a measured base event.
+
 ## Sources used by the Day 1 mission
 
 | Reference | How it is used |

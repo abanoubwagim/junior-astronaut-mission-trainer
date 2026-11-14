@@ -1,0 +1,44 @@
+{
+  "generated_utc": "2026-11-13T22:20:47.600356Z",
+  "window": {
+    "start_utc": "2024-01-01 00:00:00 UTC",
+    "end_utc_exclusive": "2026-01-01 00:00:00 UTC",
+    "step_minutes": 720
+  },
+  "local_transition_window": {
+    "start_utc": "2024-03-27 00:00:00 UTC",
+    "end_utc_exclusive": "2024-03-31 00:00:00 UTC",
+    "step_minutes": 15
+  },
+  "candidate_ids": [
+    "ROI4_C1",
+    "ROI5_C1",
+    "ROI6_C1",
+    "ROI6_C2"
+  ],
+  "transition_candidate_ids": [
+    "ROI5_C1"
+  ],
+  "heights_m": [
+    1.0,
+    5.0
+  ],
+  "clones": [
+    "original",
+    "clone001",
+    "clone050",
+    "clone100"
+  ],
+  "ray_trace": {
+    "max_range_m": 8000.0,
+    "step_m": 5.0,
+    "interpolation": "bilinear",
+    "margin_threshold_deg": 0.02
+  },
+  "source_files": {
+    "dem": "C:\\Users\\Abanoub\\Desktop\\moonbase-nasa-research\\downloads\\site01b\\surf.tif",
+    "candidate_csv": "C:\\Users\\Abanoub\\Desktop\\junior-astronaut-mission-trainer\\docs\\nasa-research\\SITE01_CANDIDATE_LOCATIONS.csv",
+    "script": "C:\\Users\\Abanoub\\Desktop\\junior-astronaut-mission-trainer\\tools\\nasa-research\\site01\\site01_time_series.py"
+  },
+  "classification": "TEAM_DERIVED"
+}

@@ -13,6 +13,7 @@
   const ui = {
     screen: "welcome",
     mission: null,
+    dayOneEvidence: null,
     decisionHistory: [],
     selectedChoiceId: null,
     loading: false,
@@ -450,6 +451,12 @@
     if (payload.status === "ACTIVE" && !payload.event) {
       throw new Error("Mission Control did not return the next mission event. Your mission was not advanced.");
     }
+    if (Number(payload.event?.day) === 1 && !payload.event?.scientificEvidence) {
+      throw new Error("Mission Control did not return the reviewed Day 1 evidence. Your mission was not advanced.");
+    }
+    if (Number(payload.event?.day) > 1 && payload.event?.scientificEvidence) {
+      throw new Error("Mission Control attached Day 1 evidence to a later mission chapter.");
+    }
     if (["DAY_1_COMPLETE", "DAY_2_COMPLETE", "DAY_3_COMPLETE", "DAY_4_COMPLETE"].includes(payload.status) && (!payload.result || payload.event)) {
       throw new Error("Mission Control did not return the terminal mission result. Your mission was not advanced.");
     }
@@ -472,6 +479,7 @@
 
   function resetMissionRuntime() {
     ui.mission = null;
+    ui.dayOneEvidence = null;
     ui.decisionHistory = [];
     ui.selectedChoiceId = null;
     ui.error = "";
@@ -516,6 +524,7 @@
     resetViewport();
     ui.world = "moon";
     ui.mission = null;
+    ui.dayOneEvidence = null;
     ui.decisionHistory = [];
     ui.selectedChoiceId = null;
     ui.error = "";
@@ -543,6 +552,7 @@
         throw new Error("Mission Control returned an unsupported Day 1 mission state. Please try again.");
       }
       ui.mission = mission;
+      ui.dayOneEvidence = mission.event.scientificEvidence;
       ui.screen = "game";
       announce("Day 1 is ready. Explore the Moon, then follow the active gate objective when Mission Control calls.");
     } catch (error) {
@@ -959,6 +969,7 @@
           make("p", "gameplay-dialogue-note", "Mission Control needs you to choose how the base should respond."),
           renderInspectionReport(event),
           make("p", "science-explanation", event.scientificExplanation || "Scientific explanation unavailable."));
+        if (event.scientificEvidence) copy.append(renderScientificEvidence(event.scientificEvidence));
       }
       const learn = event.scienceSources?.find((source) => /veggie|advanced plant habitat/i.test(source.title || ""))
         || event.scienceSources?.find((source) => /shadows near/i.test(source.title || ""))
@@ -992,6 +1003,82 @@
     }
     append(dialogue, portrait, copy);
     return dialogue;
+  }
+
+  function renderScientificEvidence(evidence) {
+    if (!evidence || typeof evidence !== "object") return null;
+    const card = make("section", "scientific-evidence-card");
+    card.setAttribute("aria-label", "Day 1 research evidence");
+    const heading = make("div", "scientific-evidence-heading");
+    append(heading,
+      make("span", "story-eyebrow", "RESEARCH EVIDENCE"),
+      make("span", "scientific-evidence-classification", evidence.classification || "CLASSIFICATION UNAVAILABLE"));
+    append(card, heading,
+      make("h3", "scientific-evidence-title", evidence.researchSite || "NASA research site"),
+      make("p", "scientific-evidence-copy", evidence.childFriendlyExplanation || evidence.educationalExplanation || "Research explanation unavailable."));
+
+    const source = evidence.nasaSource || {};
+    const sourceBlock = make("div", "scientific-evidence-source");
+    append(sourceBlock,
+      make("span", "story-change-label", "NASA SOURCE EVIDENCE"),
+      make("strong", "scientific-evidence-source-title", source.title || "NASA source title unavailable"),
+      make("span", "scientific-evidence-source-org", source.organization || "NASA organization unavailable"));
+    const sourceUrl = safeHttpsUrl(source.url);
+    if (sourceUrl) {
+      const link = make("a", "scientific-evidence-source-link", "Open the official source ↗");
+      link.href = sourceUrl;
+      link.target = "_blank";
+      link.rel = "noopener noreferrer";
+      sourceBlock.append(link);
+    }
+    card.append(sourceBlock);
+
+    const teamBlock = make("div", "scientific-evidence-team");
+    append(teamBlock,
+      make("span", "story-change-label", "TEAM ANALYSIS"),
+      make("p", "scientific-evidence-team-copy", evidence.teamAnalysisSummary || "This interpretation was not returned by Mission Control."),
+      make("p", "scientific-evidence-limit", "This is a team-derived research example, not live NASA telemetry or a NASA-approved base location."));
+    card.append(teamBlock);
+
+    const details = document.createElement("details");
+    details.className = "scientific-evidence-details";
+    const summary = document.createElement("summary");
+    summary.textContent = "Technical evidence for teachers and judges";
+    details.append(summary);
+    const technical = make("div", "scientific-evidence-technical");
+    const technicalRows = [
+      ["Evidence ID", evidence.evidenceId],
+      ["Frozen package", `v${evidence.manifestVersion || "UNAVAILABLE"}`],
+      ["Candidate", evidence.candidateId],
+      ["Projected coordinates", evidence.projectedCoordinate ? `X ${evidence.projectedCoordinate.x} m · Y ${evidence.projectedCoordinate.y} m` : "UNAVAILABLE"],
+      ["Projection", evidence.projectionDescription],
+      ["Reference frame", evidence.referenceFrame],
+      ["Reference epoch", evidence.epochUtc],
+      ["Heights tested", Array.isArray(evidence.testedHeightsM) ? `${evidence.testedHeightsM.join(" m and ")} m above terrain` : "UNAVAILABLE"],
+      ["Idealized horizon", evidence.idealizedHorizonResult],
+      ["Local terrain", evidence.localTerrainObstructionResult],
+      ["DEM models tested", Array.isArray(evidence.testedDemModelIds) ? evidence.testedDemModelIds.join(", ") : "UNAVAILABLE"],
+      ["Independent review", evidence.independentVerificationClassification],
+      ["Frame review", evidence.frameReviewStatus],
+      ["Day 1 decision", evidence.day1ScientificDecision],
+      ["Minimum reported obstruction margin", Number.isFinite(Number(evidence.minimumReportedObstructionMarginDeg)) ? `${evidence.minimumReportedObstructionMarginDeg}°; not an uncertainty interval` : "UNAVAILABLE"],
+      ["Electrical power measurement", evidence.electricalPowerMeasurementStatus || "UNAVAILABLE"]
+    ];
+    technicalRows.forEach(([label, value]) => {
+      const row = make("div", "scientific-evidence-row");
+      append(row, make("span", "scientific-evidence-row-label", label), make("strong", "scientific-evidence-row-value", value || "UNAVAILABLE"));
+      technical.append(row);
+    });
+    const limits = make("div", "scientific-evidence-limitations");
+    append(limits, make("span", "story-change-label", "RESEARCH LIMITS"));
+    const list = document.createElement("ul");
+    (Array.isArray(evidence.limitationNotes) ? evidence.limitationNotes : []).forEach((note) => list.append(make("li", "", note)));
+    if (!list.children.length) list.append(make("li", "", "Research limits were not returned by Mission Control."));
+    limits.append(list);
+    technical.append(limits);
+    details.append(technical);
+    card.append(details);
+    return card;
   }
 
   function renderStoryDialogue({ speaker, title, text, note = "", tone = "normal", sources = [] }) {
@@ -1124,6 +1211,9 @@
         ui.feedbackDismissed = true;
         render();
       }, ui.loading));
+    if (Number(decision.day) === 1 && ui.dayOneEvidence) {
+      report.append(renderScientificEvidence(ui.dayOneEvidence));
+    }
     return report;
   }
 
@@ -1134,6 +1224,7 @@
 
     const clearMissionAndReturn = () => {
       ui.mission = null;
+      ui.dayOneEvidence = null;
       ui.decisionHistory = [];
       ui.selectedChoiceId = null;
       ui.communicationOpen = false;

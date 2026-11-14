@@ -1,0 +1,356 @@
+{
+  "schema_version": "1.0.0",
+  "evidence_snapshot_id": "moonbase-site01-roi5c1-shadow-20240328-v1",
+  "classification": "TEAM_DERIVED",
+  "source_interpretation": "These records are team-computed terrain-shadow results using NASA PGDA terrain products and NASA/JPL SPICE kernels. They are not direct NASA measurements.",
+  "records": [
+    {
+      "evidence_record_id": "S01-ROI5C1-20240328T120000Z-ORIGINAL-H1M",
+      "candidate_id": "ROI5_C1",
+      "reference_site": "NASA PGDA Site01 — Connecting Ridge",
+      "projected_coordinate_m": {"x": -11152.5, "y": -12052.5},
+      "coordinate_system": "NASA PGDA south-polar stereographic X/Y pixel-center coordinates, metres; not latitude/longitude",
+      "reference_frame": "MOON_ME_DE421",
+      "epoch_utc": "2024-03-28T12:00:00Z",
+      "spice_et_s": 764899269.185648,
+      "dem_model_id": "ORIGINAL",
+      "height_above_terrain_m": 1,
+      "idealized_horizon_visibility": "ILLUMINATED",
+      "local_terrain_horizon_visibility": "OBSTRUCTED",
+      "direct_sunlight_classification": "SHADOWED_BY_LOCAL_TERRAIN",
+      "solar_direction": {
+        "source_frame": "MOON_ME_DE421",
+        "aberration_correction": "NONE",
+        "sun_position_from_moon_m": [113619453.9022403, -97404660.43479727, -596634.083468496],
+        "unit_vector_moon_me_de421": [0.759182511631, -0.650833012393, 0.007635706497]
+      },
+      "local_surface_information": {
+        "surface_elevation_m": 1951.250732421875,
+        "slope_deg": 1.0199077,
+        "ldec_observation_count": 2,
+        "elevation_uncertainty_rms_m": 0.1380771,
+        "slope_uncertainty_rms_deg": 2.1098816,
+        "surface_normal_unit_moon_me_de421": [0.023436579302, -0.013105801052, -0.999639417355]
+      },
+      "terrain_obstruction_result": {
+        "terrain_horizon_elevation_deg": 1.315269188440302,
+        "idealized_sun_elevation_deg": 0.10363016221360669,
+        "obstruction_margin_deg": 1.2116390262266954,
+        "obstruction_distance_m": 220.24286258666334,
+        "edge_truncated": false,
+        "ray_sample_count": 1600
+      },
+      "methodology_id": "SITE01-DEM-RAYTRACE-v1",
+      "source_dataset_ids": ["PGDA_SITE01_SURF", "PGDA_SITE01_LDEC_COMPLETE", "PGDA_SITE01_TOTERR", "PGDA_SITE01_SLPERR", "PGDA_SITE01_ROI_SHP"],
+      "source_kernel_ids": ["NAIF_DE421", "NAIF_MOON_PA_DE421_1900_2050", "NAIF_MOON_080317_TF", "NAIF_NAIF0012_TLS", "NAIF_PCK00010_TPC"],
+      "data_quality_notes": ["Complete LDEC copy used; the incomplete Phase 1 LDEC copy was excluded.", "The result is not a claim that every 5 m DEM pixel is directly observed.", "No edge truncation occurred at this epoch."],
+      "evidence_classification": "TEAM_DERIVED"
+    },
+    {
+      "evidence_record_id": "S01-ROI5C1-20240328T120000Z-ORIGINAL-H5M",
+      "candidate_id": "ROI5_C1",
+      "reference_site": "NASA PGDA Site01 — Connecting Ridge",
+      "projected_coordinate_m": {"x": -11152.5, "y": -12052.5},
+      "coordinate_system": "NASA PGDA south-polar stereographic X/Y pixel-center coordinates, metres; not latitude/longitude",
+      "reference_frame": "MOON_ME_DE421",
+      "epoch_utc": "2024-03-28T12:00:00Z",
+      "spice_et_s": 764899269.185648,
+      "dem_model_id": "ORIGINAL",
+      "height_above_terrain_m": 5,
+      "idealized_horizon_visibility": "ILLUMINATED",
+      "local_terrain_horizon_visibility": "OBSTRUCTED",
+      "direct_sunlight_classification": "SHADOWED_BY_LOCAL_TERRAIN",
+      "solar_direction": {
+        "source_frame": "MOON_ME_DE421",
+        "aberration_correction": "NONE",
+        "sun_position_from_moon_m": [113619453.9022403, -97404660.43479727, -596634.083468496],
+        "unit_vector_moon_me_de421": [0.759182511482, -0.650833012253, 0.007635733226]
+      },
+      "local_surface_information": {
+        "surface_elevation_m": 1951.250732421875,
+        "slope_deg": 1.0199077,
+        "ldec_observation_count": 2,
+        "elevation_uncertainty_rms_m": 0.1380771,
+        "slope_uncertainty_rms_deg": 2.1098816,
+        "surface_normal_unit_moon_me_de421": [0.023436579302, -0.013105801052, -0.999639417355]
+      },
+      "terrain_obstruction_result": {
+        "terrain_horizon_elevation_deg": 0.2877167699482733,
+        "idealized_sun_elevation_deg": 0.10362863069762461,
+        "obstruction_margin_deg": 0.18408813925064865,
+        "obstruction_distance_m": 225.24839033445156,
+        "edge_truncated": false,
+        "ray_sample_count": 1600
+      },
+      "methodology_id": "SITE01-DEM-RAYTRACE-v1",
+      "source_dataset_ids": ["PGDA_SITE01_SURF", "PGDA_SITE01_LDEC_COMPLETE", "PGDA_SITE01_TOTERR", "PGDA_SITE01_SLPERR", "PGDA_SITE01_ROI_SHP"],
+      "source_kernel_ids": ["NAIF_DE421", "NAIF_MOON_PA_DE421_1900_2050", "NAIF_MOON_080317_TF", "NAIF_NAIF0012_TLS", "NAIF_PCK00010_TPC"],
+      "data_quality_notes": ["Complete LDEC copy used; the incomplete Phase 1 LDEC copy was excluded.", "The 5 m height is a comparison height, not an approved array specification.", "No edge truncation occurred at this epoch."],
+      "evidence_classification": "TEAM_DERIVED"
+    },
+    {
+      "evidence_record_id": "S01-ROI5C1-20240328T120000Z-CLONE001-H1M",
+      "candidate_id": "ROI5_C1",
+      "reference_site": "NASA PGDA Site01 — Connecting Ridge",
+      "projected_coordinate_m": {"x": -11152.5, "y": -12052.5},
+      "coordinate_system": "NASA PGDA south-polar stereographic X/Y pixel-center coordinates, metres; not latitude/longitude",
+      "reference_frame": "MOON_ME_DE421",
+      "epoch_utc": "2024-03-28T12:00:00Z",
+      "spice_et_s": 764899269.185648,
+      "dem_model_id": "CLONE_001",
+      "height_above_terrain_m": 1,
+      "idealized_horizon_visibility": "ILLUMINATED",
+      "local_terrain_horizon_visibility": "OBSTRUCTED",
+      "direct_sunlight_classification": "SHADOWED_BY_LOCAL_TERRAIN",
+      "solar_direction": {
+        "source_frame": "MOON_ME_DE421",
+        "aberration_correction": "NONE",
+        "sun_position_from_moon_m": [113619453.9022403, -97404660.43479727, -596634.083468496],
+        "unit_vector_moon_me_de421": [0.759182511622, -0.650833012385, 0.007635708019]
+      },
+      "local_surface_information": {
+        "surface_elevation_m": 1951.478515625,
+        "slope_deg": 1.0199077,
+        "ldec_observation_count": 2,
+        "elevation_uncertainty_rms_m": 0.1380771,
+        "slope_uncertainty_rms_deg": 2.1098816,
+        "surface_normal_unit_moon_me_de421": [0.042928581363, -0.016891868556, -0.998935334083]
+      },
+      "terrain_obstruction_result": {
+        "terrain_horizon_elevation_deg": 1.2545660375938887,
+        "idealized_sun_elevation_deg": 0.10363007500020266,
+        "obstruction_margin_deg": 1.1509359625936861,
+        "obstruction_distance_m": 205.2262683771333,
+        "edge_truncated": false,
+        "ray_sample_count": 1600
+      },
+      "methodology_id": "SITE01-DEM-RAYTRACE-v1",
+      "source_dataset_ids": ["PGDA_SITE01_SURF", "PGDA_SITE01_LDEC_COMPLETE", "PGDA_SITE01_TOTERR", "PGDA_SITE01_SLPERR", "PGDA_SITE01_CLONE_001", "PGDA_SITE01_ROI_SHP"],
+      "source_kernel_ids": ["NAIF_DE421", "NAIF_MOON_PA_DE421_1900_2050", "NAIF_MOON_080317_TF", "NAIF_NAIF0012_TLS", "NAIF_PCK00010_TPC"],
+      "data_quality_notes": ["Clone 001 is explicitly selected for sensitivity analysis; it is not evidence of a complete clone distribution.", "Complete LDEC copy used; the incomplete Phase 1 LDEC copy was excluded."],
+      "evidence_classification": "TEAM_DERIVED"
+    },
+    {
+      "evidence_record_id": "S01-ROI5C1-20240328T120000Z-CLONE001-H5M",
+      "candidate_id": "ROI5_C1",
+      "reference_site": "NASA PGDA Site01 — Connecting Ridge",
+      "projected_coordinate_m": {"x": -11152.5, "y": -12052.5},
+      "coordinate_system": "NASA PGDA south-polar stereographic X/Y pixel-center coordinates, metres; not latitude/longitude",
+      "reference_frame": "MOON_ME_DE421",
+      "epoch_utc": "2024-03-28T12:00:00Z",
+      "spice_et_s": 764899269.185648,
+      "dem_model_id": "CLONE_001",
+      "height_above_terrain_m": 5,
+      "idealized_horizon_visibility": "ILLUMINATED",
+      "local_terrain_horizon_visibility": "OBSTRUCTED",
+      "direct_sunlight_classification": "SHADOWED_BY_LOCAL_TERRAIN",
+      "solar_direction": {
+        "source_frame": "MOON_ME_DE421",
+        "aberration_correction": "NONE",
+        "sun_position_from_moon_m": [113619453.9022403, -97404660.43479727, -596634.083468496],
+        "unit_vector_moon_me_de421": [0.759182511473, -0.650833012245, 0.007635734748]
+      },
+      "local_surface_information": {
+        "surface_elevation_m": 1951.478515625,
+        "slope_deg": 1.0199077,
+        "ldec_observation_count": 2,
+        "elevation_uncertainty_rms_m": 0.1380771,
+        "slope_uncertainty_rms_deg": 2.1098816,
+        "surface_normal_unit_moon_me_de421": [0.042928581363, -0.016891868556, -0.998935334083]
+      },
+      "terrain_obstruction_result": {
+        "terrain_horizon_elevation_deg": 0.15811418371079158,
+        "idealized_sun_elevation_deg": 0.10362854348422064,
+        "obstruction_margin_deg": 0.054485640226570944,
+        "obstruction_distance_m": 220.24283458209246,
+        "edge_truncated": false,
+        "ray_sample_count": 1600
+      },
+      "methodology_id": "SITE01-DEM-RAYTRACE-v1",
+      "source_dataset_ids": ["PGDA_SITE01_SURF", "PGDA_SITE01_LDEC_COMPLETE", "PGDA_SITE01_TOTERR", "PGDA_SITE01_SLPERR", "PGDA_SITE01_CLONE_001", "PGDA_SITE01_ROI_SHP"],
+      "source_kernel_ids": ["NAIF_DE421", "NAIF_MOON_PA_DE421_1900_2050", "NAIF_MOON_080317_TF", "NAIF_NAIF0012_TLS", "NAIF_PCK00010_TPC"],
+      "data_quality_notes": ["The 5 m clone-001 margin exceeds the documented 0.02 degree obstruction threshold but is smaller than the 1 m margin.", "No edge truncation occurred at this epoch."],
+      "evidence_classification": "TEAM_DERIVED"
+    },
+    {
+      "evidence_record_id": "S01-ROI5C1-20240328T120000Z-CLONE050-H1M",
+      "candidate_id": "ROI5_C1",
+      "reference_site": "NASA PGDA Site01 — Connecting Ridge",
+      "projected_coordinate_m": {"x": -11152.5, "y": -12052.5},
+      "coordinate_system": "NASA PGDA south-polar stereographic X/Y pixel-center coordinates, metres; not latitude/longitude",
+      "reference_frame": "MOON_ME_DE421",
+      "epoch_utc": "2024-03-28T12:00:00Z",
+      "spice_et_s": 764899269.185648,
+      "dem_model_id": "CLONE_050",
+      "height_above_terrain_m": 1,
+      "idealized_horizon_visibility": "ILLUMINATED",
+      "local_terrain_horizon_visibility": "OBSTRUCTED",
+      "direct_sunlight_classification": "SHADOWED_BY_LOCAL_TERRAIN",
+      "solar_direction": {
+        "source_frame": "MOON_ME_DE421",
+        "aberration_correction": "NONE",
+        "sun_position_from_moon_m": [113619453.9022403, -97404660.43479727, -596634.083468496],
+        "unit_vector_moon_me_de421": [0.75918251163, -0.650833012393, 0.007635706534]
+      },
+      "local_surface_information": {
+        "surface_elevation_m": 1951.2562255859375,
+        "slope_deg": 1.0199077,
+        "ldec_observation_count": 2,
+        "elevation_uncertainty_rms_m": 0.1380771,
+        "slope_uncertainty_rms_deg": 2.1098816,
+        "surface_normal_unit_moon_me_de421": [0.002162676681, -0.033529788376, -0.999435378662]
+      },
+      "terrain_obstruction_result": {
+        "terrain_horizon_elevation_deg": 1.3961618320700662,
+        "idealized_sun_elevation_deg": 0.1036301601103896,
+        "obstruction_margin_deg": 1.2925316719596767,
+        "obstruction_distance_m": 150.16548197000915,
+        "edge_truncated": false,
+        "ray_sample_count": 1600
+      },
+      "methodology_id": "SITE01-DEM-RAYTRACE-v1",
+      "source_dataset_ids": ["PGDA_SITE01_SURF", "PGDA_SITE01_LDEC_COMPLETE", "PGDA_SITE01_TOTERR", "PGDA_SITE01_SLPERR", "PGDA_SITE01_CLONE_050", "PGDA_SITE01_ROI_SHP"],
+      "source_kernel_ids": ["NAIF_DE421", "NAIF_MOON_PA_DE421_1900_2050", "NAIF_MOON_080317_TF", "NAIF_NAIF0012_TLS", "NAIF_PCK00010_TPC"],
+      "data_quality_notes": ["Clone 050 is explicitly selected for sensitivity analysis; it is not evidence of a complete clone distribution.", "No edge truncation occurred at this epoch."],
+      "evidence_classification": "TEAM_DERIVED"
+    },
+    {
+      "evidence_record_id": "S01-ROI5C1-20240328T120000Z-CLONE050-H5M",
+      "candidate_id": "ROI5_C1",
+      "reference_site": "NASA PGDA Site01 — Connecting Ridge",
+      "projected_coordinate_m": {"x": -11152.5, "y": -12052.5},
+      "coordinate_system": "NASA PGDA south-polar stereographic X/Y pixel-center coordinates, metres; not latitude/longitude",
+      "reference_frame": "MOON_ME_DE421",
+      "epoch_utc": "2024-03-28T12:00:00Z",
+      "spice_et_s": 764899269.185648,
+      "dem_model_id": "CLONE_050",
+      "height_above_terrain_m": 5,
+      "idealized_horizon_visibility": "ILLUMINATED",
+      "local_terrain_horizon_visibility": "OBSTRUCTED",
+      "direct_sunlight_classification": "SHADOWED_BY_LOCAL_TERRAIN",
+      "solar_direction": {
+        "source_frame": "MOON_ME_DE421",
+        "aberration_correction": "NONE",
+        "sun_position_from_moon_m": [113619453.9022403, -97404660.43479727, -596634.083468496],
+        "unit_vector_moon_me_de421": [0.759182511482, -0.650833012253, 0.007635733263]
+      },
+      "local_surface_information": {
+        "surface_elevation_m": 1951.2562255859375,
+        "slope_deg": 1.0199077,
+        "ldec_observation_count": 2,
+        "elevation_uncertainty_rms_m": 0.1380771,
+        "slope_uncertainty_rms_deg": 2.1098816,
+        "surface_normal_unit_moon_me_de421": [0.002162676681, -0.033529788376, -0.999435378662]
+      },
+      "terrain_obstruction_result": {
+        "terrain_horizon_elevation_deg": 0.29962582468491744,
+        "idealized_sun_elevation_deg": 0.10362862859440748,
+        "obstruction_margin_deg": 0.19599719609050997,
+        "obstruction_distance_m": 220.24287531479942,
+        "edge_truncated": false,
+        "ray_sample_count": 1600
+      },
+      "methodology_id": "SITE01-DEM-RAYTRACE-v1",
+      "source_dataset_ids": ["PGDA_SITE01_SURF", "PGDA_SITE01_LDEC_COMPLETE", "PGDA_SITE01_TOTERR", "PGDA_SITE01_SLPERR", "PGDA_SITE01_CLONE_050", "PGDA_SITE01_ROI_SHP"],
+      "source_kernel_ids": ["NAIF_DE421", "NAIF_MOON_PA_DE421_1900_2050", "NAIF_MOON_080317_TF", "NAIF_NAIF0012_TLS", "NAIF_PCK00010_TPC"],
+      "data_quality_notes": ["Clone 050 remains terrain-shadowed at the comparison height of 5 m.", "No edge truncation occurred at this epoch."],
+      "evidence_classification": "TEAM_DERIVED"
+    },
+    {
+      "evidence_record_id": "S01-ROI5C1-20240328T120000Z-CLONE100-H1M",
+      "candidate_id": "ROI5_C1",
+      "reference_site": "NASA PGDA Site01 — Connecting Ridge",
+      "projected_coordinate_m": {"x": -11152.5, "y": -12052.5},
+      "coordinate_system": "NASA PGDA south-polar stereographic X/Y pixel-center coordinates, metres; not latitude/longitude",
+      "reference_frame": "MOON_ME_DE421",
+      "epoch_utc": "2024-03-28T12:00:00Z",
+      "spice_et_s": 764899269.185648,
+      "dem_model_id": "CLONE_100",
+      "height_above_terrain_m": 1,
+      "idealized_horizon_visibility": "ILLUMINATED",
+      "local_terrain_horizon_visibility": "OBSTRUCTED",
+      "direct_sunlight_classification": "SHADOWED_BY_LOCAL_TERRAIN",
+      "solar_direction": {
+        "source_frame": "MOON_ME_DE421",
+        "aberration_correction": "NONE",
+        "sun_position_from_moon_m": [113619453.9022403, -97404660.43479727, -596634.083468496],
+        "unit_vector_moon_me_de421": [0.759182511625, -0.650833012387, 0.00763570759]
+      },
+      "local_surface_information": {
+        "surface_elevation_m": 1951.414306640625,
+        "slope_deg": 1.0199077,
+        "ldec_observation_count": 2,
+        "elevation_uncertainty_rms_m": 0.1380771,
+        "slope_uncertainty_rms_deg": 2.1098816,
+        "surface_normal_unit_moon_me_de421": [-0.029991893767, -0.012965667834, -0.99946604633]
+      },
+      "terrain_obstruction_result": {
+        "terrain_horizon_elevation_deg": 1.269786566509031,
+        "idealized_sun_elevation_deg": 0.1036300995844742,
+        "obstruction_margin_deg": 1.166156466924557,
+        "obstruction_distance_m": 200.2207370790402,
+        "edge_truncated": false,
+        "ray_sample_count": 1600
+      },
+      "methodology_id": "SITE01-DEM-RAYTRACE-v1",
+      "source_dataset_ids": ["PGDA_SITE01_SURF", "PGDA_SITE01_LDEC_COMPLETE", "PGDA_SITE01_TOTERR", "PGDA_SITE01_SLPERR", "PGDA_SITE01_CLONE_100", "PGDA_SITE01_ROI_SHP"],
+      "source_kernel_ids": ["NAIF_DE421", "NAIF_MOON_PA_DE421_1900_2050", "NAIF_MOON_080317_TF", "NAIF_NAIF0012_TLS", "NAIF_PCK00010_TPC"],
+      "data_quality_notes": ["Clone 100 is explicitly selected for sensitivity analysis; it is not evidence of a complete clone distribution.", "No edge truncation occurred at this epoch."],
+      "evidence_classification": "TEAM_DERIVED"
+    },
+    {
+      "evidence_record_id": "S01-ROI5C1-20240328T120000Z-CLONE100-H5M",
+      "candidate_id": "ROI5_C1",
+      "reference_site": "NASA PGDA Site01 — Connecting Ridge",
+      "projected_coordinate_m": {"x": -11152.5, "y": -12052.5},
+      "coordinate_system": "NASA PGDA south-polar stereographic X/Y pixel-center coordinates, metres; not latitude/longitude",
+      "reference_frame": "MOON_ME_DE421",
+      "epoch_utc": "2024-03-28T12:00:00Z",
+      "spice_et_s": 764899269.185648,
+      "dem_model_id": "CLONE_100",
+      "height_above_terrain_m": 5,
+      "idealized_horizon_visibility": "ILLUMINATED",
+      "local_terrain_horizon_visibility": "OBSTRUCTED",
+      "direct_sunlight_classification": "SHADOWED_BY_LOCAL_TERRAIN",
+      "solar_direction": {
+        "source_frame": "MOON_ME_DE421",
+        "aberration_correction": "NONE",
+        "sun_position_from_moon_m": [113619453.9022403, -97404660.43479727, -596634.083468496],
+        "unit_vector_moon_me_de421": [0.759182511476, -0.650833012247, 0.007635734319]
+      },
+      "local_surface_information": {
+        "surface_elevation_m": 1951.414306640625,
+        "slope_deg": 1.0199077,
+        "ldec_observation_count": 2,
+        "elevation_uncertainty_rms_m": 0.1380771,
+        "slope_uncertainty_rms_deg": 2.1098816,
+        "surface_normal_unit_moon_me_de421": [-0.029991893767, -0.012965667834, -0.99946604633]
+      },
+      "terrain_obstruction_result": {
+        "terrain_horizon_elevation_deg": 0.2063310049396576,
+        "idealized_sun_elevation_deg": 0.10362856806849204,
+        "obstruction_margin_deg": 0.10270243687116555,
+        "obstruction_distance_m": 220.24284992078873,
+        "edge_truncated": false,
+        "ray_sample_count": 1600
+      },
+      "methodology_id": "SITE01-DEM-RAYTRACE-v1",
+      "source_dataset_ids": ["PGDA_SITE01_SURF", "PGDA_SITE01_LDEC_COMPLETE", "PGDA_SITE01_TOTERR", "PGDA_SITE01_SLPERR", "PGDA_SITE01_CLONE_100", "PGDA_SITE01_ROI_SHP"],
+      "source_kernel_ids": ["NAIF_DE421", "NAIF_MOON_PA_DE421_1900_2050", "NAIF_MOON_080317_TF", "NAIF_NAIF0012_TLS", "NAIF_PCK00010_TPC"],
+      "data_quality_notes": ["Clone 100 remains terrain-shadowed at the comparison height of 5 m.", "No edge truncation occurred at this epoch."],
+      "evidence_classification": "TEAM_DERIVED"
+    }
+  ],
+  "time_series_evidence": {
+    "candidate_id": "ROI5_C1",
+    "source_artifact": "docs/nasa-research/SITE01_TRANSITION_SAMPLES.csv",
+    "source_artifact_sha256": "B38C20D5315363342A038BE7DB0ABB0DEB7658B4D66E5D95FF3D3A20E5854A0D",
+    "sampling_interval": "PT15M",
+    "common_sampled_intervals_utc": {
+      "1m": {"first": "2024-03-27T00:00:00Z", "last": "2024-03-30T12:30:00Z", "sample_count": 339, "models": ["ORIGINAL", "CLONE_001", "CLONE_050", "CLONE_100"]},
+      "5m": {"first": "2024-03-27T20:00:00Z", "last": "2024-03-29T16:15:00Z", "sample_count": 168, "models": ["ORIGINAL", "CLONE_001", "CLONE_050", "CLONE_100"]}
+    },
+    "data_preservation_note": "The complete 2,585-row 15-minute source artifact is preserved outside this JSON with its exact SHA-256 in the manifest and methodology. Timestamps are sampled observations from the team calculation, not exact continuous transitions.",
+    "classification": "TEAM_DERIVED"
+  }
+}

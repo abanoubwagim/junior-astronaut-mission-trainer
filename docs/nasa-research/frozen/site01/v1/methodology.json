@@ -1,0 +1,90 @@
+{
+  "schema_version": "1.0.0",
+  "methodology_id": "SITE01-DEM-RAYTRACE-v1",
+  "title": "Site01 projected-DEM local terrain-shadow replay snapshot",
+  "classification": "TEAM_DERIVED",
+  "status": "FROZEN_FROM_PHASE_2_OUTPUTS",
+  "input_dataset_ids": [
+    "PGDA_SITE01_SURF",
+    "PGDA_SITE01_LDEC_COMPLETE",
+    "PGDA_SITE01_TOTERR",
+    "PGDA_SITE01_SLPERR",
+    "PGDA_SITE01_CLONE_001",
+    "PGDA_SITE01_CLONE_050",
+    "PGDA_SITE01_CLONE_100"
+  ],
+  "kernel_ids": [
+    "NAIF_DE421",
+    "NAIF_MOON_PA_DE421_1900_2050",
+    "NAIF_MOON_080317_TF",
+    "NAIF_NAIF0012_TLS",
+    "NAIF_PCK00010_TPC"
+  ],
+  "reference_epoch": {
+    "utc": "2024-03-28T12:00:00Z",
+    "spice_et_s": 764899269.185648,
+    "epoch_precision_note": "UTC is stored to the selected second; SPICE ET is preserved from the calculation output."
+  },
+  "coordinate_system": {
+    "raster_crs_description": "Custom/unnamed south-polar stereographic X/Y",
+    "reference_frame": "MOON_ME_DE421",
+    "map_units": "metres",
+    "pixel_registration": "PixelIsArea GeoKey with pixel-center analysis",
+    "pixel_center_transform": {
+      "x": "-19000 + 5 * (column + 0.5)",
+      "y": "-4000 - 5 * (row + 0.5)"
+    },
+    "first_pixel_center_m": {"x": -18997.5, "y": -3997.5},
+    "moon_radius_m": 1737400.0,
+    "longitude_direction": "No player-facing longitude is inferred; longitude is an internal variable of the documented inverse only."
+  },
+  "algorithm": {
+    "dem_reader": "Existing site01_shadow_analysis.py classic-TIFF reader",
+    "terrain_interpolation": "bilinear",
+    "local_basis_finite_difference_m": 1.0,
+    "surface_normal_finite_difference_m": 5.0,
+    "ray_start_m": 5.0,
+    "ray_step_m": 5.0,
+    "ray_max_range_m": 8000.0,
+    "shadow_margin_threshold_deg": 0.02,
+    "edge_handling": "stop at first invalid/out-of-raster sample and flag edge_truncated",
+    "idealized_horizon_test": "positive Sun elevation above the mapped local radial direction",
+    "local_terrain_test": "highest sampled terrain elevation along the horizontal Sun azimuth exceeds the idealized Sun elevation by more than the margin threshold",
+    "height_application": "observer point is placed at 1 m or 5 m above the DEM surface; terrain samples remain on the DEM surface"
+  },
+  "frame_and_geometry_notes": [
+    "The GeoTIFF is not passed to a SPICE DSK routine.",
+    "The SPICE Sun direction is queried in MOON_ME_DE421 and the projected terrain is mapped into that frame using the documented spherical inverse.",
+    "The result is a team-computed terrain-ray classification using NASA-sourced inputs, not a NASA-published point measurement.",
+    "A 5 m raster pixel is not interpreted as a direct LOLA laser observation; LDEC and uncertainty layers are retained as quality context."
+  ],
+  "sampled_time_series": {
+    "source_artifact": "docs/nasa-research/SITE01_TRANSITION_SAMPLES.csv",
+    "source_artifact_sha256": "B38C20D5315363342A038BE7DB0ABB0DEB7658B4D66E5D95FF3D3A20E5854A0D",
+    "sampling_interval": "PT15M",
+    "candidate_id": "ROI5_C1",
+    "common_sampled_intervals_utc": {
+      "1m": {"first": "2024-03-27T00:00:00Z", "last": "2024-03-30T12:30:00Z", "sample_count": 339},
+      "5m": {"first": "2024-03-27T20:00:00Z", "last": "2024-03-29T16:15:00Z", "sample_count": 168}
+    },
+    "interpretation": "These are 15-minute sampled intervals. First and last sampled shadow timestamps are not exact continuous astronomical transition boundaries."
+  },
+  "uncertainty_method": {
+    "dem_models": ["ORIGINAL", "CLONE_001", "CLONE_050", "CLONE_100"],
+    "clone_selection": "Three explicitly available clone surfaces were tested.",
+    "statistical_claim": "No confidence interval or complete 100-clone analysis is claimed.",
+    "measurement_vs_uncertainty": "Published uncertainty rasters and clone sensitivity are kept separate from measurement precision and from statistical confidence."
+  },
+  "software_versions": {
+    "python": "3.14.2",
+    "numpy": "2.5.4",
+    "spiceypy": "8.4.0",
+    "spice_toolkit": "N0067",
+    "platform": "Windows-11-10.0.26200-SP0"
+  },
+  "reproduction_status": {
+    "phase_2_calculation": "completed before freeze and represented by the referenced Phase 2 artifacts",
+    "phase_3_validator": "snapshot and replay validation only; no SPICE or DEM recomputation",
+    "full_scientific_recomputation": "NOT_PERFORMED_IN_PHASE_3"
+  }
+}

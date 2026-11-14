@@ -1,0 +1,145 @@
+{
+  "research_phase": "MoonBase NASA Data Audit Phase 1",
+  "retrieval_utc": "2026-11-13T21:35:18.408Z",
+  "source_organization": "NASA Goddard Space Flight Center Planetary Geodesy and Determination (PGDA)",
+  "product_title": "High-Resolution LOLA Topography for Lunar South Pole Sites",
+  "product_url": "https://pgda.gsfc.nasa.gov/products/78",
+  "data_directory": "https://pgda.gsfc.nasa.gov/data/LOLA_5mpp/",
+  "site": "Site01 — Connecting Ridge",
+  "coordinate_convention": {
+    "projection": "South-polar stereographic X/Y",
+    "units": "metres",
+    "reference_frame": "MOON_ME reference frame of ephemeris DE421",
+    "pixel_registration": "Pixel registered; X/Y coordinates are pixel centres",
+    "pixel_size": "5 m by 5 m",
+    "longitude_direction": "Not explicitly encoded as a longitude axis in the raster/PRJ; do not infer a longitude sign without a validated lunar map projection definition"
+  },
+  "rasters": [
+    {
+      "product": "surface elevation",
+      "source_url": "https://pgda.gsfc.nasa.gov/data/LOLA_5mpp/Site01/Site01_final_adj_5mpp_surf.tif",
+      "local_path": "C:\\Users\\Abanoub\\Desktop\\moonbase-nasa-research\\downloads\\site01b\\surf.tif",
+      "sha256": "3BA7B97CB00A2BCF21189C3AEB535F65AFC21207154AB9F0D43C5BDC1F7E747E",
+      "size_bytes": 40980810,
+      "dimensions": "3200 x 3200",
+      "sample_type": "32-bit IEEE float",
+      "unit": "m",
+      "nodata": "NaN",
+      "observed_metadata_range": [-523.1834106445312, 1959.496215820312]
+    },
+    {
+      "product": "slope",
+      "source_url": "https://pgda.gsfc.nasa.gov/data/LOLA_5mpp/Site01/Site01_final_adj_5mpp_slp.tif",
+      "local_path": "C:\\Users\\Abanoub\\Desktop\\moonbase-nasa-research\\downloads\\site01b\\slp.tif",
+      "sha256": "3A90035A4946B4A04B7332C52F0B2B1CFF71648BD8C105E14D8A7E15C6BCFE8E",
+      "size_bytes": 40980776,
+      "dimensions": "3200 x 3200",
+      "sample_type": "32-bit IEEE float",
+      "unit": "degree",
+      "nodata": "NaN",
+      "observed_metadata_range": [0.0, 64.58820343017578]
+    },
+    {
+      "product": "LOLA observation count (LDEC)",
+      "source_url": "https://pgda.gsfc.nasa.gov/data/LOLA_5mpp/Site01/Site01_final_adj_5mpp_ldec.tif",
+      "local_path": "C:\\Users\\Abanoub\\Desktop\\moonbase-nasa-research\\downloads\\site01b\\ldec.tif",
+      "sha256": "5F9FE99A58320B15613D1D8DAAC191DC71025A4D2AD8CB7721DC7CCB4247A2A7",
+      "size_bytes": 14402728,
+      "dimensions": "3200 x 3200",
+      "sample_type": "32-bit IEEE float",
+      "unit": "LOLA returns per pixel",
+      "nodata": "NaN",
+      "observed_metadata_range": [0.0, 5.0]
+    },
+    {
+      "product": "total elevation uncertainty",
+      "source_url": "https://pgda.gsfc.nasa.gov/data/LOLA_5mpp/Site01/Site01_final_adj_5mpp_toterr.tif",
+      "local_path": "C:\\Users\\Abanoub\\Desktop\\moonbase-nasa-research\\downloads\\site01b\\toterr.tif",
+      "sha256": "CF2CF52F52D2AA51E60D058010D10B0EBFB1D3E920F5A2B9A46EB6C51054AB1C",
+      "size_bytes": 40980810,
+      "dimensions": "3200 x 3200",
+      "sample_type": "32-bit IEEE float",
+      "unit": "m RMS error",
+      "nodata": "NaN",
+      "observed_metadata_range": [0.0615781843662262, 5.582818508148193]
+    },
+    {
+      "product": "slope uncertainty",
+      "source_url": "https://pgda.gsfc.nasa.gov/data/LOLA_5mpp/Site01/Site01_final_adj_5mpp_slperr.tif",
+      "local_path": "C:\\Users\\Abanoub\\Desktop\\moonbase-nasa-research\\downloads\\site01b\\slperr.tif",
+      "sha256": "52BC3B239F61605E6BB98BAB6D6B17ACD22389C59E57336862157F2FBD643A33",
+      "size_bytes": 40980810,
+      "dimensions": "3200 x 3200",
+      "sample_type": "32-bit IEEE float",
+      "unit": "degree RMS error",
+      "nodata": "NaN",
+      "observed_metadata_range": [0.6137070655822754, 21.51097869873047]
+    }
+  ],
+  "roi_archive": {
+    "source_url": "https://pgda.gsfc.nasa.gov/data/LOLA_5mpp/Site01/Site01_ROIs.tgz",
+    "local_path": "C:\\Users\\Abanoub\\Desktop\\moonbase-nasa-research\\downloads\\site01\\Site01_ROIs.tgz",
+    "sha256": "40B961417A344CE0274AECBAB522E171A22F658507D82E8FB4D7BC97526FFC4F",
+    "size_bytes": 2934,
+    "shapefile_path": "C:\\Users\\Abanoub\\Desktop\\moonbase-nasa-research\\roi\\Site01_ROIs.shp",
+    "shape_type": "Polygon",
+    "record_count": 7,
+    "prj": "PROJCS[unknown, GCS_unknown, Stereographic_South_Pole, central meridian 0, standard parallel -90, metre units]",
+    "overall_bbox_m": [-11657.5, -12637.5, -10167.5, -11492.5],
+    "roi_bboxes_m": {
+      "1": [-11657.5, -12517.5, -11522.5, -12407.5],
+      "2": [-11537.5, -12637.5, -11447.5, -12477.5],
+      "3": [-11392.5, -12542.5, -11297.5, -12467.5],
+      "4": [-11372.5, -12267.5, -11212.5, -12052.5],
+      "5": [-11177.5, -12052.5, -11002.5, -11857.5],
+      "6": [-10887.5, -11787.5, -10727.5, -11682.5],
+      "7": [-10277.5, -11607.5, -10167.5, -11492.5]
+    },
+    "roi_point_counts": {"1": 74, "2": 81, "3": 54, "4": 111, "5": 118, "6": 87, "7": 82}
+  },
+  "uncertainty_clones": [
+    {
+      "clone": "001",
+      "source_url": "https://pgda.gsfc.nasa.gov/data/LOLA_5mpp/Site01/Clones/Site01_final_adj_5mpp_0001_err.tif",
+      "local_path": "C:\\Users\\Abanoub\\Desktop\\moonbase-nasa-research\\downloads\\site01b\\clone001_err.tif",
+      "sha256": "242DE9E3DA624A276864CC4FA7C499E96981C95FD27583565E68E92434FAF05B"
+    },
+    {
+      "clone": "050",
+      "source_url": "https://pgda.gsfc.nasa.gov/data/LOLA_5mpp/Site01/Clones/Site01_final_adj_5mpp_0050_err.tif",
+      "local_path": "C:\\Users\\Abanoub\\Desktop\\moonbase-nasa-research\\downloads\\site01b\\clone050_err.tif",
+      "sha256": "5819388022B1F32D50EAB7BDD1C8D8446A9DDFCF88BA4693D24116F86EA02E37"
+    },
+    {
+      "clone": "100",
+      "source_url": "https://pgda.gsfc.nasa.gov/data/LOLA_5mpp/Site01/Clones/Site01_final_adj_5mpp_0100_err.tif",
+      "local_path": "C:\\Users\\Abanoub\\Desktop\\moonbase-nasa-research\\downloads\\site01b\\clone100_err.tif",
+      "sha256": "596DCDF341B411893E2994571685BD54F911BFB476855CA6CE8D8F0F5F676698"
+    }
+  ],
+  "illumination_status": {
+    "published_result": "PGDA reports Site01 average illumination greater than 70 percent for the published 2024-01-01 through 2026-01-01 analysis interval at 1 m height; ROIs 4–6 are generally favorable and the 5 m analysis gives longer continuous illumination.",
+    "specific_shadow_test": "UNAVAILABLE at Phase 1 capture: no final array point, exact epoch, array height, horizon ray-cast, and validated lunar SPICE run had yet been selected and completed.",
+    "power_conversion": "Not performed. Illumination percentage is not electrical power and no panel/orientation/efficiency/degradation/operating model was authorized or documented."
+  },
+  "phase_2_validation": {
+    "review_status": "REVIEWED_WITH_CORRECTION",
+    "ldec_phase_1_copy": {
+      "local_path": "C:\\Users\\Abanoub\\Desktop\\moonbase-nasa-research\\downloads\\site01b\\ldec_phase1_incomplete.tif",
+      "size_bytes": 14402728,
+      "sha256": "5F9FE99A58320B15613D1D8DAAC191DC71025A4D2AD8CB7721DC7CCB4247A2A7",
+      "status": "TIFF directory readable but pixel strips incomplete; not used"
+    },
+    "ldec_complete_copy": {
+      "source_url": "https://pgda.gsfc.nasa.gov/data/LOLA_5mpp/Site01/Site01_final_adj_5mpp_ldec.tif",
+      "local_path": "C:\\Users\\Abanoub\\Desktop\\moonbase-nasa-research\\downloads\\site01b\\ldec.tif",
+      "retrieval_utc": "2026-11-13T22:03:57Z",
+      "local_file_mtime_utc": "2026-11-13T22:04:58Z",
+      "size_bytes": 40980744,
+      "sha256": "16D6ED21020AD48FA71D94E7437492ACF5BF04118F52BCD292F57F22EAD4CD23",
+      "status": "complete and used by Phase 2"
+    },
+    "phase_2_coordinate_note": "Raw GeoTIFF uses a custom/unnamed south-polar stereographic definition with PixelIsArea tiepoint; analysis uses pixel centers and explicit MOON_ME_DE421 SPICE frame. Longitude is not exposed as a player-facing value.",
+    "phase_2_shadow_status": "A candidate-specific TEAM_DERIVED result is documented in SITE01_ILLUMINATION_ANALYSIS.md; it is not a direct NASA measurement or NASA validation of MoonBase."
+  }
+}

@@ -1,0 +1,33 @@
+{
+  "retrieval_utc": "2026-11-13T21:25:45.559Z",
+  "endpoint": "https://ccmc.gsfc.nasa.gov/DONKI-API/get/SEP?startDate=2016-01-02&endDate=2016-01-02&catalog=M2M_CATALOG&version=Latest",
+  "schema_source": "https://ccmc.gsfc.nasa.gov/DONKI/api/openapi/",
+  "response": [
+    {
+      "sepID": "2016-01-02T02:48:00-SEP-001",
+      "eventTime": "2016-01-02T02:48Z",
+      "instruments": [{"displayName": "SOHO: COSTEP 15.8-39.8 MeV"}],
+      "link": "https://ccmc.gsfc.nasa.gov/DONKI/view/SEP/9966/-1",
+      "linkedEvents": [{"activityID": "2016-01-01T23:10:00-FLR-001"}, {"activityID": "2016-01-01T23:12:00-CME-001"}],
+      "sentNotifications": [{"messageID": "20160102-AL-002", "messageIssueTime": "2016-01-02T04:51Z", "messageURL": "https://ccmc.gsfc.nasa.gov/DONKI/view/Alert/9967/1"}],
+      "submissionTime": "2016-01-02T04:45Z",
+      "versionId": 1
+    },
+    {
+      "sepID": "2016-01-02T04:30:00-SEP-001",
+      "eventTime": "2016-01-02T04:30Z",
+      "instruments": [{"displayName": "GOES13: SEM/EPS >10 MeV"}],
+      "link": "https://ccmc.gsfc.nasa.gov/DONKI/view/SEP/9964/-1",
+      "linkedEvents": [{"activityID": "2016-01-01T23:10:00-FLR-001"}, {"activityID": "2016-01-01T23:12:00-CME-001"}],
+      "sentNotifications": [{"messageID": "20160102-AL-001", "messageIssueTime": "2016-01-02T04:41Z", "messageURL": "https://ccmc.gsfc.nasa.gov/DONKI/view/Alert/9965/1"}],
+      "submissionTime": "2016-01-02T04:41Z",
+      "versionId": 1
+    }
+  ],
+  "current_window_check": {
+    "retrieval_utc": "2026-11-13T21:25:26.975Z",
+    "endpoint": "https://ccmc.gsfc.nasa.gov/DONKI-API/get/SEP?startDate=2026-11-01&endDate=2026-11-13&catalog=M2M_CATALOG&version=Latest",
+    "response": [],
+    "interpretation": "No SEP records were returned for this query window; this is not evidence that no radiation risk exists outside the requested catalog/window."
+  }
+}

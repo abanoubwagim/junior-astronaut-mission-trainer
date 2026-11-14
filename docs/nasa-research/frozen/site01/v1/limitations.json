@@ -1,0 +1,71 @@
+{
+  "schema_version": "1.0.0",
+  "limitations": [
+    {
+      "id": "LIMIT-001",
+      "classification": "TEAM_DERIVED",
+      "statement": "The selected ROI5_C1 point and the terrain-shadow classification are team-derived research choices using NASA-sourced inputs; NASA did not select, approve, or validate a MoonBase coordinate.",
+      "impact": "The snapshot cannot be described as a NASA-approved habitat or solar-array location."
+    },
+    {
+      "id": "LIMIT-002",
+      "classification": "TEAM_DERIVED",
+      "statement": "The local terrain calculation uses a documented DEM ray trace and a spherical inverse of the PGDA projected map, not a SPICE DSK surface model.",
+      "impact": "Frame and map-model assumptions require scientific review before any operational interpretation."
+    },
+    {
+      "id": "LIMIT-003",
+      "classification": "TEAM_DERIVED",
+      "statement": "ORIGINAL, CLONE_001, CLONE_050, and CLONE_100 were evaluated. The three clones are a representative sensitivity run, not a complete 100-clone uncertainty analysis.",
+      "impact": "No statistical confidence percentage or complete clone-distribution claim is allowed."
+    },
+    {
+      "id": "LIMIT-004",
+      "classification": "TEAM_DERIVED",
+      "statement": "The 15-minute time-series windows contain sampled timestamps only.",
+      "impact": "First/last sampled shadow times must not be rewritten as exact continuous transition boundaries."
+    },
+    {
+      "id": "LIMIT-005",
+      "classification": "NASA_PUBLISHED",
+      "statement": "PGDA terrain rasters are 5 m/pixel products and the PGDA README describes substantial interpolation; LDEC is an observation-count indicator, not direct-measurement proof for every pixel.",
+      "impact": "Pixel-scale geometry and shadow margins must be interpreted with the retained uncertainty and LDEC context."
+    },
+    {
+      "id": "LIMIT-006",
+      "classification": "UNAVAILABLE",
+      "statement": "No panel geometry, orientation, efficiency, degradation, operating state, electrical load, battery model, or validated array hardware is part of this package.",
+      "impact": "No watts, watt-hours, battery capacity, power-loss percentage, or electrical output may be derived from this evidence."
+    },
+    {
+      "id": "LIMIT-007",
+      "classification": "UNAVAILABLE",
+      "statement": "The snapshot contains no measured solar-array telemetry, no lunar habitat operating record, and no direct surface radiation or power measurement at ROI5_C1.",
+      "impact": "The result supports sunlight obstruction only."
+    },
+    {
+      "id": "LIMIT-008",
+      "classification": "UNAVAILABLE",
+      "statement": "Phase 3 validation does not rerun the original astronomical calculation.",
+      "impact": "A validator PASS is snapshot-integrity and replay-fixture validation, not full scientific calculation reproduction."
+    },
+    {
+      "id": "LIMIT-009",
+      "classification": "UNAVAILABLE",
+      "statement": "The incomplete Phase 1 local LDEC copy is preserved only as an excluded artifact and is never a frozen input.",
+      "impact": "Any future analysis must use the complete LDEC hash recorded in this package."
+    },
+    {
+      "id": "LIMIT-010",
+      "classification": "GAME_DESIGN",
+      "statement": "MoonBase, its fictional solar equipment, POWER DROP event, player choices, and abstract resources remain game-design concepts outside this scientific package.",
+      "impact": "This freeze does not change playable behavior or justify a gameplay rule change."
+    }
+  ],
+  "required_future_review": [
+    "Independent review of the projected-map-to-MOON_ME_DE421 transformation.",
+    "Full available clone inventory and statistical uncertainty method if a confidence statement is required.",
+    "Independent rerun of the SPICE and DEM ray trace with the frozen hashes and parameters.",
+    "Separate engineering model before any electrical-power interpretation."
+  ]
+}
