@@ -5,7 +5,7 @@
   const sceneRoot = document.querySelector("#lunar-scene");
   const scriptUrl = document.currentScript?.src || new URL("../js/scene/scene-manager.js", window.location.href).href;
   const THREE_URL = "https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js";
-  const SCENE_VERSION = "20261112-v67";
+const SCENE_VERSION = "20261115-v3";
 
   if (!canvas || !sceneRoot) return;
 
@@ -137,7 +137,8 @@
         onInteract: (target) => interactionHandler?.onInteract?.(target),
         onGateOpening: (target) => interactionHandler?.onGateOpening?.(target),
         onGateOpened: (target) => interactionHandler?.onGateOpened?.(target),
-        onPlayerUpdate: (telemetry) => interactionHandler?.onPlayerUpdate?.(telemetry)
+        onPlayerUpdate: (telemetry) => interactionHandler?.onPlayerUpdate?.(telemetry),
+        onMovementInput: (input) => interactionHandler?.onMovementInput?.(input)
       });
       const initialMode = window.MOONBASE_SCENE_MODE || "welcome";
       currentMode = initialMode;
@@ -217,9 +218,9 @@
         dismissEmergency() {
           missionEmergencies?.dismiss?.();
         },
-        setTouchMovement(direction, active) {
+        setTouchMovement(input, active = true) {
           if (currentMode !== "game") return;
-          playerController?.setTouchMovement?.(direction, active);
+          playerController?.setTouchMovement?.(input, active);
         },
         jump() {
           if (currentMode !== "game") return;

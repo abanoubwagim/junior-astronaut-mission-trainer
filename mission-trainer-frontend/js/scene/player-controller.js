@@ -7,10 +7,17 @@ export function createPlayerController(THREE, {
   onInteract,
   onGateOpening,
   onGateOpened,
-  onPlayerUpdate
+  onPlayerUpdate,
+  onMovementInput
 } = {}) {
   const keys = new Set();
   const touchKeys = new Set();
+  const keyboardInput = new THREE.Vector2();
+  // The touch path feeds the same movement solver as the keyboard path. The
+  // vector stores screen-space joystick intent: x is left/right and y is
+  // forward/backward (positive is backward, matching the S key).
+  const touchMovement = new THREE.Vector2();
+  const combinedInput = new THREE.Vector2();
   const velocity = new THREE.Vector3();
   const desiredVelocity = new THREE.Vector3();
   const direction = new THREE.Vector3();
@@ -83,6 +90,9 @@ export function createPlayerController(THREE, {
   function clearInput() {
     keys.clear();
     touchKeys.clear();
+    touchMovement.set(0, 0);
+    keyboardInput.set(0, 0);
+    onMovementInput?.({ x: 0, z: 0 });
   }
 
   function isEditableElement(element) {
@@ -101,6 +111,21 @@ export function createPlayerController(THREE, {
     return key === " " || key === "space";
   }
 
+  function updateKeyboardInput() {
+    const x = (keys.has("d") || keys.has("arrowright") ? 1 : 0)
+      - (keys.has("a") || keys.has("arrowleft") ? 1 : 0);
+    const z = (keys.has("s") || keys.has("arrowdown") ? 1 : 0)
+      - (keys.has("w") || keys.has("arrowup") ? 1 : 0);
+    keyboardInput.set(x, z);
+    if (keyboardInput.lengthSq() > 1) keyboardInput.normalize();
+    return keyboardInput;
+  }
+
+  function notifyKeyboardInput() {
+    const input = updateKeyboardInput();
+    onMovementInput?.({ x: input.x, z: input.y });
+  }
+
   function normalizeKey(event) {
     // Prefer the physical key code so movement and interaction still work when
     // the active keyboard layout changes the value of event.key (for example,
@@ -111,12 +136,38 @@ export function createPlayerController(THREE, {
     return rawKey.startsWith("key") && rawKey.length === 4 ? rawKey.slice(3) : rawKey;
   }
 
-  function setTouchMovement(directionName, activeState) {
+  function setTouchMovement(directionName, activeState = true) {
+    if (directionName && typeof directionName === "object") {
+      if (activeState === false) {
+        touchMovement.set(0, 0);
+        return;
+      }
+      const x = Number(directionName.x);
+      const z = Number(directionName.z ?? directionName.y);
+      touchMovement.set(Number.isFinite(x) ? x : 0, Number.isFinite(z) ? z : 0);
+      if (touchMovement.lengthSq() > 1) touchMovement.normalize();
+      return;
+    }
     const directionKeys = { up: "w", down: "s", left: "a", right: "d" };
     const key = directionKeys[String(directionName || "").toLowerCase()];
     if (!key) return;
     if (activeState) touchKeys.add(key);
     else touchKeys.delete(key);
+  }
+
+  function getMovementInput() {
+    const keyboard = updateKeyboardInput();
+    const keyboardX = keyboard.x
+      + (touchKeys.has("d") ? 1 : 0)
+      - (touchKeys.has("a") ? 1 : 0);
+    const keyboardZ = keyboard.y
+      + (touchKeys.has("s") ? 1 : 0)
+      - (touchKeys.has("w") ? 1 : 0);
+    combinedInput.set(keyboardX + touchMovement.x, keyboardZ + touchMovement.y);
+    // Keep diagonals and keyboard + joystick combinations at one maximum
+    // input magnitude so they cannot move faster than a straight input.
+    if (combinedInput.lengthSq() > 1) combinedInput.normalize();
+    return combinedInput;
   }
 
   function setMovementState(nextState) {
@@ -130,9 +181,7 @@ export function createPlayerController(THREE, {
   function beginJump() {
     if (!active || paused || !grounded || movementState === MOVEMENT_STATES.LANDING) return false;
     grounded = false;
-    const lopingLaunch = keys.has("shift")
-      && (keys.has("w") || keys.has("a") || keys.has("s") || keys.has("d")
-        || keys.has("arrowup") || keys.has("arrowdown") || keys.has("arrowleft") || keys.has("arrowright"));
+    const lopingLaunch = keys.has("shift") && getMovementInput().lengthSq() > 0.001;
     verticalVelocity = lopingLaunch ? lopingJumpVelocity : jumpVelocity;
     jumpElapsed = 0;
     landingElapsed = 0;
@@ -158,7 +207,9 @@ export function createPlayerController(THREE, {
       return;
     }
     if (isMovementKey(key)) {
+      const wasDown = keys.has(key);
       keys.add(key);
+      if (!wasDown) notifyKeyboardInput();
       if (active && !paused) event.preventDefault();
       return;
     }
@@ -189,7 +240,8 @@ export function createPlayerController(THREE, {
       keys.delete("space");
       return;
     }
-    keys.delete(key);
+    const wasDown = keys.delete(key);
+    if (wasDown && isMovementKey(key)) notifyKeyboardInput();
   }
 
   function onBlur() {
@@ -406,13 +458,13 @@ export function createPlayerController(THREE, {
   }
 
   function updateMovement(delta) {
-    const inputX = (keys.has("d") || keys.has("arrowright") || touchKeys.has("d") ? 1 : 0)
-      - (keys.has("a") || keys.has("arrowleft") || touchKeys.has("a") ? 1 : 0);
-    const inputZ = (keys.has("s") || keys.has("arrowdown") || touchKeys.has("s") ? 1 : 0)
-      - (keys.has("w") || keys.has("arrowup") || touchKeys.has("w") ? 1 : 0);
+    const movementInput = getMovementInput();
+    const inputX = movementInput.x;
+    const inputZ = movementInput.y;
+    const inputMagnitude = movementInput.length();
 
     direction.set(0, 0, 0);
-    if (inputX || inputZ) {
+    if (inputMagnitude > 0.001) {
       const basis = cameraController.getMovementBasis?.() || { yaw: 0 };
       forward.set(Math.sin(basis.yaw), 0, -Math.cos(basis.yaw));
       right.set(Math.cos(basis.yaw), 0, Math.sin(basis.yaw));
@@ -420,10 +472,10 @@ export function createPlayerController(THREE, {
     }
 
     const wasGrounded = grounded;
-    const hasHorizontalIntent = direction.lengthSq() > 0;
+    const hasHorizontalIntent = inputMagnitude > 0.001;
     const loping = grounded && hasHorizontalIntent && keys.has("shift") && movementState !== MOVEMENT_STATES.LANDING;
     const speed = loping ? lopingSpeed : lunarWalkSpeed;
-    desiredVelocity.copy(direction).multiplyScalar(speed);
+    desiredVelocity.copy(direction).multiplyScalar(speed * inputMagnitude);
     if (grounded) {
       const acceleration = hasHorizontalIntent
         ? (loping ? groundAcceleration * 1.08 : groundAcceleration)

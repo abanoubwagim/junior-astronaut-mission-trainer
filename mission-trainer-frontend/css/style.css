@@ -585,3 +585,513 @@ body[data-app-screen="game"] .mission-radar-gameplay { border-color: rgb(101 228
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
 }
+
+/* Natural UI refinement: quieter surfaces, clearer hierarchy, and less
+   dashboard chrome so the lunar environment stays the visual focus. */
+:root {
+  --panel: rgb(9 21 40 / 94%);
+  --panel-strong: rgb(6 16 32 / 97%);
+  --panel-soft: rgb(15 31 53 / 88%);
+  --ink: #edf3fa;
+  --muted: #b0becd;
+  --subtle: #8091a5;
+  --line: rgb(156 181 207 / 18%);
+  --line-strong: rgb(101 210 226 / 56%);
+  --cyan: #72d5df;
+  --cyan-strong: #48b8c9;
+  --sky: #a8c2d9;
+  --amber: #e5b768;
+  --green: #92c9ad;
+  --coral: #e09b8f;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 18px;
+  --radius-xl: 24px;
+  --shadow-panel: 0 18px 42px rgb(0 5 16 / 28%);
+  --shadow-float: 0 22px 52px rgb(0 4 16 / 38%);
+  --ease: 180ms ease-out;
+}
+
+body {
+  background: #050c18;
+}
+
+.topbar {
+  border-color: rgb(156 181 207 / 20%);
+  border-radius: 10px;
+  background: rgb(6 15 29 / 94%);
+  box-shadow: 0 12px 30px rgb(0 3 12 / 24%);
+  backdrop-filter: none;
+}
+
+.brand-mark {
+  border-color: rgb(114 213 223 / 58%);
+  border-radius: 9px;
+  background: rgb(55 117 133 / 18%);
+}
+
+.brand-mark span {
+  box-shadow: none;
+}
+
+.team-badge,
+.mission-chip {
+  border-color: var(--line);
+  background: transparent;
+}
+
+.mission-chip {
+  color: var(--muted);
+}
+
+.button,
+.story-primary-action,
+.button-secondary,
+.button-link {
+  border-radius: 9px;
+  box-shadow: none;
+}
+
+.button,
+.story-primary-action {
+  color: #071827;
+  background: var(--cyan);
+}
+
+.button:hover:not(:disabled),
+.story-primary-action:hover:not(:disabled) {
+  box-shadow: 0 8px 18px rgb(48 164 184 / 20%);
+  transform: translateY(-1px);
+}
+
+.button-secondary {
+  color: var(--ink);
+  border-color: var(--line);
+  background: rgb(19 37 59 / 92%);
+}
+
+.button-secondary:hover:not(:disabled) {
+  border-color: var(--line-strong);
+  background: rgb(27 51 77 / 96%);
+}
+
+.story-eyebrow,
+.welcome-mono,
+.story-hud-kicker,
+.story-effects-label,
+.story-change-label,
+.mission-feedback-kicker,
+.story-speaker-line,
+.gameplay-task-kicker,
+.controls-label,
+.controls-header-status,
+.mission-emergency-kicker,
+.mission-emergency-signal,
+.story-source-line,
+.inspection-report-title,
+.scientific-evidence-details summary {
+  letter-spacing: .07em;
+  text-transform: none;
+}
+
+.welcome-title {
+  letter-spacing: -.055em;
+  text-shadow: 0 10px 28px rgb(1 8 28 / 38%);
+}
+
+.welcome-briefing-badge,
+.welcome-reference-ribbon,
+.briefing-kicker {
+  border-color: rgb(114 213 223 / 30%);
+  border-radius: 7px;
+  background: rgb(29 74 92 / 28%);
+}
+
+.welcome-start-button {
+  text-transform: none;
+  letter-spacing: .04em;
+}
+
+.welcome-bottom-telemetry,
+.briefing-action-footer {
+  border-top-color: rgb(156 181 207 / 14%);
+}
+
+.briefing-hero-card,
+.story-dialogue,
+.day-one-report,
+.day-two-report,
+.day-three-report,
+.day-four-report,
+.story-change-rail,
+.story-effects,
+.story-lessons,
+.story-recap,
+.day-two-briefing-card {
+  border-color: var(--line);
+  border-radius: var(--radius-md);
+  background: rgb(9 21 40 / 94%);
+  box-shadow: var(--shadow-panel);
+}
+
+.briefing-hero-card {
+  border-top-width: 1px;
+}
+
+.briefing-hero-card::after {
+  display: none;
+}
+
+.briefing-objective-card,
+.briefing-science-card,
+.briefing-science-note,
+.destination-card,
+.story-hud,
+.story-qualitative-chip,
+.story-day-progress,
+.gameplay-objective,
+.gameplay-task,
+.gameplay-controls,
+.gameplay-dialogue-live,
+.scientific-evidence-card,
+.mission-control-action,
+.mission-radar,
+.mission-feedback,
+.gameplay-pause-menu,
+.scene-fallback-notice {
+  border-color: var(--line);
+  box-shadow: var(--shadow-panel);
+  backdrop-filter: none;
+}
+
+.briefing-objective-card,
+.briefing-science-card,
+.briefing-science-note,
+.story-qualitative-chip,
+.story-day-progress,
+.story-change-card,
+.day-one-report-card,
+.day-two-status-card,
+.day-three-status-card,
+.day-four-status-card,
+.story-system-chip,
+.scientific-evidence-source,
+.scientific-evidence-team,
+.inspection-report,
+.mission-control-action {
+  background: rgb(13 29 49 / 92%);
+}
+
+.destination-card {
+  border-radius: var(--radius-md);
+  box-shadow: 0 18px 42px rgb(0 4 16 / 34%);
+}
+
+.destination-card:hover {
+  box-shadow: 0 22px 48px rgb(0 4 16 / 42%);
+}
+
+.story-hud {
+  background: rgb(7 17 32 / 94%);
+}
+
+.gameplay-objective,
+.gameplay-task,
+.gameplay-dialogue-live,
+.gameplay-controls {
+  background: rgb(7 17 32 / 94%);
+}
+
+.gameplay-objective-status,
+.gameplay-task-status,
+.controls-header {
+  border-top-color: var(--line);
+  border-bottom-color: var(--line);
+}
+
+.story-choice {
+  border-radius: 9px;
+  background: rgb(14 32 53 / 94%);
+}
+
+.story-choice:hover:not(:disabled) {
+  border-color: var(--line-strong);
+  background: rgb(21 48 72 / 96%);
+  transform: translateY(-1px);
+}
+
+.story-choice[aria-pressed="true"] {
+  border-color: var(--cyan);
+  background: rgb(31 79 91 / 76%);
+  box-shadow: inset 0 0 0 1px rgb(114 213 223 / 22%);
+}
+
+.gameplay-interaction-hint {
+  border-color: rgb(114 213 223 / 38%);
+  border-radius: 10px;
+  background: rgb(7 17 32 / 96%);
+  box-shadow: 0 18px 42px rgb(0 4 16 / 34%);
+}
+
+.interaction-copy {
+  text-transform: none;
+  letter-spacing: .02em;
+}
+
+.mission-emergency-banner {
+  border-color: rgb(224 155 143 / 46%);
+  border-radius: 10px;
+  background: rgb(32 25 37 / 96%);
+  box-shadow: 0 18px 42px rgb(0 0 0 / 28%);
+  backdrop-filter: none;
+}
+
+.radar-player,
+.radar-objective,
+.objective-status-dot,
+.task-status-icon,
+.story-speaker-pip,
+.mission-control-status::before {
+  box-shadow: none;
+}
+
+/* Touch controls become a small third-person control rig on compact screens:
+   joystick at left, look surface at right, jump in the lower-right corner. */
+@media (max-width: 900px) and (any-pointer: coarse), (max-width: 720px) {
+  body[data-app-screen="game"] .gameplay-touch-controls {
+    position: fixed;
+    z-index: 5;
+    inset: 0;
+    display: block;
+    order: initial;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    box-shadow: none;
+    pointer-events: none;
+  }
+
+  .touch-joystick {
+    position: absolute;
+    bottom: max(18px, env(safe-area-inset-bottom));
+    left: max(18px, env(safe-area-inset-left));
+    display: grid;
+    place-items: center;
+    width: clamp(132px, 21vw, 170px);
+    aspect-ratio: 1;
+    pointer-events: auto;
+    touch-action: none;
+    user-select: none;
+  }
+
+  .touch-joystick-base {
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: 100%;
+    height: 100%;
+    border: 1px solid rgb(160 190 211 / 28%);
+    border-radius: 50%;
+    background: rgb(10 28 46 / 68%);
+    box-shadow: inset 0 0 0 12px rgb(160 190 211 / 4%), 0 10px 26px rgb(0 5 16 / 24%);
+    transition: border-color var(--ease), background var(--ease);
+  }
+
+  .touch-joystick-base::before {
+    position: absolute;
+    inset: 17%;
+    border: 1px solid rgb(160 190 211 / 16%);
+    border-radius: 50%;
+    content: "";
+  }
+
+  .touch-joystick.is-active .touch-joystick-base {
+    border-color: rgb(114 213 223 / 62%);
+    background: rgb(14 42 57 / 76%);
+  }
+
+  .touch-joystick-knob {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 42%;
+    aspect-ratio: 1;
+    border: 1px solid rgb(201 230 234 / 68%);
+    border-radius: 50%;
+    background: rgb(103 177 188 / 82%);
+    box-shadow: 0 6px 14px rgb(0 8 18 / 32%);
+    transform: translate(calc(-50% + var(--joystick-x, 0px)), calc(-50% + var(--joystick-y, 0px)));
+    transition: transform 80ms ease-out, background var(--ease), border-color var(--ease);
+  }
+
+  .touch-joystick.is-active .touch-joystick-knob {
+    border-color: var(--cyan);
+    background: var(--cyan-strong);
+  }
+
+  .touch-look-pad {
+    position: absolute;
+    top: 34%;
+    right: max(8px, env(safe-area-inset-right));
+    bottom: calc(142px + env(safe-area-inset-bottom));
+    display: grid;
+    place-items: center;
+    width: min(30vw, 190px);
+    min-height: 96px;
+    padding: 12px 8px;
+    border: 1px solid rgb(160 190 211 / 14%);
+    border-radius: 18px;
+    color: rgb(196 215 227 / 62%);
+    background: rgb(7 18 32 / 20%);
+    font-family: var(--mono);
+    font-size: 9px;
+    letter-spacing: .08em;
+    text-transform: none;
+    pointer-events: auto;
+    touch-action: none;
+    user-select: none;
+  }
+
+  .touch-look-pad.is-active {
+    border-color: rgb(114 213 223 / 42%);
+    background: rgb(12 39 52 / 28%);
+  }
+
+  .touch-look-label {
+    opacity: .76;
+  }
+
+  .touch-action-deck {
+    position: absolute;
+    right: max(18px, env(safe-area-inset-right));
+    bottom: max(18px, env(safe-area-inset-bottom));
+    display: grid;
+    gap: 8px;
+    pointer-events: auto;
+  }
+
+  .touch-control-button.touch-jump {
+    display: grid;
+    place-items: center;
+    width: clamp(62px, 12vw, 78px);
+    min-width: 62px;
+    min-height: 62px;
+    padding: 0;
+    border: 1px solid rgb(229 183 104 / 70%);
+    border-radius: 50%;
+    color: #1a2021;
+    background: rgb(229 183 104 / 94%);
+    box-shadow: 0 8px 18px rgb(0 5 16 / 26%);
+    font-family: var(--mono);
+    font-size: 10px;
+    font-weight: 800;
+    touch-action: manipulation;
+    user-select: none;
+  }
+
+  .touch-control-button.touch-jump:active {
+    background: #f1ca7f;
+    transform: translateY(1px);
+  }
+
+  .touch-controls-header,
+  .touch-control-pad {
+    display: none;
+  }
+
+  .interaction-touch-button {
+    display: inline-flex;
+  }
+}
+
+/* The joystick is also available on desktop for mouse testing and accessibility.
+   Camera look and jump remain desktop-native through the existing mouse/keyboard controls. */
+@media (min-width: 901px) {
+  body[data-app-screen="game"] .gameplay-touch-controls {
+    position: fixed;
+    z-index: 5;
+    inset: 0;
+    display: block;
+    pointer-events: none;
+  }
+
+  body[data-app-screen="game"] .touch-joystick {
+    position: absolute;
+    left: max(24px, env(safe-area-inset-left));
+    bottom: max(24px, env(safe-area-inset-bottom));
+    display: grid;
+    place-items: center;
+    width: 148px;
+    height: 148px;
+    pointer-events: auto;
+    touch-action: none;
+    user-select: none;
+    cursor: grab;
+  }
+
+  body[data-app-screen="game"] .touch-joystick:active,
+  body[data-app-screen="game"] .touch-joystick.is-active {
+    cursor: grabbing;
+  }
+
+  body[data-app-screen="game"] .touch-joystick-base {
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: 100%;
+    height: 100%;
+    border: 1px solid rgb(160 190 211 / 28%);
+    border-radius: 50%;
+    background: rgb(10 28 46 / 68%);
+    box-shadow: inset 0 0 0 12px rgb(160 190 211 / 4%), 0 10px 26px rgb(0 5 16 / 24%);
+    transition: border-color var(--ease), background var(--ease);
+  }
+
+  body[data-app-screen="game"] .touch-joystick-base::before {
+    position: absolute;
+    inset: 17%;
+    border: 1px solid rgb(160 190 211 / 16%);
+    border-radius: 50%;
+    content: "";
+  }
+
+  body[data-app-screen="game"] .touch-joystick.is-active .touch-joystick-base {
+    border-color: rgb(114 213 223 / 62%);
+    background: rgb(14 42 57 / 76%);
+  }
+
+  body[data-app-screen="game"] .touch-joystick-knob {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 42%;
+    aspect-ratio: 1;
+    border: 1px solid rgb(201 230 234 / 68%);
+    border-radius: 50%;
+    background: rgb(103 177 188 / 82%);
+    box-shadow: 0 6px 14px rgb(0 8 18 / 32%);
+    transform: translate(calc(-50% + var(--joystick-x, 0px)), calc(-50% + var(--joystick-y, 0px)));
+    transition: transform 80ms ease-out, background var(--ease), border-color var(--ease);
+  }
+
+  body[data-app-screen="game"] .touch-joystick.is-active .touch-joystick-knob {
+    border-color: var(--cyan);
+    background: var(--cyan-strong);
+  }
+
+  body[data-app-screen="game"] .touch-look-pad,
+  body[data-app-screen="game"] .touch-action-deck {
+    display: none;
+  }
+}
+
+@media (max-width: 720px) {
+  body[data-app-screen="game"] .gameplay-touch-controls {
+    display: block;
+  }
+
+  .touch-look-pad {
+    top: 32%;
+    width: 31vw;
+  }
+}

@@ -156,6 +156,29 @@
     return row;
   }
 
+  function resetTouchMovement() {
+    window.MoonBaseScene?.setTouchMovement?.({ x: 0, z: 0 }, false);
+  }
+
+  function syncKeyboardJoystick(input = {}) {
+    const joystick = root.querySelector?.(".touch-joystick");
+    if (!joystick || joystick.dataset.pointerActive === "true") return;
+    const base = joystick.querySelector?.(".touch-joystick-base");
+    if (!base) return;
+    const rect = base.getBoundingClientRect();
+    const knobTravel = Math.max(1, Math.min(rect.width, rect.height) * 0.5 * 0.58);
+    let x = Number(input.x) || 0;
+    let z = Number(input.z) || 0;
+    const magnitude = Math.hypot(x, z);
+    if (magnitude > 1) {
+      x /= magnitude;
+      z /= magnitude;
+    }
+    joystick.style.setProperty("--joystick-x", `${x * knobTravel}px`);
+    joystick.style.setProperty("--joystick-y", `${z * knobTravel}px`);
+    joystick.classList.toggle("is-active", magnitude > 0.001);
+  }
+
   function renderGameControls({ showPause = false } = {}) {
     const controls = make("aside", `gameplay-controls${ui.controlsCollapsed ? " is-collapsed" : ""}`);
     const controlsHeader = make("div", "controls-header");
@@ -166,7 +189,7 @@
     toggle.setAttribute("aria-label", ui.controlsCollapsed ? "Expand controls" : "Collapse controls");
     toggle.setAttribute("aria-expanded", String(!ui.controlsCollapsed));
     toggle.title = ui.controlsCollapsed ? "Expand controls" : "Collapse controls";
-    append(controlsHeader, make("span", "controls-label", "CONTROLS"), make("span", "controls-header-status", "READY"), toggle);
+    append(controlsHeader, make("span", "controls-label", "Controls"), make("span", "controls-header-status", "Ready"), toggle);
     if (ui.controlsCollapsed) {
       append(controls, controlsHeader, make("span", "controls-collapsed-icon", "⌨"));
       return controls;
@@ -179,6 +202,7 @@
       controlRow("MOUSE", "Look around"));
     if (showPause) {
       controls.append(button(ui.paused ? "Resume mission" : "Pause", "button-secondary gameplay-pause-button", () => {
+        resetTouchMovement();
         ui.paused = !ui.paused;
         render();
       }, ui.loading || ui.interactionOpen));
@@ -189,68 +213,123 @@
   function renderTouchControls() {
     const controls = make("aside", "gameplay-touch-controls");
     controls.setAttribute("aria-label", "Touch movement controls");
-    const header = make("div", "touch-controls-header");
-    append(header,
-      make("span", "touch-controls-title", "TOUCH FLIGHT DECK"),
-      make("span", "touch-controls-note", "Hold to move · drag to look"));
+    const joystick = make("div", "touch-joystick");
+    joystick.setAttribute("role", "application");
+    joystick.setAttribute("aria-label", "Virtual joystick. Drag the inner control to move.");
+    const joystickBase = make("div", "touch-joystick-base");
+    const joystickKnob = make("div", "touch-joystick-knob");
+    joystickKnob.setAttribute("aria-hidden", "true");
+    joystick.dataset.pointerActive = "false";
+    joystickBase.append(joystickKnob);
+    joystick.append(joystickBase);
 
-    const pad = make("div", "touch-control-pad");
-    const movementButtons = [
-      ["▲", "up", "Move forward"],
-      ["◀", "left", "Move left"],
-      ["▼", "down", "Move backward"],
-      ["▶", "right", "Move right"]
-    ];
-    movementButtons.forEach(([label, direction, ariaLabel]) => {
-      const control = button(label, `touch-control-button touch-move-${direction}`, () => {}, false);
-      control.setAttribute("aria-label", ariaLabel);
-      const start = (event) => {
-        event.preventDefault();
-        control.setPointerCapture?.(event.pointerId);
-        window.MoonBaseScene?.setTouchMovement?.(direction, true);
-      };
-      const stop = (event) => {
-        event.preventDefault();
-        window.MoonBaseScene?.setTouchMovement?.(direction, false);
-      };
-      control.addEventListener("pointerdown", start);
-      control.addEventListener("pointerup", stop);
-      control.addEventListener("pointercancel", stop);
-      control.addEventListener("pointerleave", stop);
-      pad.append(control);
+    let joystickPointerId = null;
+    const setJoystickPosition = (event) => {
+      const rect = joystickBase.getBoundingClientRect();
+      const radius = Math.max(1, Math.min(rect.width, rect.height) * 0.5);
+      const knobTravel = Math.max(1, radius * 0.58);
+      const centerX = rect.left + rect.width * 0.5;
+      const centerY = rect.top + rect.height * 0.5;
+      let x = (event.clientX - centerX) / knobTravel;
+      let z = (event.clientY - centerY) / knobTravel;
+      const magnitude = Math.hypot(x, z);
+      if (magnitude > 1) {
+        x /= magnitude;
+        z /= magnitude;
+      }
+      joystick.style.setProperty("--joystick-x", `${x * knobTravel}px`);
+      joystick.style.setProperty("--joystick-y", `${z * knobTravel}px`);
+      window.MoonBaseScene?.setTouchMovement?.({ x, z }, true);
+    };
+    const resetJoystick = (event = null) => {
+      if (event && joystickPointerId !== null && event.pointerId !== joystickPointerId) return;
+      if (event) event.preventDefault?.();
+      const pointerId = joystickPointerId;
+      joystickPointerId = null;
+      joystick.dataset.pointerActive = "false";
+      joystick.style.setProperty("--joystick-x", "0px");
+      joystick.style.setProperty("--joystick-y", "0px");
+      window.MoonBaseScene?.setTouchMovement?.({ x: 0, z: 0 }, false);
+      if (pointerId !== null && joystick.hasPointerCapture?.(pointerId)) {
+        joystick.releasePointerCapture?.(pointerId);
+      }
+    };
+    joystick.addEventListener("pointerdown", (event) => {
+      if (joystickPointerId !== null) return;
+      event.preventDefault();
+      joystickPointerId = event.pointerId;
+      joystick.dataset.pointerActive = "true";
+      joystick.setPointerCapture?.(event.pointerId);
+      setJoystickPosition(event);
+      joystick.classList.add("is-active");
     });
+    joystick.addEventListener("pointermove", (event) => {
+      if (event.pointerId !== joystickPointerId) return;
+      event.preventDefault();
+      setJoystickPosition(event);
+    });
+    ["pointerup", "pointercancel"].forEach((eventName) => joystick.addEventListener(eventName, (event) => {
+      resetJoystick(event);
+      joystick.classList.remove("is-active");
+    }));
+    joystick.addEventListener("pointerleave", (event) => {
+      // Pointer capture keeps an active drag alive outside the base. If the
+      // browser has already released capture, leaving the control cancels it.
+      if (!joystick.hasPointerCapture?.(event.pointerId)) resetJoystick(event);
+    });
+    joystick.addEventListener("lostpointercapture", () => {
+      if (joystickPointerId !== null) resetJoystick();
+      joystick.classList.remove("is-active");
+    });
+
+    const actionDeck = make("div", "touch-action-deck");
     const jump = button("JUMP", "touch-control-button touch-jump", () => {
       window.MoonBaseScene?.jump?.();
     });
     jump.setAttribute("aria-label", "Jump");
-    pad.append(jump);
+    actionDeck.append(jump);
 
-    const lookPad = make("div", "touch-look-pad", "DRAG HERE TO LOOK AROUND");
+    const lookPad = make("div", "touch-look-pad");
+    lookPad.setAttribute("role", "application");
+    lookPad.setAttribute("aria-label", "Camera look area. Drag to look around.");
+    append(lookPad, make("span", "touch-look-label", "Drag to look"));
     let looking = false;
     let lastPoint = null;
+    let lookPointerId = null;
     lookPad.addEventListener("pointerdown", (event) => {
       event.preventDefault();
       lookPad.setPointerCapture?.(event.pointerId);
       looking = true;
+      lookPointerId = event.pointerId;
+      lookPad.classList.add("is-active");
       lastPoint = { x: event.clientX, y: event.clientY };
     });
     lookPad.addEventListener("pointermove", (event) => {
-      if (!looking || !lastPoint) return;
+      if (!looking || !lastPoint || event.pointerId !== lookPointerId) return;
       event.preventDefault();
       const dx = event.clientX - lastPoint.x;
       const dy = event.clientY - lastPoint.y;
       lastPoint = { x: event.clientX, y: event.clientY };
       window.MoonBaseScene?.lookBy?.(dx, dy);
     });
-    const stopLooking = () => {
+    const stopLooking = (event = null) => {
+      if (event && lookPointerId !== null && event.pointerId !== lookPointerId) return;
+      event?.preventDefault?.();
+      const pointerId = lookPointerId;
       looking = false;
+      lookPointerId = null;
       lastPoint = null;
+      lookPad.classList.remove("is-active");
+      if (pointerId !== null && lookPad.hasPointerCapture?.(pointerId)) lookPad.releasePointerCapture?.(pointerId);
     };
     lookPad.addEventListener("pointerup", stopLooking);
     lookPad.addEventListener("pointercancel", stopLooking);
-    lookPad.addEventListener("pointerleave", stopLooking);
+    lookPad.addEventListener("pointerleave", (event) => {
+      if (!lookPad.hasPointerCapture?.(event.pointerId)) stopLooking(event);
+    });
+    lookPad.addEventListener("lostpointercapture", () => stopLooking());
 
-    append(controls, header, pad, lookPad);
+    append(controls, joystick, lookPad, actionDeck);
     return controls;
   }
 
@@ -284,6 +363,9 @@
         radar.style.removeProperty("--radar-objective-top");
       }
     },
+    onMovementInput(input) {
+      syncKeyboardJoystick(input);
+    },
     onProximity(target) {
       const nextTarget = target || null;
       const nextId = nextTarget?.id || "";
@@ -294,6 +376,7 @@
     },
     onGateOpening(target) {
       if (ui.screen !== "game" || ui.loading || !target) return;
+      resetTouchMovement();
       ui.gateOpening = true;
       ui.interactionTarget = { ...target, opening: true };
       ui.interactionOpen = false;
@@ -326,6 +409,7 @@
       const expectedTargetId = day === 1 ? "solar-array" : day === 2 ? "water-recycler" : day === 3 ? "grow-tray" : day === 4 ? "storm-shelter" : "";
       if (ui.screen !== "game" || ui.loading || !target || target.id !== expectedTargetId
           || ui.interactionOpen || ui.inspectionComplete) return;
+      resetTouchMovement();
       ui.interactionTarget = target;
       ui.interactionOpen = true;
       ui.inspectionComplete = true;
@@ -365,12 +449,17 @@
   }
 
   window.addEventListener?.("keydown", handleWelcomeKeydown, { passive: false });
+  window.addEventListener?.("blur", resetTouchMovement, { passive: true });
+  document.addEventListener?.("visibilitychange", () => {
+    if (document.hidden) resetTouchMovement();
+  }, { passive: true });
 
   function resetViewport() {
     window.scrollTo?.({ top: 0, left: 0, behavior: "auto" });
   }
 
   function setScreen(screen) {
+    resetTouchMovement();
     resetViewport();
     ui.screen = screen;
     ui.error = "";
@@ -608,6 +697,7 @@
       ui.dayTwoComplete = event.day === 2;
       ui.dayThreeComplete = event.day === 3;
       ui.dayFourComplete = event.day === 4;
+      resetTouchMovement();
       ui.screen = updatedMission.status === "ACTIVE" ? "game" : "day4Complete";
       resetViewport();
       announce(`Day ${event.day} complete. ${updatedMission.latestDecision.explanation}`);
@@ -652,9 +742,9 @@
 
   function renderWelcome() {
     const worldName = "MOON";
-    const protocolLabel = "LUNAR EXPEDITION PROTOCOL // SOUTH POLE SECTOR";
-    const briefingLabel = "NASA-INSPIRED LUNAR MISSION BRIEFING";
-    const targetLabel = "LUNAR SOUTH POLE";
+    const protocolLabel = "Lunar expedition · south pole sector";
+    const briefingLabel = "NASA-inspired lunar mission";
+    const targetLabel = "Lunar south pole";
     const assuranceLabel = "Explore the Moon, inspect a solar array, and choose how the base should respond to a power drop.";
     const section = make("section", "moonbase-welcome");
     section.setAttribute("aria-labelledby", "welcome-title");
@@ -679,7 +769,7 @@
     const title = make("h1", "welcome-title", "MOONBASE");
     title.id = "welcome-title";
     const subtitle = make("div", "welcome-subtitle");
-    append(subtitle, make("span", "welcome-rule welcome-rule-left"), make("span", "welcome-mono", "4 DAYS TO SURVIVE"), make("span", "welcome-rule welcome-rule-right"));
+    append(subtitle, make("span", "welcome-rule welcome-rule-left"), make("span", "welcome-mono", "4 days to survive"), make("span", "welcome-rule welcome-rule-right"));
     const lede = make("p", "welcome-lede", "An interactive lunar mission simulation inspired by NASA science.");
     const startWrap = make("div", "welcome-start-wrap");
     const startAction = startMission;
@@ -730,8 +820,8 @@
     const day = dayOverride || event?.day || mission?.day || 1;
     const marker = make("div", "story-hud-marker");
     const identity = make("div", "story-hud-identity");
-    append(identity, make("span", "story-hud-kicker", "MOONBASE SIM"),
-      make("span", "story-team-inline", "RUN 2.0"));
+    append(identity, make("span", "story-hud-kicker", "MoonBase sim"),
+      make("span", "story-team-inline", "Run 2.0"));
     append(marker, identity,
       make("strong", "story-hud-title", `Mission day ${day} of ${mission?.totalDays || 4}`),
       make("span", "story-hud-subtitle", "Lunar outpost survival mission"));
@@ -739,30 +829,30 @@
     const missionDay = Number(day);
     const statusRows = missionDay >= 4
       ? [
-        ["EVA STATUS", state.evaStatus || "DATA UNAVAILABLE"],
-        ["CREW LOCATION", state.crewLocation || "DATA UNAVAILABLE"],
-        ["PRIMARY SHIELDING", state.primaryShielding || "DATA UNAVAILABLE"],
-        ["SUPPLEMENTARY SHIELDING", state.supplementaryShielding || "DATA UNAVAILABLE"]
+        ["EVA status", state.evaStatus || "Data unavailable"],
+        ["Crew location", state.crewLocation || "Data unavailable"],
+        ["Primary shielding", state.primaryShielding || "Data unavailable"],
+        ["Supplementary shielding", state.supplementaryShielding || "Data unavailable"]
       ]
       : missionDay >= 3
       ? [
-        ["STORED FOOD", state.storedFoodSupply || "DATA UNAVAILABLE"],
-        ["CROP UNIT", state.cropProductionUnit || "DATA UNAVAILABLE"],
-        ["CROP GROWTH", state.cropGrowth || "DATA UNAVAILABLE"],
-        ["APPROVED CROP WATER", state.approvedWaterForCrops || "DATA UNAVAILABLE"]
+        ["Stored food", state.storedFoodSupply || "Data unavailable"],
+        ["Crop unit", state.cropProductionUnit || "Data unavailable"],
+        ["Crop growth", state.cropGrowth || "Data unavailable"],
+        ["Approved crop water", state.approvedWaterForCrops || "Data unavailable"]
       ]
       : missionDay >= 2
       ? [
-        ["WATER RECOVERY", state.waterRecoveryStatus || "DATA UNAVAILABLE"],
-        ["POTABLE SUPPLY", state.potableWaterSupply || "DATA UNAVAILABLE"],
-        ["QUALITY CHECK", state.waterQualityVerification || "DATA UNAVAILABLE"],
-        ["LIFE SUPPORT", state.crewLifeSupport || "DATA UNAVAILABLE"]
+        ["Water recovery", state.waterRecoveryStatus || "Data unavailable"],
+        ["Potable supply", state.potableWaterSupply || "Data unavailable"],
+        ["Quality check", state.waterQualityVerification || "Data unavailable"],
+        ["Life support", state.crewLifeSupport || "Data unavailable"]
       ]
       : [
-        ["SOLAR INPUT", state.solarInput || "DATA UNAVAILABLE"],
-        ["BACKUP RESERVE", state.backupReserve || "DATA UNAVAILABLE"],
-        ["POWER DEMAND", state.powerDemand || "DATA UNAVAILABLE"],
-        ["EVENT CAUSE", state.eventCause || "DATA UNAVAILABLE"]
+        ["Solar input", state.solarInput || "Data unavailable"],
+        ["Backup reserve", state.backupReserve || "Data unavailable"],
+        ["Power demand", state.powerDemand || "Data unavailable"],
+        ["Event cause", state.eventCause || "Data unavailable"]
       ];
     const status = make("div", "story-qualitative-status");
     statusRows.forEach(([label, value]) => {
@@ -772,7 +862,7 @@
     });
     const progress = make("div", "story-day-progress");
     progress.setAttribute("aria-label", `Mission day ${day} of ${mission?.totalDays || 4}`);
-    progress.append(make("span", "story-day-caption", `DAY ${day} / ${mission?.totalDays || 4}`));
+    progress.append(make("span", "story-day-caption", `Day ${day} / ${mission?.totalDays || 4}`));
     for (let index = 1; index <= (mission?.totalDays || 4); index += 1) {
       const dot = make("span", `story-day-dot${index <= day ? " active" : ""}`);
       dot.setAttribute("aria-hidden", "true");
@@ -883,8 +973,8 @@
     action.setAttribute("aria-label", `${interactionActionCopy(target)} action`);
     const actionHeader = make("div", "mission-control-action-header");
     append(actionHeader,
-      make("span", "mission-control-action-label", "NEXT ACTION"),
-      make("span", "mission-control-action-status", "READY"));
+      make("span", "mission-control-action-label", "Next action"),
+      make("span", "mission-control-action-status", "Ready"));
     const actionRow = make("div", "mission-control-action-row");
     append(actionRow,
       make("span", "interaction-key", "E"),
@@ -917,8 +1007,8 @@
     const speakerLine = make("div", "story-speaker-line");
     append(speakerLine,
       make("span", "story-speaker-pip"),
-      make("span", "story-speaker", "MISSION CONTROL"),
-      make("span", "mission-control-status", "ONLINE"));
+      make("span", "story-speaker", "Mission control"),
+      make("span", "mission-control-status", "Online"));
     append(copy, speakerLine);
     if (!opened && !isDayFour) {
       append(copy, make("p", "story-subtitle", isWaterEvent
@@ -1381,8 +1471,8 @@
     banner.setAttribute("aria-live", "assertive");
     const header = make("div", "mission-emergency-header");
     append(header,
-      make("span", "mission-emergency-kicker", "MISSION CONTROL // IN-WORLD ALERT"),
-      make("span", "mission-emergency-signal", "LIVE SCENARIO"));
+      make("span", "mission-emergency-kicker", "Mission control · in-world alert"),
+      make("span", "mission-emergency-signal", "Live scenario"));
     append(banner, header,
       make("h2", "mission-emergency-title", ui.emergency.title),
       make("p", "mission-emergency-message", ui.emergency.message),
@@ -1439,7 +1529,7 @@
           : "Walk to the highlighted solar-array station and inspect it when the prompt appears.");
     append(objective,
       append(make("div", "gameplay-objective-head"),
-        make("span", "story-eyebrow", "MISSION OBJECTIVE"),
+        make("span", "story-eyebrow", "Mission objective"),
         make("span", "objective-diamond", "◆")),
       make("h1", "gameplay-title", isDayTwo ? "Life Support Crisis" : isDayThree ? "Food Production" : isDayFour ? "Emergency Protocol" : "Establish the Base"),
       make("p", "gameplay-objective-copy", objectiveCopy),
@@ -1450,7 +1540,7 @@
 
     const task = make("aside", `gameplay-task${ui.interactionOpen ? " is-briefing-task" : ""}`);
     append(task,
-      make("div", "gameplay-task-kicker", "CURRENT TASK"),
+      make("div", "gameplay-task-kicker", "Current task"),
       make("h2", "gameplay-task-title", !gateEntered ? "MOONBASE GATE" : isDayTwo && !isInspected ? "WATER RECOVERY STATION" : isDayThree && !isInspected ? "CROP PRODUCTION UNIT" : isDayFour && !isInspected ? "STORM SHELTER" : event.title),
       make("p", "gameplay-task-copy", ui.gateOpening
         ? `${ui.interactionTarget?.name || "Mission gate"} is opening. Hold position while the airlock unlocks.`
