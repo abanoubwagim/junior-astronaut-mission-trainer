@@ -312,7 +312,8 @@ body[data-app-screen="game"] .app-shell { width: 100%; max-width: none; margin: 
 .gameplay-objective-status, .gameplay-task-status { display: flex; align-items: center; gap: 7px; margin-top: 13px; padding-top: 11px; border-top: 1px solid var(--line); color: var(--subtle); font-family: var(--mono); font-size: 9px; line-height: 1.4; }
 .objective-status-dot, .task-status-icon { width: 7px; height: 7px; flex: 0 0 auto; border-radius: 50%; background: var(--green); box-shadow: 0 0 11px var(--green); }
 .task-status-icon { display: grid; place-items: center; width: 17px; height: 17px; border-radius: 5px; color: #10172a; background: var(--amber); box-shadow: none; font-size: 10px; font-weight: 800; }
-.gameplay-task { top: 174px; right: 24px; width: min(310px, 27vw); padding: 16px; border: 1px solid rgb(158 204 239 / 30%); border-radius: var(--radius-md); background: rgb(7 18 41 / 82%); box-shadow: var(--shadow-panel); backdrop-filter: blur(14px); }
+.gameplay-task { top: 174px; right: 24px; width: min(310px, 27vw); padding: 16px; border: 1px solid rgb(158 204 239 / 30%); border-radius: var(--radius-md); background: rgb(7 18 41 / 82%); box-shadow: var(--shadow-panel); backdrop-filter: blur(14px); pointer-events: auto; }
+.gameplay-task.is-briefing-task { z-index: 6; }
 .gameplay-task.is-briefing-task { max-height: calc(100svh - 198px); overflow-y: auto; }
 .gameplay-task-kicker { color: var(--violet); font-family: var(--mono); font-size: 9px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; }
 .gameplay-task-title { margin: 8px 0 6px; color: var(--ink); font-family: var(--display); font-size: 17px; letter-spacing: .01em; line-height: 1.1; }
@@ -1093,5 +1094,178 @@ body {
   .touch-look-pad {
     top: 32%;
     width: 31vw;
+  }
+}
+
+/* Child-friendly mission decisions: the picture carries the first meaning;
+   the server-provided choice ID remains on the button for replay submission. */
+.gameplay-task-decision .story-choices {
+  gap: 12px;
+  margin-top: 14px;
+}
+
+.gameplay-task-decision .story-choice {
+  position: relative;
+  display: grid;
+  grid-template-columns: 82px minmax(0, 1fr);
+  align-items: center;
+  gap: 13px;
+  min-height: 132px;
+  padding: 14px 15px 14px 11px;
+  overflow: hidden;
+  border: 2px solid rgb(156 181 207 / 20%);
+  border-radius: 16px;
+  background: linear-gradient(140deg, rgb(19 39 62 / 98%), rgb(9 24 47 / 98%));
+  box-shadow: 0 10px 22px rgb(0 5 16 / 18%);
+  text-align: left;
+  transition: transform 180ms ease, border-color 180ms ease, background 180ms ease, box-shadow 180ms ease;
+}
+
+.gameplay-task-decision .story-choice::before {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 4px;
+  background: var(--choice-accent, var(--cyan));
+  content: "";
+  opacity: .75;
+}
+
+.gameplay-task-decision .story-choice:hover:not(:disabled) {
+  border-color: var(--choice-accent, var(--line-strong));
+  background: linear-gradient(140deg, rgb(27 55 79 / 98%), rgb(10 29 52 / 98%));
+  box-shadow: 0 14px 28px rgb(0 5 16 / 26%);
+  transform: translateY(-2px);
+}
+
+.gameplay-task-decision .story-choice:focus-visible {
+  border-color: var(--choice-accent, var(--amber));
+  box-shadow: 0 0 0 3px rgb(229 183 104 / 35%), 0 14px 28px rgb(0 5 16 / 26%);
+}
+
+.gameplay-task-decision .story-choice[aria-pressed="true"] {
+  border-color: var(--choice-accent, var(--cyan));
+  background: linear-gradient(140deg, rgb(32 83 95 / 92%), rgb(12 39 62 / 98%));
+  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 10%), 0 0 0 3px color-mix(in srgb, var(--choice-accent, var(--cyan)) 23%, transparent), 0 14px 30px rgb(0 5 16 / 30%);
+  transform: translateY(-1px);
+}
+
+.gameplay-task-decision .story-choice-check {
+  position: absolute;
+  z-index: 1;
+  top: 10px;
+  right: 10px;
+  display: grid;
+  place-items: center;
+  width: 25px;
+  height: 25px;
+  border: 1px solid rgb(156 181 207 / 34%);
+  border-radius: 50%;
+  color: transparent;
+  background: rgb(3 12 28 / 38%);
+  font-size: 14px;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.gameplay-task-decision .story-choice[aria-pressed="true"] .story-choice-check {
+  border-color: var(--choice-accent, var(--cyan));
+  color: #061424;
+  background: var(--choice-accent, var(--cyan));
+  animation: choice-check-pop 260ms ease-out both;
+}
+
+.gameplay-task-decision .story-choice-art {
+  display: grid;
+  place-items: center;
+  width: 82px;
+  height: 82px;
+  border: 1px solid color-mix(in srgb, var(--choice-accent, var(--cyan)) 46%, transparent);
+  border-radius: 22px;
+  color: var(--choice-accent, var(--cyan));
+  background: color-mix(in srgb, var(--choice-accent, var(--cyan)) 10%, rgb(4 16 35));
+}
+
+.gameplay-task-decision .story-choice-art svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.gameplay-task-decision .story-choice-copy {
+  display: grid;
+  gap: 5px;
+  min-width: 0;
+  padding-right: 20px;
+}
+
+.gameplay-task-decision .story-choice-index {
+  position: static;
+  color: var(--choice-accent, var(--cyan));
+  font-family: var(--mono);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: .08em;
+}
+
+.gameplay-task-decision .story-choice-title {
+  color: var(--ink);
+  font-family: var(--display);
+  font-size: clamp(15px, 1.2vw, 18px);
+  line-height: 1.1;
+}
+
+.gameplay-task-decision .story-choice-description {
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.42;
+}
+
+.gameplay-task-decision .story-choice-state {
+  padding-top: 3px;
+  color: var(--subtle);
+  font-family: var(--mono);
+  font-size: 8px;
+  letter-spacing: .04em;
+}
+
+.gameplay-task-decision .story-choice[aria-pressed="true"] .story-choice-state {
+  color: var(--choice-accent, var(--cyan));
+}
+
+.gameplay-task-decision .story-choice:disabled {
+  cursor: wait;
+  opacity: .58;
+}
+
+@keyframes choice-check-pop {
+  0% { transform: scale(.65); opacity: .25; }
+  70% { transform: scale(1.12); opacity: 1; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+@media (max-width: 720px) {
+  .gameplay-task-decision .story-choices {
+    gap: 10px;
+  }
+
+  .gameplay-task-decision .story-choice {
+    grid-template-columns: 70px minmax(0, 1fr);
+    gap: 11px;
+    min-height: 116px;
+    padding: 12px 12px 12px 9px;
+  }
+
+  .gameplay-task-decision .story-choice-art {
+    width: 70px;
+    height: 70px;
+    border-radius: 18px;
+  }
+
+  .gameplay-task-decision .story-choice-title {
+    font-size: 16px;
+  }
+
+  .gameplay-task-decision .story-choice-description {
+    font-size: 11px;
   }
 }

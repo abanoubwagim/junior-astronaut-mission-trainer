@@ -10,6 +10,38 @@
   // radar rather than an arbitrary pixel coordinate.
   const RADAR_WORLD_BOUNDS = Object.freeze({ minX: -36.5, maxX: 36.5, minZ: -40.5, maxZ: 27.5 });
 
+  // These are presentation-only labels and illustrations. The keys are the
+  // backend choice IDs and must stay aligned with MissionRulesService.
+  const CHOICE_VISUALS = Object.freeze({
+    use_stored_energy: Object.freeze({ title: "Use Battery Power", description: "Keep important base systems running while sunlight is low.", illustration: "battery", accent: "#72d5df" }),
+    begin_vsat_deployment: Object.freeze({ title: "Prep More Solar", description: "Prepare a future solar helper for better sunlight.", illustration: "solar", accent: "#e5b768" }),
+    reduce_non_essential_loads: Object.freeze({ title: "Use Less Power", description: "Pause optional equipment to stretch available power.", illustration: "demand", accent: "#92c9ad" }),
+    inspect_reprocess_water: Object.freeze({ title: "Clean the Water", description: "Check and clean the isolated water before using it.", illustration: "water-recycle", accent: "#72d5df" }),
+    use_stored_potable_water: Object.freeze({ title: "Use Safe Water", description: "Use approved water while the other supply stays isolated.", illustration: "water-drop", accent: "#a8c2d9" }),
+    conserve_water: Object.freeze({ title: "Save Water", description: "Protect essential water needs by using less.", illustration: "water-save", accent: "#92c9ad" }),
+    START_LIMITED_CROP_TRIAL: Object.freeze({ title: "Try Small Garden", description: "Start a small indoor garden for future food.", illustration: "seedling", accent: "#92c9ad" }),
+    PRESERVE_STORED_FOOD: Object.freeze({ title: "Save Packed Food", description: "Carefully use the ready-to-eat food already stored.", illustration: "food-box", accent: "#e5b768" }),
+    EXPAND_CROP_PRODUCTION: Object.freeze({ title: "Grow More Food", description: "Start a bigger garden plan for more future food.", illustration: "grow-lights", accent: "#72d5df" }),
+    REPOSITION_WATER_SUPPLIES: Object.freeze({ title: "Move Water", description: "Place safe water near the shelter as extra mass.", illustration: "water-stack", accent: "#72d5df" }),
+    REPOSITION_FOOD_SUPPLIES: Object.freeze({ title: "Move Food", description: "Place food near the shelter without using water.", illustration: "food-stack", accent: "#e5b768" }),
+    MAINTAIN_EXISTING_SHIELDING: Object.freeze({ title: "Keep Shielding", description: "Keep the main shelter protection and save supplies.", illustration: "shield", accent: "#a8c2d9" })
+  });
+
+  const CHOICE_ILLUSTRATIONS = Object.freeze({
+    battery: '<svg viewBox="0 0 120 92" role="img" aria-label="Battery with a bright power bolt" focusable="false"><circle cx="59" cy="46" r="37" fill="currentColor" opacity=".1"/><rect x="25" y="24" width="61" height="45" rx="9" fill="currentColor" opacity=".14" stroke="currentColor" stroke-width="2"/><rect x="86" y="38" width="9" height="17" rx="3" fill="currentColor" opacity=".75"/><path d="M57 30 43 50h14l-7 15 27-27H62l7-8Z" fill="currentColor"/></svg>',
+    solar: '<svg viewBox="0 0 120 92" role="img" aria-label="Solar panel reaching toward the Sun" focusable="false"><circle cx="88" cy="22" r="11" fill="currentColor" opacity=".23" stroke="currentColor" stroke-width="2"/><path d="m88 5 0 8M88 31v8M71 22h8M97 22h8M76 10l6 6M94 28l6 6M100 10l-6 6M82 28l-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="m20 67 14-30 44 15-14 30Z" fill="currentColor" opacity=".16" stroke="currentColor" stroke-width="2"/><path d="m30 63 44-15M35 51l35 12M42 43l-8 27M56 48l-8 27M70 53l-8 27" stroke="currentColor" stroke-width="1.5" opacity=".8"/><path d="M41 78h39M54 77l-4 8M70 77l4 8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>',
+    demand: '<svg viewBox="0 0 120 92" role="img" aria-label="Three base systems with optional power paused" focusable="false"><path d="M18 73h84" stroke="currentColor" stroke-width="2" stroke-linecap="round" opacity=".65"/><rect x="22" y="39" width="20" height="29" rx="4" fill="currentColor" opacity=".18" stroke="currentColor" stroke-width="2"/><rect x="50" y="27" width="20" height="41" rx="4" fill="currentColor" opacity=".24" stroke="currentColor" stroke-width="2"/><rect x="78" y="48" width="20" height="20" rx="4" fill="currentColor" opacity=".1" stroke="currentColor" stroke-width="2"/><path d="M57 36v13M64 36v13" stroke="currentColor" stroke-width="3" stroke-linecap="round"/><path d="m22 24 9-8 9 8" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+    "water-recycle": '<svg viewBox="0 0 120 92" role="img" aria-label="Water tank with recycling arrows" focusable="false"><path d="M45 22h30v10c6 5 9 13 9 23 0 15-10 25-24 25S36 70 36 55c0-10 3-18 9-23Z" fill="currentColor" opacity=".14" stroke="currentColor" stroke-width="2"/><path d="M45 22h30M42 49h36" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M30 41a29 29 0 0 1 22-17M54 20l-3 7 8-2M90 51a29 29 0 0 1-22 17M66 72l3-7-8 2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+    "water-drop": '<svg viewBox="0 0 120 92" role="img" aria-label="A clear water drop in a safe cup" focusable="false"><path d="M60 17s-20 22-20 36a20 20 0 0 0 40 0c0-14-20-36-20-36Z" fill="currentColor" opacity=".2" stroke="currentColor" stroke-width="2"/><path d="M31 61v11c0 6 13 11 29 11s29-5 29-11V61" fill="currentColor" opacity=".1" stroke="currentColor" stroke-width="2"/><path d="M31 61c0 6 13 10 29 10s29-4 29-10" fill="none" stroke="currentColor" stroke-width="2"/><path d="M53 48c3-4 5-7 7-12" stroke="white" stroke-width="2" stroke-linecap="round" opacity=".7"/></svg>',
+    "water-save": '<svg viewBox="0 0 120 92" role="img" aria-label="Water drops protected by a saving ring" focusable="false"><circle cx="60" cy="47" r="31" fill="currentColor" opacity=".09" stroke="currentColor" stroke-width="2"/><path d="M42 31s-9 10-9 16a9 9 0 0 0 18 0c0-6-9-16-9-16ZM78 31s-9 10-9 16a9 9 0 0 0 18 0c0-6-9-16-9-16Z" fill="currentColor" opacity=".24" stroke="currentColor" stroke-width="2"/><path d="M43 67c7 4 27 4 34 0" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg>',
+    seedling: '<svg viewBox="0 0 120 92" role="img" aria-label="Small seedling growing in a tray" focusable="false"><path d="M37 68h46l-6 14H43Z" fill="currentColor" opacity=".22" stroke="currentColor" stroke-width="2"/><path d="M60 67V39M60 49c-12 0-19-7-19-17 11 0 19 5 19 17ZM60 55c12 0 19-7 19-17-11 0-19 5-19 17Z" fill="currentColor" opacity=".2" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M29 29h62M34 23h52" stroke="currentColor" stroke-width="2" stroke-linecap="round" opacity=".7"/><path d="M39 23v-7M60 23v-9M81 23v-7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>',
+    "food-box": '<svg viewBox="0 0 120 92" role="img" aria-label="A stored food box with a care mark" focusable="false"><path d="m24 35 36-17 36 17-36 18Z" fill="currentColor" opacity=".25" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M24 35v31l36 18 36-18V35M60 53v31M24 66l36-18 36 18" fill="currentColor" opacity=".1" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M53 38c4-7 13-7 15-1 2-6 11-6 15 1-5 8-11 12-15 15-4-3-10-7-15-15Z" fill="currentColor" opacity=".8"/></svg>',
+    "grow-lights": '<svg viewBox="0 0 120 92" role="img" aria-label="A larger grow tray beneath plant lights" focusable="false"><path d="M29 31h62" stroke="currentColor" stroke-width="3" stroke-linecap="round"/><path d="M39 31v11M60 31v11M81 31v11" stroke="currentColor" stroke-width="2"/><circle cx="39" cy="45" r="5" fill="currentColor" opacity=".26"/><circle cx="60" cy="45" r="5" fill="currentColor" opacity=".26"/><circle cx="81" cy="45" r="5" fill="currentColor" opacity=".26"/><path d="M28 59h64l-7 20H35Z" fill="currentColor" opacity=".17" stroke="currentColor" stroke-width="2"/><path d="M44 59V47M60 59V43M76 59V47M44 50c-8 0-12-5-12-11 8 0 12 4 12 11ZM60 48c8 0 12-5 12-11-8 0-12 4-12 11ZM76 50c8 0 12-5 12-11-8 0-12 4-12 11Z" fill="currentColor" opacity=".34" stroke="currentColor" stroke-width="2"/></svg>',
+    "water-stack": '<svg viewBox="0 0 120 92" role="img" aria-label="Stacked water containers beside a shelter" focusable="false"><path d="M23 75h74" stroke="currentColor" stroke-width="2" stroke-linecap="round" opacity=".65"/><path d="M25 66V34h25v32M70 66V34h25v32" fill="currentColor" opacity=".17" stroke="currentColor" stroke-width="2"/><path d="M25 42h25M70 42h25M37 34v-8h40v8" fill="none" stroke="currentColor" stroke-width="2"/><path d="M37 54c0-5 4-9 4-9s4 4 4 9a4 4 0 0 1-8 0ZM80 54c0-5 4-9 4-9s4 4 4 9a4 4 0 0 1-8 0Z" fill="currentColor" opacity=".8"/></svg>',
+    "food-stack": '<svg viewBox="0 0 120 92" role="img" aria-label="Stacked food packs beside a shelter" focusable="false"><path d="M19 75h82" stroke="currentColor" stroke-width="2" stroke-linecap="round" opacity=".65"/><path d="m27 57 22-11 22 11-22 11ZM49 69l22-11 22 11-22 11Z" fill="currentColor" opacity=".22" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="m27 57 22 12 22-12M49 69l22 11 22-11" fill="none" stroke="currentColor" stroke-width="2"/><path d="m34 34 22-11 22 11-22 11Z" fill="currentColor" opacity=".32" stroke="currentColor" stroke-width="2"/><path d="M56 23v22M34 34l22 11 22-11" fill="none" stroke="currentColor" stroke-width="2"/></svg>',
+    shield: '<svg viewBox="0 0 120 92" role="img" aria-label="A strong shelter shield" focusable="false"><path d="M60 14 91 26v20c0 19-12 29-31 36-19-7-31-17-31-36V26Z" fill="currentColor" opacity=".15" stroke="currentColor" stroke-width="3" stroke-linejoin="round"/><path d="M60 27v39M42 45h36" stroke="currentColor" stroke-width="2" opacity=".5"/><circle cx="47" cy="34" r="3" fill="currentColor" opacity=".8"/><circle cx="74" cy="55" r="4" fill="currentColor" opacity=".45"/><path d="M18 76h84" stroke="currentColor" stroke-width="2" stroke-linecap="round" opacity=".5"/></svg>'
+  });
+
   const ui = {
     screen: "welcome",
     mission: null,
@@ -185,6 +217,9 @@
     const toggle = button(ui.controlsCollapsed ? "⌨" : "−", "controls-toggle", () => {
       ui.controlsCollapsed = !ui.controlsCollapsed;
       render();
+      // Re-rendering the controls replaces the clicked button. Return focus
+      // to the game canvas so movement keys and Space keep working immediately.
+      if (ui.screen === "game" && !ui.interactionOpen) window.MoonBaseScene?.focus?.();
     }, ui.loading || ui.interactionOpen);
     toggle.setAttribute("aria-label", ui.controlsCollapsed ? "Expand controls" : "Collapse controls");
     toggle.setAttribute("aria-expanded", String(!ui.controlsCollapsed));
@@ -1203,24 +1238,39 @@
     choices.setAttribute("aria-label", "Mission choices");
     (event?.choices || []).forEach((choice, index) => {
       const selected = ui.selectedChoiceId === choice.id;
+      const visual = CHOICE_VISUALS[choice.id] || Object.freeze({
+        title: choice.title || "Mission plan",
+        description: "Choose this plan for the lunar base.",
+        illustration: "shield",
+        accent: "#a8c2d9"
+      });
       const card = make("button", "story-choice");
       card.type = "button";
       card.disabled = ui.loading || emergencyProcedurePending;
       card.dataset.choiceId = choice.id;
+      card.dataset.visual = visual.illustration;
+      card.style.setProperty("--choice-accent", visual.accent);
       card.setAttribute("aria-pressed", String(selected));
+      card.setAttribute("aria-label", `${visual.title}. ${visual.description}`);
       card.addEventListener("click", () => {
+        if (ui.loading || emergencyProcedurePending) return;
         ui.selectedChoiceId = choice.id;
         ui.interactionOpen = true;
         ui.error = "";
         render();
-        root.querySelector(`[data-choice-id="${CSS.escape(choice.id)}"]`)?.focus({ preventScroll: true });
+        [...root.querySelectorAll(".story-choice")]
+          .find((candidate) => candidate.dataset.choiceId === choice.id)
+          ?.focus({ preventScroll: true });
       });
-      append(card, make("span", "story-choice-index", `0${index + 1}`),
-        make("strong", "story-choice-title", choice.title),
-        make("span", "story-choice-description", choice.description),
-        make("span", "story-choice-benefit", `Benefit: ${choice.immediateBenefit || "Mission support continues."}`),
-        make("span", "story-choice-tradeoff", choice.tradeoff),
-        make("span", "story-choice-state", selected ? "Selected · press confirm" : "Select this solution"));
+      const art = make("span", "story-choice-art");
+      art.innerHTML = CHOICE_ILLUSTRATIONS[visual.illustration] || CHOICE_ILLUSTRATIONS.shield;
+      const copy = make("span", "story-choice-copy");
+      append(copy,
+        make("span", "story-choice-index", `0${index + 1}`),
+        make("strong", "story-choice-title", visual.title),
+        make("span", "story-choice-description", visual.description),
+        make("span", "story-choice-state", selected ? "Selected · press confirm" : "Select this plan"));
+      append(card, make("span", "story-choice-check", selected ? "✓" : ""), art, copy);
       choices.append(card);
     });
     return choices;
@@ -1597,7 +1647,7 @@
       }, ui.loading || ui.inspectionComplete));
 
     const controls = renderGameControls({ showPause: true });
-    const touchControls = renderTouchControls();
+    const touchControls = ui.interactionOpen ? null : renderTouchControls();
 
     const dialogue = renderGameDialogue(event);
     dialogue.id = "event-title";
@@ -1605,8 +1655,8 @@
     const choicePanel = make("div", `gameplay-decision-panel gameplay-task-decision in-world-terminal${ui.interactionOpen ? " is-open" : ""}`);
     choicePanel.setAttribute("aria-label", ui.sceneAvailable ? "In-world mission terminal" : "Accessible mission terminal");
     const choiceHeader = make("div", "gameplay-decision-header");
-    append(choiceHeader, make("span", "story-eyebrow", ui.sceneAvailable ? "IN-WORLD TERMINAL // CHOOSE A SOLUTION" : "CHOOSE A SOLUTION"),
-      make("strong", "", "Mission Control will calculate the result."));
+    append(choiceHeader, make("span", "story-eyebrow", ui.sceneAvailable ? "IN-WORLD TERMINAL // CHOOSE A PLAN" : "CHOOSE A PLAN"),
+      make("strong", "", "Pick a picture, then confirm your plan."));
     const choices = renderStoryChoices(event);
     const confirm = make("div", "story-confirm gameplay-confirm");
     const emergencyProcedurePending = Number(event?.day) === 4 && !ui.emergencyProcedureComplete;
