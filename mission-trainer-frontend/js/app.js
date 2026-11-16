@@ -10,6 +10,14 @@
   // radar rather than an arbitrary pixel coordinate.
   const RADAR_WORLD_BOUNDS = Object.freeze({ minX: -36.5, maxX: 36.5, minZ: -40.5, maxZ: 27.5 });
 
+  function syncViewportMode() {
+    const width = Math.max(document.documentElement?.clientWidth || 0, window.innerWidth || 0);
+    const height = Math.max(window.innerHeight || 0, document.documentElement?.clientHeight || 0);
+    const portrait = width <= 720 && height > width;
+    document.documentElement.dataset.viewport = portrait ? "portrait" : "wide";
+    if (document.body?.dataset) document.body.dataset.viewport = portrait ? "portrait" : "wide";
+  }
+
   // These are presentation-only labels and illustrations. The keys are the
   // backend choice IDs and must stay aligned with MissionRulesService.
   const CHOICE_VISUALS = Object.freeze({
@@ -318,11 +326,18 @@
     });
 
     const actionDeck = make("div", "touch-action-deck");
+    const target = ui.interactionTarget;
+    const canInteract = Boolean(target && !target.locked && !ui.interactionOpen && !ui.gateOpening && !ui.loading);
+    const interact = button("USE", "touch-control-button touch-interact", () => {
+      window.MoonBaseScene?.interact?.();
+    }, !canInteract);
+    interact.setAttribute("aria-label", target ? interactionActionCopy(target) : "Interact with nearby mission object");
+    interact.title = target ? interactionActionCopy(target) : "Move near a highlighted mission object";
     const jump = button("JUMP", "touch-control-button touch-jump", () => {
       window.MoonBaseScene?.jump?.();
     });
     jump.setAttribute("aria-label", "Jump");
-    actionDeck.append(jump);
+    actionDeck.append(interact, jump);
 
     const lookPad = make("div", "touch-look-pad");
     lookPad.setAttribute("role", "application");
@@ -485,12 +500,16 @@
 
   window.addEventListener?.("keydown", handleWelcomeKeydown, { passive: false });
   window.addEventListener?.("blur", resetTouchMovement, { passive: true });
+  window.addEventListener?.("resize", syncViewportMode, { passive: true });
+  window.addEventListener?.("orientationchange", syncViewportMode, { passive: true });
+  window.visualViewport?.addEventListener?.("resize", syncViewportMode, { passive: true });
   document.addEventListener?.("visibilitychange", () => {
     if (document.hidden) resetTouchMovement();
   }, { passive: true });
 
   function resetViewport() {
     window.scrollTo?.({ top: 0, left: 0, behavior: "auto" });
+    syncViewportMode();
   }
 
   function setScreen(screen) {
@@ -907,6 +926,46 @@
     return hud;
   }
 
+  function renderMobileGameHud(mission, event) {
+    const day = Number(event?.day || mission?.day || 1);
+    const state = mission?.qualitativeState || {};
+    const title = day === 4 ? "STORM SHELTER" : day === 3 ? "FOOD SYSTEMS" : day === 2 ? "WATER SYSTEMS" : "SOLAR POWER";
+    const statusRows = day >= 4
+      ? [["EVA", state.evaStatus], ["SHELTER", state.primaryShielding]]
+      : day >= 3
+        ? [["FOOD", state.storedFoodSupply], ["CROP UNIT", state.cropProductionUnit]]
+        : day >= 2
+          ? [["WATER", state.waterRecoveryStatus], ["LIFE SUPPORT", state.crewLifeSupport]]
+          : [["POWER", state.solarInput], ["RESERVE", state.backupReserve]];
+    const hud = make("header", "mobile-game-hud");
+    const top = make("div", "mobile-hud-top");
+    const identity = make("div", "mobile-hud-identity");
+    append(identity,
+      make("span", "mobile-hud-kicker", "DAY " + day + " / " + (mission?.totalDays || 4)),
+      make("strong", "mobile-hud-title", title));
+    const pause = button(ui.paused ? "▶" : "Ⅱ", "mobile-hud-pause", () => {
+      resetTouchMovement();
+      ui.paused = !ui.paused;
+      render();
+    }, ui.loading || ui.interactionOpen);
+    pause.setAttribute("aria-label", ui.paused ? "Resume mission" : "Pause mission");
+    pause.title = ui.paused ? "Resume mission" : "Pause mission";
+    append(top, identity, pause);
+    const rail = make("div", "mobile-hud-resource-rail");
+    statusRows.forEach(([label, value]) => {
+      const item = make("div", "mobile-hud-resource");
+      append(item, make("span", "mobile-hud-resource-label", label), make("strong", "mobile-hud-resource-value", value || "UNAVAILABLE"));
+      rail.append(item);
+    });
+    const progress = make("div", "mobile-hud-progress");
+    progress.setAttribute("aria-label", "Mission day " + day + " of " + (mission?.totalDays || 4));
+    for (let index = 1; index <= (mission?.totalDays || 4); index += 1) {
+      progress.append(make("span", "mobile-hud-day-dot" + (index <= day ? " is-active" : "")));
+    }
+    append(hud, top, rail, progress);
+    return hud;
+  }
+
   function renderMissionRadar({ gameplay = false } = {}) {
     const radar = make("div", `mission-radar${gameplay ? " mission-radar-gameplay" : ""}`);
     radar.setAttribute("aria-label", "Mission radar. The cyan marker shows your astronaut.");
@@ -1125,6 +1184,8 @@
         });
         copy.append(sourceLine);
       }
+      const scientificRecords = renderScientificRecords(event.scientificRecords);
+      if (scientificRecords) copy.append(scientificRecords);
     }
     append(dialogue, portrait, copy);
     return dialogue;
@@ -1203,6 +1264,37 @@
     technical.append(limits);
     details.append(technical);
     card.append(details);
+    return card;
+  }
+
+  function renderScientificRecords(records) {
+    if (!Array.isArray(records) || !records.length) return null;
+    const card = make("section", "scientific-records-card");
+    card.setAttribute("aria-label", "NASA data context");
+    append(card,
+      make("span", "story-eyebrow", "NASA DATA CONTEXT"),
+      make("p", "scientific-records-note", "These records explain the science around the decision. They do not change the game's qualitative state."));
+    records.forEach((record) => {
+      const item = make("article", "scientific-record-item");
+      const badge = `${record.status || "UNAVAILABLE"} · ${record.classification || "CLASSIFICATION UNAVAILABLE"}`;
+      append(item,
+        make("strong", "scientific-record-title", record.datasetIdentifier || "NASA evidence"),
+        make("span", "scientific-record-badge", badge),
+        make("p", "scientific-record-description", record.description || "Scientific description unavailable."),
+        make("p", "scientific-record-limit", record.uncertaintyOrLimitations || "Limitations unavailable."));
+      if (record.measurementValue !== null && record.measurementValue !== undefined) {
+        item.append(make("p", "scientific-record-measurement", `Reported value: ${record.measurementValue}${record.measurementUnit ? ` ${record.measurementUnit}` : ""}`));
+      }
+      const sourceUrl = safeHttpsUrl(record.originalUrl);
+      if (sourceUrl) {
+        const link = make("a", "scientific-evidence-source-link", "Open source ↗");
+        link.href = sourceUrl;
+        link.target = "_blank";
+        link.rel = "noopener noreferrer";
+        item.append(link);
+      }
+      card.append(item);
+    });
     return card;
   }
 
@@ -1559,6 +1651,7 @@
     const isInspected = Boolean(ui.inspectionComplete && ui.interactionOpen);
     const hud = renderStoryHud(mission, event);
     hud.className = "story-hud gameplay-hud";
+    const mobileHud = renderMobileGameHud(mission, event);
     const objective = make("section", "gameplay-objective");
     const objectiveCopy = isInspected
       ? (isDayTwo
@@ -1606,6 +1699,11 @@
                 ? "Enter the Storm Shelter when the prompt appears. The emergency procedure must be completed before choosing a strategy."
               : "Walk to the highlighted solar-array station and inspect it when the prompt appears."),
       append(make("div", "gameplay-task-status"), make("span", "task-status-icon", "!"), make("span", "", !gateEntered ? "MoonBase gate objective active" : isDayTwo ? "Water-station beacon active" : isDayThree ? "Crop-production beacon active" : isDayFour ? (isInspected ? "Emergency procedure complete" : "Storm-shelter beacon active") : "Solar-array beacon active")));
+    const mobileContext = make("p", "mobile-decision-context",
+      isDayFour
+        ? "Mission Control: move inside the Storm Shelter before choosing a plan."
+        : event.scientificExplanation || "Mission Control returned the current system report. Choose the plan that helps the base continue.");
+    task.append(mobileContext);
 
     const showInteractionHint = !ui.interactionOpen && (ui.gateOpening || ui.interactionTarget?.locked);
     const hint = showInteractionHint
@@ -1680,7 +1778,7 @@
       button("Resume exploration", "story-primary-action", () => { ui.paused = false; render(); }, ui.loading),
       make("small", "", "Press Escape any time to release the mouse pointer."));
 
-    append(section, renderEmergencyBanner(), hud, objective, task, renderMissionRadar({ gameplay: true }), hint, controls, touchControls, renderStorySystems(mission),
+    append(section, renderEmergencyBanner(), mobileHud, hud, objective, task, renderMissionRadar({ gameplay: true }), hint, controls, touchControls, renderStorySystems(mission),
       fallbackNotice, dialogue, renderDecisionFeedback(mission), pauseMenu);
     root.append(section);
   }

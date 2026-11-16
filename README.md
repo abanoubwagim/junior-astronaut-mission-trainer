@@ -1,86 +1,73 @@
 # MoonBase: 4 Days to Survive
 
-<p align="center">
-  <img
-    src="https://github.com/user-attachments/assets/c344654c-2de0-4e32-82a2-b20fac441267"
-    alt="The RUN 2.0 team at NASA Space Apps Challenge 2026"
-    width="500"
-  />
-  <br />
-  <em>Team MoonBase, NASA Space Apps Challenge 2026</em>
-</p>
+MoonBase is an independent, child-friendly lunar survival game for ages 7–12. Players explore a lunar outpost, make four connected mission decisions, and learn how power, water, food, and shelter systems interact. NASA has not endorsed or validated the project.
 
-An English-language educational lunar survival game for young explorers ages 7–12. Across four mission-planning rounds, players inspect habitat systems and make qualitative power, water, food, and shelter decisions inspired by real spaceflight research.
+## Features
 
-This is an independent educational project created for the NASA Space Apps Challenge 2026 **Junior Astronaut Mission Trainer** challenge. It is not an official NASA product and is not endorsed or validated by NASA.
+- Four-day Moon-only mission with deterministic outcomes.
+- Backend-authoritative, stateless decision replay.
+- Vanilla JavaScript interface with a Three.js lunar environment and local astronaut model.
+- Qualitative gameplay values clearly separated from scientific evidence.
+- NASA-backed context for lunar illumination, life support, space agriculture, and space weather.
+- No accounts, database, cookies, browser storage, or saved progress.
 
-## Play the game locally
+## Technology
 
-Use Java 17. From the repository root, start the Spring Boot backend:
+- Java 17 and Spring Boot 4.1.2
+- Maven with the backend Maven Wrapper
+- Spring MVC, Jakarta Validation, and Jackson
+- Plain HTML, CSS, and JavaScript
+- Three.js 0.180.0 loaded from jsDelivr
+- Node.js built-in test runner for frontend contract checks
+
+## Architecture
+
+The Spring Boot backend exposes a small stateless API. It validates the complete ordered decision history, replays the canonical mission rules, and returns the authoritative state. The browser renders those responses and keeps only the current decision history in memory.
+
+NASA integration is isolated under `integration/nasa`. DONKI is called server-side through `/get/SEP` using the official CCMC endpoint. Requests have bounded timeouts, limited retries, a 15-minute in-memory cache, and an explicitly archived fallback snapshot. DONKI is used as solar/near-Earth space-weather context; it is not treated as a lunar-surface radiation measurement and does not determine game outcomes.
+
+Curated evidence for the four mission chapters is bundled under `mission-trainer-backend/src/main/resources/nasa-evidence`. The Site01 package is checksum-validated at startup. The official DONKI documentation is available at [CCMC APIs](https://ccmc.gsfc.nasa.gov/tools/API/) and [DONKI OpenAPI](https://ccmc.gsfc.nasa.gov/DONKI/api/openapi/).
+
+## Run locally
+
+Requirements: Java 17, Python 3, and Node.js 20 or newer.
+
+Start the backend from the repository root:
 
 ```powershell
 .\mission-trainer-backend\mvnw.cmd -f pom.xml -pl mission-trainer-backend -am spring-boot:run
 ```
 
-In a second terminal, serve the plain static frontend:
+In a second terminal, serve the frontend:
 
 ```powershell
 python -m http.server 5500 --directory mission-trainer-frontend
 ```
 
-Open [http://localhost:5500/html/](http://localhost:5500/html/). The frontend calls `http://localhost:8080/api/v1`; backend port defaults to `8080` and can be set with `PORT`. CORS permits only `http://localhost:5500` and `http://127.0.0.1:5500`. It needs no database, account, or secret configuration.
+Open <http://localhost:5500/html/>. The backend defaults to port `8080`; set `PORT` to change it.
 
-## Mission design
-
-- Exactly four in-game days; each is a planning round, not one real Earth or lunar day.
-- The backend is the sole authority for rules, resource calculations, choice validation, delayed effects, day transitions, and outcomes.
-- The browser submits the complete ordered decision history. The server replays it from the initial state and returns the authoritative qualitative state, effects, constraints, and player-readable explanation.
-- No account, database, saved progress, browser storage, URL state, session, or gameplay token. Refresh returns to the welcome screen; starting again requests a fresh Day 1 state.
-- The active Day 1–Day 4 state model is qualitative. It does not invent food quantities, water volumes, power measurements, crop yields, growth rates, harvest timing, radiation doses, shielding percentages, or emergency durations.
-- Day 4 is the `SOLAR RADIATION ALERT` chapter: stopping EVA and entering the existing Storm Shelter are mandatory, then the player chooses a supplementary-shielding strategy. The result is descriptive only; no final success/failure classification is calculated while scientific review remains pending after November 13, 2026.
-
-## Project layout
-
-```text
-mission-trainer-frontend/    Static HTML, CSS, JavaScript, and local SVG art
-mission-trainer-backend/     Java 17 / Spring Boot stateless API and rules engine
-docs/                        Audit, game rules, science references, API, judges' briefing
-```
-
-## Team contributions
-
-- **Reem — Team Leader & Frontend Developer:** Coordinated the team and contributed to the frontend structure and mission flow.
-- **Roqia — Presentation Designer:** Designed the presentation structure and visual storytelling.
-- **Fadwa — Researcher:** Researched NASA sources and translated scientific concepts into educational game content.
-- **Kareem — JavaScript & Frontend Developer:** Implemented frontend interactions, API integration, mission feedback, and science references.
-- **Abanoub — Backend Developer:** Built the Java 17 / Spring Boot REST API and deterministic mission rules engine.
-
-## Documentation
-
-- [Repository audit](docs/PROJECT_AUDIT.md)
-- [Canonical game rules and worked examples](docs/GAME_RULES.md)
-- [NASA science sources and simplifications](docs/SCIENCE_REFERENCES.md)
-- [API contract, architecture, and local run guide](docs/API_AND_ARCHITECTURE.md)
-- [OpenAPI JSON for Apidog import](docs/moonbase-api.apidog.json)
-- [Judges' technical and science briefing](docs/JUDGES_BRIEFING.md)
-- [Contribution and product rules](CONTRIBUTING.md)
-
-## AI assistance and competition notes
-
-OpenAI Codex assisted with implementation, test authoring, technical review, and documentation. The project team remains responsible for verifying and submitting the work. The [2026 participant terms](https://www.spaceappschallenge.org/legal/) require citing every source used and making original project content freely available or open source; this project is an independent entry and is not endorsed by NASA.
-
-## Test and verify
-
-Run the backend unit and HTTP integration suite from the repository root:
+## Tests and build
 
 ```powershell
 .\mission-trainer-backend\mvnw.cmd -f pom.xml -pl mission-trainer-backend -am test
-```
-
-Run the frontend interaction checks with Node.js 20 or newer:
-
-```powershell
+.\mission-trainer-backend\mvnw.cmd -f pom.xml -pl mission-trainer-backend -am package
 node --test mission-trainer-frontend\tests
 ```
 
-Both suites use dependencies or runtimes already available; no testing framework or frontend dependency was added. Automated and live-browser verification results, along with any remaining limitations, are recorded in the [judges' briefing](docs/JUDGES_BRIEFING.md).
+JavaScript syntax can be checked with:
+
+```powershell
+Get-ChildItem mission-trainer-frontend\js -Recurse -Filter *.js | ForEach-Object { node --check $_.FullName }
+```
+
+## Environment configuration
+
+`.env.example` documents supported settings. Spring reads environment variables; it does not require a committed `.env` file. Keep any local `.env` ignored and never expose its values to the browser.
+
+- `PORT` — backend port, default `8080`.
+- `CORS_ALLOWED_ORIGINS` — comma-separated frontend origins.
+- `NASA_DONKI_BASE_URL` — DONKI base URL, defaulting to the official CCMC endpoint.
+- `NASA_CONNECT_TIMEOUT`, `NASA_READ_TIMEOUT`, `NASA_CACHE_TTL`, and `NASA_LOOKBACK_DAYS` — NASA client settings.
+- `NASA_API_KEY`/`API_KEY` — reserved for future NASA services; the current DONKI endpoint does not require or send a key.
+
+The application is intentionally database-free and stateless.

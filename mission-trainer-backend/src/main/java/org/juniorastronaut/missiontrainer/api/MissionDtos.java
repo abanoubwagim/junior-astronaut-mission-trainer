@@ -1,5 +1,12 @@
 package org.juniorastronaut.missiontrainer.api;
 
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
+
 import java.util.List;
 
 public final class MissionDtos {
@@ -9,10 +16,22 @@ public final class MissionDtos {
     public record HealthResponse(String status) {
     }
 
-    public record DecisionHistoryRequest(List<DecisionInput> decisions) {
+    public record DecisionHistoryRequest(
+            @NotNull(message = "The decision history is required.")
+            @Size(min = 1, max = 4, message = "The decision history must contain between 1 and 4 decisions.")
+            List<@Valid DecisionInput> decisions
+    ) {
     }
 
-    public record DecisionInput(Integer day, String choiceId) {
+    public record DecisionInput(
+            @NotNull(message = "The mission day is required.")
+            @Min(value = 1, message = "The mission day must be between 1 and 4.")
+            @Max(value = 4, message = "The mission day must be between 1 and 4.")
+            Integer day,
+            @NotBlank(message = "The choice ID is required.")
+            @Size(max = 64, message = "The choice ID is too long.")
+            String choiceId
+    ) {
     }
 
     public record Choice(
@@ -44,6 +63,24 @@ public final class MissionDtos {
     public record DatasetHash(
             String datasetId,
             String sha256
+    ) {
+    }
+
+    /** Internal scientific evidence is serialized only after mapping to this API record. */
+    public record ScientificEvidenceRecord(
+            String sourceName,
+            String datasetIdentifier,
+            String originalUrl,
+            java.time.Instant observationDate,
+            java.time.Instant retrievalTimestamp,
+            Double measurementValue,
+            String measurementUnit,
+            String description,
+            String geographicOrLunarApplicability,
+            String validityPeriod,
+            String uncertaintyOrLimitations,
+            String classification,
+            String status
     ) {
     }
 
@@ -115,7 +152,8 @@ public final class MissionDtos {
             String valueOrigin,
             List<SystemStatus> systemReport,
             String contextNote,
-            ScientificEvidence scientificEvidence
+            ScientificEvidence scientificEvidence,
+            List<ScientificEvidenceRecord> scientificRecords
     ) {
         public Event(
                 int day,
@@ -130,7 +168,7 @@ public final class MissionDtos {
                 String valueOrigin
         ) {
             this(day, title, description, scientificExplanation, eventCause, inspectionReport,
-                    scienceSources, choices, dataStatus, valueOrigin, List.of(), "");
+                    scienceSources, choices, dataStatus, valueOrigin, List.of(), "", null, List.of());
         }
 
         public Event(
@@ -148,7 +186,7 @@ public final class MissionDtos {
                 String contextNote
         ) {
             this(day, title, description, scientificExplanation, eventCause, inspectionReport,
-                    scienceSources, choices, dataStatus, valueOrigin, systemReport, contextNote, null);
+                    scienceSources, choices, dataStatus, valueOrigin, systemReport, contextNote, null, List.of());
         }
 
         public Event(
@@ -165,7 +203,7 @@ public final class MissionDtos {
                 ScientificEvidence scientificEvidence
         ) {
             this(day, title, description, scientificExplanation, eventCause, inspectionReport,
-                    scienceSources, choices, dataStatus, valueOrigin, List.of(), "", scientificEvidence);
+                    scienceSources, choices, dataStatus, valueOrigin, List.of(), "", scientificEvidence, List.of());
         }
     }
 

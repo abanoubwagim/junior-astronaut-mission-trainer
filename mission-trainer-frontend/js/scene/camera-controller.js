@@ -30,6 +30,7 @@ export function createCameraController(THREE, camera, options = {}) {
   // Scroll still allows close-up inspection.
   let pitch = 0.29;
   let distance = 10.6;
+  let portraitViewport = false;
   let pointerListenerAttached = false;
   let canvasListenerAttached = false;
   let wheelListenerAttached = false;
@@ -153,10 +154,11 @@ export function createCameraController(THREE, camera, options = {}) {
   function updateGameplay(delta) {
     if (!player) return;
     playerPosition.copy(player.position);
-    const horizontal = Math.cos(pitch) * distance;
+    const compositionDistance = portraitViewport ? Math.min(distance, 8.7) : distance;
+    const horizontal = Math.cos(pitch) * compositionDistance;
     desired.set(
       playerPosition.x - Math.sin(yaw) * horizontal,
-      playerPosition.y + 1.45 + Math.sin(pitch) * distance,
+      playerPosition.y + 1.45 + Math.sin(pitch) * compositionDistance,
       playerPosition.z + Math.cos(yaw) * horizontal
     );
     const safe = collisionSafeCameraPosition(desired);
@@ -219,6 +221,14 @@ export function createCameraController(THREE, camera, options = {}) {
     distance = Math.max(4.2, Math.min(13, Number(nextDistance) || 10.6));
   }
 
+  function setViewport({ portrait = false } = {}) {
+    portraitViewport = Boolean(portrait);
+    if (portraitViewport) {
+      distance = Math.min(distance, 8.7);
+      pitch = Math.max(0.2, Math.min(0.38, pitch));
+    }
+  }
+
   function setHeading(nextYaw) {
     const value = Number(nextYaw);
     if (Number.isFinite(value)) yaw = value;
@@ -258,6 +268,7 @@ export function createCameraController(THREE, camera, options = {}) {
     setGameplayActive,
     setPresentationActive,
     setDistance,
+    setViewport,
     setHeading,
     lookBy,
     getCamera: () => camera,

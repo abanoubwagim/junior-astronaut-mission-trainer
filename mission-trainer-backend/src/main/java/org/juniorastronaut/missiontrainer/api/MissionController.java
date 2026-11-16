@@ -1,8 +1,9 @@
 package org.juniorastronaut.missiontrainer.api;
 
-import lombok.AllArgsConstructor;
-import org.juniorastronaut.missiontrainer.game.MissionRulesService;
-import org.springframework.web.bind.annotation.CrossOrigin;
+import jakarta.validation.Valid;
+import org.juniorastronaut.missiontrainer.core.mission.MissionService;
+import org.juniorastronaut.missiontrainer.core.science.ScienceEvidenceMapper;
+import org.juniorastronaut.missiontrainer.integration.nasa.service.ScienceEvidenceService;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -15,10 +16,14 @@ import static org.juniorastronaut.missiontrainer.api.MissionDtos.*;
 
 @RestController
 @RequestMapping("/api/v1")
-@CrossOrigin(origins = {"http://localhost:5500", "http://127.0.0.1:5500"})
-@AllArgsConstructor
 public class MissionController {
-    private final MissionRulesService rulesService;
+    private final MissionService missionService;
+    private final ScienceEvidenceService scienceEvidenceService;
+
+    public MissionController(MissionService missionService, ScienceEvidenceService scienceEvidenceService) {
+        this.missionService = missionService;
+        this.scienceEvidenceService = scienceEvidenceService;
+    }
 
     @GetMapping("/health")
     public HealthResponse health() {
@@ -27,11 +32,20 @@ public class MissionController {
 
     @PostMapping("/missions/start")
     public MissionResponse startMission() {
-        return rulesService.startMission();
+        return missionService.startMission();
     }
 
     @PostMapping("/missions/decisions")
-    public MissionResponse submitDecisions(@RequestBody DecisionHistoryRequest request) {
-        return rulesService.replay(request);
+    public MissionResponse submitDecisions(@Valid @RequestBody DecisionHistoryRequest request) {
+        return missionService.replay(request);
+    }
+
+    /**
+     * Context-only live/archived DONKI evidence. It never changes mission
+     * replay or returns a dose, shielding percentage, or game resource value.
+     */
+    @GetMapping("/science/space-weather")
+    public List<ScientificEvidenceRecord> spaceWeatherEvidence() {
+        return ScienceEvidenceMapper.toApi(scienceEvidenceService.currentSolarParticleEvidence());
     }
 }

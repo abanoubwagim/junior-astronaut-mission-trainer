@@ -1,0 +1,8 @@
+{
+  "decision": "CONFIRMED_WITH_LIMITATIONS",
+  "classification": "TEAM_DERIVED",
+  "frameBlockerStatus": "CLOSED_WITH_LIMITATIONS",
+  "day1ScientificDecision": "READY_WITH_LIMITATIONS",
+  "source": "docs/nasa-research/independent-review/site01/v1/INDEPENDENT_VERIFICATION_REPORT.md",
+  "note": "Independent team verification of a NASA-sourced Site01 terrain-shadow result; not NASA approval or an electrical-power measurement."
+}

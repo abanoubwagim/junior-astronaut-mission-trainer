@@ -1,0 +1,15 @@
+# Local secrets and environment overrides
+.env
+.env.*
+!.env.example
+
+# Build output
+target/
+build/
+node_modules/
+
+# IDE and OS files
+.idea/
+.vscode/
+*.iml
+Thumbs.db

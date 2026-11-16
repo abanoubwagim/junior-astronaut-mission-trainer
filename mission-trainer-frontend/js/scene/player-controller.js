@@ -215,23 +215,29 @@ export function createPlayerController(THREE, {
     }
     if (key === "e" && !event.repeat && active && !paused) {
       event.preventDefault();
-      // Recalculate proximity at the moment of interaction. A cached target
-      // can belong to the previous mission station while the player has just
-      // reached the next airlock, especially during a Day 1 -> Day 2 transition.
-      const target = findInteractionTarget();
-      if (target && !target.locked) {
-        if (isMissionGate(target)) {
-          startGateOpening(target);
-          return;
-        }
-        paused = true;
-        const dx = target.position[0] - astronaut.root.position.x;
-        const dz = target.position[1] - astronaut.root.position.z;
-        astronaut.root.rotation.y = Math.atan2(-dx, -dz);
-        astronaut.setAction("talk");
-        onInteract?.(target);
-      }
+      interact();
     }
+  }
+
+  function interact() {
+    if (!active || paused) return false;
+    // Recalculate proximity at the moment of interaction. A cached target can
+    // belong to the previous mission station while the player has just reached
+    // the next airlock, especially during a Day 1 -> Day 2 transition.
+    const eventDay = Number(mission?.event?.day || mission?.day || 0);
+    const target = findInteractionTarget() || findLockedGateTarget(eventDay);
+    if (!target || target.locked) return false;
+    if (isMissionGate(target)) {
+      startGateOpening(target);
+      return true;
+    }
+    paused = true;
+    const dx = target.position[0] - astronaut.root.position.x;
+    const dz = target.position[1] - astronaut.root.position.z;
+    astronaut.root.rotation.y = Math.atan2(-dx, -dz);
+    astronaut.setAction("talk");
+    onInteract?.(target);
+    return true;
   }
 
   function onKeyUp(event) {
@@ -650,6 +656,7 @@ export function createPlayerController(THREE, {
     setPaused,
     setMissionState,
     setTouchMovement,
+    interact,
     jump: beginJump,
     focus: () => canvas?.focus?.({ preventScroll: true }),
     update,

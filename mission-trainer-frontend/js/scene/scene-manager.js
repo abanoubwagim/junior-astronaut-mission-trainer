@@ -5,7 +5,7 @@
   const sceneRoot = document.querySelector("#lunar-scene");
   const scriptUrl = document.currentScript?.src || new URL("../js/scene/scene-manager.js", window.location.href).href;
   const THREE_URL = "https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js";
-const SCENE_VERSION = "20261115-v3";
+  const SCENE_VERSION = "20261116-mobile1";
 
   if (!canvas || !sceneRoot) return;
 
@@ -46,6 +46,10 @@ const SCENE_VERSION = "20261115-v3";
     notifyLifecycle("onFallback", error);
   }
 
+  function isCompactViewport() {
+    return Math.max(window.innerWidth || 0, document.documentElement?.clientWidth || 0) <= 720;
+  }
+
   function resize(camera, THREE) {
     if (!renderer || !camera) return;
     const width = Math.max(1, window.innerWidth);
@@ -53,7 +57,9 @@ const SCENE_VERSION = "20261115-v3";
     camera.aspect = width / height;
     camera.updateProjectionMatrix();
     renderer.setSize(width, height, false);
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.65));
+    const compact = isCompactViewport();
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, compact ? 1.25 : 1.65));
+    cameraController?.setViewport?.({ compact, portrait: compact && height > width });
   }
 
   // Tear down only the active world. The renderer/canvas are reused so a
@@ -229,6 +235,10 @@ const SCENE_VERSION = "20261115-v3";
         lookBy(deltaX, deltaY) {
           if (currentMode !== "game") return;
           cameraController?.lookBy?.(deltaX, deltaY);
+        },
+        interact() {
+          if (currentMode !== "game") return false;
+          return playerController?.interact?.() || false;
         },
         dispose() {
           disposed = true;

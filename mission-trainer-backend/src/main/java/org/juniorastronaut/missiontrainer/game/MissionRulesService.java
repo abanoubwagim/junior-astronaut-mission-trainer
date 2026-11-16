@@ -1,5 +1,6 @@
 package org.juniorastronaut.missiontrainer.game;
 
+import lombok.AllArgsConstructor;
 import org.juniorastronaut.missiontrainer.api.MissionDtos.ActiveEffect;
 import org.juniorastronaut.missiontrainer.api.MissionDtos.Choice;
 import org.juniorastronaut.missiontrainer.api.MissionDtos.DecisionFeedback;
@@ -13,18 +14,19 @@ import org.juniorastronaut.missiontrainer.api.MissionDtos.QualitativeState;
 import org.juniorastronaut.missiontrainer.api.MissionDtos.ResolvedChoice;
 import org.juniorastronaut.missiontrainer.api.MissionDtos.ScienceSource;
 import org.juniorastronaut.missiontrainer.api.MissionDtos.SystemStatus;
+import org.juniorastronaut.missiontrainer.core.science.ScienceEvidenceCatalog;
+import org.juniorastronaut.missiontrainer.core.science.ScienceEvidenceMapper;
 import org.juniorastronaut.missiontrainer.nasa.Site01EvidenceProvider;
+import org.juniorastronaut.missiontrainer.integration.nasa.service.ScienceEvidenceService;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
+@AllArgsConstructor
 public class MissionRulesService {
     private final Site01EvidenceProvider evidenceProvider;
-
-    public MissionRulesService(Site01EvidenceProvider evidenceProvider) {
-        this.evidenceProvider = evidenceProvider;
-    }
+    private final ScienceEvidenceService scienceEvidenceService;
 
     private static final int DAY_ONE = 1;
     private static final int DAY_TWO = 2;
@@ -192,10 +194,9 @@ public class MissionRulesService {
     );
 
     private static final List<ScienceSource> DAY_ONE_SCIENCE_SOURCES = List.of(
-            new ScienceSource("NASA — The Lunar South Pole Region", "https://www.nasa.gov/reference/moonbase-environment/"),
-            new ScienceSource("NASA Science — Shadows near the Moon's South Pole", "https://science.nasa.gov/resource/shadows-near-the-moons-south-pole/"),
-            new ScienceSource("NASA — Moon Base Systems", "https://www.nasa.gov/moonbase-systems/"),
-            new ScienceSource("NASA — Lunar Surface Technology", "https://www.nasa.gov/lunar-surface-technology/"),
+            new ScienceSource("NASA SVS — Illumination at the Moon's South Pole", "https://svs.gsfc.nasa.gov/4930"),
+            new ScienceSource("NASA Science — South Pole Illumination Map", "https://science.nasa.gov/photojournal/south-pole-illumination-map/"),
+            new ScienceSource("NASA PGDA — High-resolution LOLA South Pole products", "https://pgda.gsfc.nasa.gov/products/78"),
             new ScienceSource("NASA TechPort — Vertical Solar Array Technology", "https://techport.nasa.gov/projects/116305"),
             new ScienceSource("NASA — Moon Base awards and miniCAST announcement", "https://www.nasa.gov/news-release/nasa-awards-moon-base-transportation-technology-science-projects/")
     );
@@ -203,8 +204,8 @@ public class MissionRulesService {
     private static final List<ScienceSource> DAY_TWO_SCIENCE_SOURCES = List.of(
             new ScienceSource("NASA — Environmental Control and Life Support Systems (ECLSS)", "https://www.nasa.gov/reference/environmental-control-and-life-support-systems-eclss/"),
             new ScienceSource("NASA — Life Support Subsystems", "https://www.nasa.gov/reference/jsc-life-support-subsystems/"),
-            new ScienceSource("NASA — Water Recovery Milestone on the International Space Station", "https://www.nasa.gov/missions/station/iss-research/nasa-achieves-water-recovery-milestone-on-international-space-station/"),
-            new ScienceSource("NASA — Moon Base Systems", "https://www.nasa.gov/moonbase-systems/")
+            new ScienceSource("NASA — Water Recovery Milestone on the International Space Station", "https://www.nasa.gov/missions/station/nasa-achieves-water-recovery-milestone-on-international-space-station/"),
+            new ScienceSource("NASA Ames — Water Recovery Systems", "https://www.nasa.gov/ames/space-biosciences/water-recovery-systems/")
     );
 
     private static final List<SystemStatus> DAY_TWO_SYSTEM_REPORT = List.of(
@@ -217,7 +218,8 @@ public class MissionRulesService {
     private static final List<ScienceSource> DAY_FOUR_SCIENCE_SOURCES = List.of(
             new ScienceSource("NASA — Space Radiation", "https://www.nasa.gov/hrp/hazard-space-radiation/"),
             new ScienceSource("NASA Science — Protecting Astronauts from Space Radiation at the Moon", "https://science.nasa.gov/science-research/heliophysics/how-nasa-will-protect-astronauts-from-space-radiation-at-the-moon/"),
-            new ScienceSource("NASA Space Radiation Analysis Group — How Space Radiation Works", "https://srag.jsc.nasa.gov/spaceradiation/how/how.cfm")
+            new ScienceSource("NASA Space Radiation Analysis Group — How Space Radiation Works", "https://srag.jsc.nasa.gov/spaceradiation/how/how.cfm"),
+            new ScienceSource("NASA CCMC — DONKI", "https://ccmc.gsfc.nasa.gov/tools/DONKI/")
     );
 
     private static final List<SystemStatus> DAY_FOUR_SYSTEM_REPORT = List.of(
@@ -229,10 +231,8 @@ public class MissionRulesService {
 
     private static final List<ScienceSource> DAY_THREE_SCIENCE_SOURCES = List.of(
             new ScienceSource("NASA Science — Veggie", "https://science.nasa.gov/mission/veggie/"),
-            new ScienceSource("NASA — Growing Plants in Space", "https://www.nasa.gov/exploration-research-and-technology/growing-plants-in-space/"),
             new ScienceSource("NASA Science — Advanced Plant Habitat", "https://science.nasa.gov/mission/advanced-plant-habitat/"),
-            new ScienceSource("NASA Science — Space Crop Production", "https://science.nasa.gov/biological-physical/space-crops/"),
-            new ScienceSource("NASA Science — International Partners Advance Work on Space Crops", "https://science.nasa.gov/science-research/biological-physical-sciences/nasa-international-partners-advance-work-on-space-crops/")
+            new ScienceSource("NASA Science — Space Crop Production", "https://science.nasa.gov/biological-physical/space-crops/")
     );
 
     public MissionResponse startMission() {
@@ -444,7 +444,10 @@ public class MissionRulesService {
                 DAY_ONE_CHOICES,
                 DATA_STATUS,
                 VALUE_ORIGIN,
-                evidenceProvider.dayOneEvidence()
+                List.of(),
+                "",
+                evidenceProvider.dayOneEvidence(),
+                ScienceEvidenceMapper.toApi(ScienceEvidenceCatalog.dayOne())
         );
     }
 
@@ -461,7 +464,9 @@ public class MissionRulesService {
                 DATA_STATUS,
                 VALUE_ORIGIN,
                 DAY_TWO_SYSTEM_REPORT,
-                dayTwoContext(dayOneChoiceId)
+                dayTwoContext(dayOneChoiceId),
+                null,
+                ScienceEvidenceMapper.toApi(ScienceEvidenceCatalog.dayTwo())
         );
     }
 
@@ -485,7 +490,9 @@ public class MissionRulesService {
                 DATA_STATUS,
                 VALUE_ORIGIN,
                 report,
-                dayThreeContext(state)
+                dayThreeContext(state),
+                null,
+                ScienceEvidenceMapper.toApi(ScienceEvidenceCatalog.dayThree())
         );
     }
 
@@ -502,7 +509,9 @@ public class MissionRulesService {
                 "EDUCATIONAL_SCENARIO_PENDING_SCIENCE_REVIEW",
                 VALUE_ORIGIN,
                 DAY_FOUR_SYSTEM_REPORT,
-                dayFourContext(state)
+                dayFourContext(state),
+                null,
+                ScienceEvidenceMapper.toApi(scienceEvidenceService.currentSolarParticleEvidence())
         );
     }
 
